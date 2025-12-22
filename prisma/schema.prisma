@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // Connection pooling (Vercel standart)
+  directUrl = env("POSTGRES_URL_NON_POOLING") // Direct connection
+}
+
+// 1. PROJELER TABLOSU
+model Project {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  technologies String[] // Dizi olarak (Örn: ["React", "Next.js"])
+  githubUrl    String?
+  liveUrl      String?
+  imageUrl     String
+  category     String   // 'Web', 'Mobil' vs.
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// 2. BLOG YAZILARI TABLOSU
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  excerpt   String
+  content   String   // Markdown içeriği buraya gelecek
+  imageUrl  String
+  category  String   // 'Teknoloji', 'Kariyer' vs.
+  readTime  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
