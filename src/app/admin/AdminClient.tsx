@@ -2,11 +2,9 @@
 
 import { useState, useRef } from 'react';
 import {
-    FaProjectDiagram, FaPenNib, FaPlus, FaList, FaTrash,
-    FaSignOutAlt, FaEye, FaChartBar, FaEnvelope, FaCog,
-    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage
+    FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
+    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye
 } from 'react-icons/fa';
-// Actions dosyasından fonksiyonları import ediyoruz
 import {
     addProject, deleteProject, addBlog, deleteBlog, deleteMessage,
     toggleProjectStatus, toggleProjectFeatured, toggleBlogStatus, toggleBlogFeatured,
@@ -14,21 +12,24 @@ import {
 } from './actions';
 import Link from 'next/link';
 import { logout } from '@/app/login/actions';
+import MarkdownEditor from '@/components/MarkdownEditor';
 
-// Gelen veri tipleri
 interface AdminClientProps {
     projects: any[];
     blogs: any[];
     messages: any[];
 }
 
-// Kategorileri Sabitliyoruz
 const PROJECT_CATEGORIES = ['Web', 'Mobil', 'Sistem', 'Oyun', 'Diğer'];
 const BLOG_CATEGORIES = ['Yazılım', 'Kariyer', 'Teknoloji', 'Rehber', 'Diğer'];
 
 export default function AdminClient({ projects, blogs, messages }: AdminClientProps) {
     const [activeTab, setActiveTab] = useState<'stats' | 'projects' | 'blogs' | 'messages' | 'settings'>('stats');
     const [subTab, setSubTab] = useState<'list' | 'form'>('list');
+
+    // --- İÇERİK STATE'LERİ ---
+    const [blogContent, setBlogContent] = useState('');
+    const [projectDescription, setProjectDescription] = useState('');
 
     // --- DÜZENLEME VE RESİM STATE'LERİ ---
     const [editingProject, setEditingProject] = useState<any>(null);
@@ -39,11 +40,16 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
     const projectFormRef = useRef<HTMLFormElement>(null);
     const blogFormRef = useRef<HTMLFormElement>(null);
 
+    // --- TOPLAM GÖRÜNTÜLENME HESAPLAMA ---
+    const totalProjectViews = projects.reduce((acc, curr) => acc + (curr.viewCount || 0), 0);
+    const totalBlogViews = blogs.reduce((acc, curr) => acc + (curr.viewCount || 0), 0);
+    const totalViews = totalProjectViews + totalBlogViews;
+
     // --- RESİM İŞLEME FONKSİYONU ---
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) { // 2MB Limit
+            if (file.size > 2 * 1024 * 1024) {
                 alert("Dosya çok büyük! Lütfen 2MB altı bir resim seçin.");
                 return;
             }
@@ -57,12 +63,14 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
     const startEditProject = (project: any) => {
         setEditingProject(project);
         setImagePreview(project.imageUrl);
+        setProjectDescription(project.description);
         setSubTab('form');
     };
 
-    const startEditBlog = (blog: any) => {
-        setEditingBlog(blog);
-        setImagePreview(blog.imageUrl);
+    const startEditBlog = (b: any) => {
+        setEditingBlog(b);
+        setImagePreview(b.imageUrl);
+        setBlogContent(b.content);
         setSubTab('form');
     };
 
@@ -70,6 +78,8 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
     const startNewEntry = () => {
         setEditingProject(null);
         setEditingBlog(null);
+        setBlogContent('');
+        setProjectDescription('');
         setImagePreview('');
         setSubTab('form');
         if (projectFormRef.current) projectFormRef.current.reset();
@@ -78,7 +88,20 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
 
     // --- İSTATİSTİK KARTLARI ---
     const renderStats = () => (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fadeIn">
+            {/* Toplam Görüntülenme (YENİ) */}
+            <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-yellow-500 transition group">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <p className="text-gray-400 text-sm">Toplam Görüntülenme</p>
+                        <h3 className="text-3xl font-bold text-white mt-2">{totalViews}</h3>
+                    </div>
+                    <div className="p-3 bg-yellow-500/10 rounded-lg text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition">
+                        <FaEye size={24} />
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-blue-600 transition group">
                 <div className="flex justify-between items-start">
                     <div>
@@ -125,9 +148,23 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                     <div className="space-y-8">
                         <h2 className="text-2xl font-bold text-white">Genel Bakış</h2>
                         {renderStats()}
+
                         <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                            <h3 className="text-xl font-bold text-white mb-4">Son Aktiviteler</h3>
-                            <p className="text-gray-500">Sistem şu an stabil çalışıyor. Son eklenen proje: <span className="text-blue-400">{projects[0]?.title || 'Yok'}</span></p>
+                            <h3 className="text-xl font-bold text-white mb-4">Site Durumu</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between text-sm text-gray-400 border-b border-gray-800 pb-3">
+                                    <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Proje Görüntülenmesi</span>
+                                    <span className="text-white font-bold">{totalProjectViews}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm text-gray-400 border-b border-gray-800 pb-3">
+                                    <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500"></span> Blog Okunması</span>
+                                    <span className="text-white font-bold">{totalBlogViews}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm text-gray-400 border-b border-gray-800 pb-3">
+                                    <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Mesajlar</span>
+                                    <span className="text-white font-bold">{messages.length}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -149,13 +186,12 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                             <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
                                 <div className="p-4 border-b border-gray-800 bg-gray-900/50 flex justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
                                     <span>Proje Detayı</span>
-                                    <span>Durum / İşlemler</span>
+                                    <span>İstatistik & İşlemler</span>
                                 </div>
                                 {projects.map((proj) => (
                                     <div key={proj.id} className={`flex justify-between items-center p-4 border-b border-gray-800 last:border-0 hover:bg-gray-800/50 transition ${!proj.isPublished ? 'opacity-75 grayscale-[0.5]' : ''}`}>
                                         <div className="flex items-center gap-4">
                                             <div className="relative">
-                                                {/* GÜVENLİK KONTROLÜ: Resim varsa göster, yoksa ikon göster */}
                                                 {proj.imageUrl ? (
                                                     <img src={proj.imageUrl} className="w-14 h-14 rounded-lg bg-gray-800 object-cover" alt="proje" />
                                                 ) : (
@@ -163,7 +199,6 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                                         <FaImage />
                                                     </div>
                                                 )}
-
                                                 {proj.isFeatured && <div className="absolute -top-2 -right-2 bg-yellow-500 text-black p-1 rounded-full text-[10px] shadow-lg animate-pulse"><FaStar /></div>}
                                             </div>
                                             <div>
@@ -175,23 +210,25 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
+                                            {/* GÖRÜNTÜLENME SAYISI */}
+                                            <div className="flex items-center gap-2 text-gray-400 bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800 text-sm">
+                                                <FaEye className="text-blue-500" />
+                                                <span className="font-mono">{proj.viewCount || 0}</span>
+                                            </div>
 
-                                            {/* Öne Çıkar */}
+                                            <div className="w-px h-8 bg-gray-800 mx-2"></div>
+
                                             <button onClick={() => toggleProjectFeatured(proj.id, proj.isFeatured)} className={`p-2 rounded-lg transition ${proj.isFeatured ? 'text-yellow-400 bg-yellow-400/10' : 'text-gray-600 hover:text-yellow-400 hover:bg-gray-800'}`} title="Öne Çıkar">
                                                 <FaStar size={18} />
                                             </button>
 
-                                            {/* Yayına Al */}
                                             <button onClick={() => toggleProjectStatus(proj.id, proj.isPublished)} className={`p-2 rounded-lg transition flex items-center gap-2 ${proj.isPublished ? 'text-green-400 bg-green-400/10' : 'text-gray-500 bg-gray-800'}`} title={proj.isPublished ? "Yayından Kaldır" : "Yayına Al"}>
                                                 {proj.isPublished ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                             </button>
 
-                                            <div className="w-px h-6 bg-gray-700 mx-1"></div>
-
                                             <Link href={`/projects/${proj.id}`} target="_blank" className="p-2 text-gray-400 hover:text-blue-500 transition"><FaEye size={18} /></Link>
 
-                                            {/* Düzenle */}
                                             <button onClick={() => startEditProject(proj)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded transition" title="Düzenle">
                                                 <FaEdit size={18} />
                                             </button>
@@ -219,7 +256,6 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <input name="title" defaultValue={editingProject?.title} placeholder="Proje Adı" className="input-dark" required />
-                                    {/* Kategori Seçimi - DÜZELTİLDİ: 'selected' kaldırıldı, defaultValue kullanıldı */}
                                     <select
                                         name="category"
                                         defaultValue={editingProject?.category || ""}
@@ -230,9 +266,15 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                         {PROJECT_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                     </select>
                                 </div>
-                                <textarea name="description" defaultValue={editingProject?.description} placeholder="Açıklama" rows={4} className="input-dark" required />
 
-                                {/* Resim Yükleme (Dosya Seç) */}
+                                <MarkdownEditor
+                                    value={projectDescription}
+                                    onChange={setProjectDescription}
+                                    label="Proje Açıklaması"
+                                    rows={8}
+                                />
+                                <input type="hidden" name="description" value={projectDescription} />
+
                                 <div className="border border-dashed border-gray-700 rounded-xl p-4 text-center hover:border-blue-500 transition bg-gray-950">
                                     <input type="file" accept="image/*" onChange={handleImageChange} id="proj-img" className="hidden" />
                                     <label htmlFor="proj-img" className="cursor-pointer flex flex-col items-center gap-2 text-gray-400 hover:text-white">
@@ -276,13 +318,12 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                             <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
                                 <div className="p-4 border-b border-gray-800 bg-gray-900/50 flex justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
                                     <span>Blog Yazısı</span>
-                                    <span>Durum / İşlemler</span>
+                                    <span>İstatistik & İşlemler</span>
                                 </div>
                                 {blogs.map((blog) => (
                                     <div key={blog.id} className={`flex justify-between items-center p-4 border-b border-gray-800 last:border-0 hover:bg-gray-800/50 transition ${!blog.isPublished ? 'opacity-75 grayscale-[0.5]' : ''}`}>
                                         <div className="flex items-center gap-4">
                                             <div className='relative'>
-                                                {/* GÜVENLİK KONTROLÜ: Resim varsa göster, yoksa ikon göster */}
                                                 {blog.imageUrl ? (
                                                     <img src={blog.imageUrl} className="w-14 h-14 rounded-lg bg-gray-800 object-cover" alt="blog" />
                                                 ) : (
@@ -290,7 +331,6 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                                         <FaImage />
                                                     </div>
                                                 )}
-
                                                 {blog.isFeatured && <div className="absolute -top-2 -right-2 bg-yellow-500 text-black p-1 rounded-full text-[10px] shadow-lg animate-pulse"><FaStar /></div>}
                                             </div>
                                             <div>
@@ -302,23 +342,25 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
+                                            {/* GÖRÜNTÜLENME SAYISI */}
+                                            <div className="flex items-center gap-2 text-gray-400 bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800 text-sm">
+                                                <FaEye className="text-green-500" />
+                                                <span className="font-mono">{blog.viewCount || 0}</span>
+                                            </div>
 
-                                            {/* Öne Çıkar */}
+                                            <div className="w-px h-8 bg-gray-800 mx-2"></div>
+
                                             <button onClick={() => toggleBlogFeatured(blog.id, blog.isFeatured)} className={`p-2 rounded-lg transition ${blog.isFeatured ? 'text-yellow-400 bg-yellow-400/10' : 'text-gray-600 hover:text-yellow-400 hover:bg-gray-800'}`} title="Öne Çıkar">
                                                 <FaStar size={18} />
                                             </button>
 
-                                            {/* Yayına Al */}
                                             <button onClick={() => toggleBlogStatus(blog.id, blog.isPublished)} className={`p-2 rounded-lg transition flex items-center gap-2 ${blog.isPublished ? 'text-green-400 bg-green-400/10' : 'text-gray-500 bg-gray-800'}`} title={blog.isPublished ? "Yayından Kaldır" : "Yayına Al"}>
                                                 {blog.isPublished ? <FaToggleOn size={24} /> : <FaToggleOff size={24} />}
                                             </button>
 
-                                            <div className="w-px h-6 bg-gray-700 mx-1"></div>
-
                                             <Link href={`/blog/${blog.id}`} target="_blank" className="p-2 text-gray-400 hover:text-green-500 transition"><FaEye size={18} /></Link>
 
-                                            {/* Düzenle */}
                                             <button onClick={() => startEditBlog(blog)} className="p-2 text-gray-400 hover:text-green-400 hover:bg-gray-800 rounded transition" title="Düzenle">
                                                 <FaEdit size={18} />
                                             </button>
@@ -346,7 +388,6 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
 
                                 <input name="title" defaultValue={editingBlog?.title} placeholder="Başlık" className="input-dark" required />
                                 <div className="grid grid-cols-2 gap-4">
-                                    {/* Kategori Seçimi - DÜZELTİLDİ: 'selected' kaldırıldı, defaultValue kullanıldı */}
                                     <select
                                         name="category"
                                         defaultValue={editingBlog?.category || ""}
@@ -359,7 +400,6 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                     <input name="readTime" defaultValue={editingBlog?.readTime} placeholder="Okuma Süresi" className="input-dark" required />
                                 </div>
 
-                                {/* Resim Yükleme (Dosya Seç) */}
                                 <div className="border border-dashed border-gray-700 rounded-xl p-4 text-center hover:border-green-500 transition bg-gray-950">
                                     <input type="file" accept="image/*" onChange={handleImageChange} id="blog-img" className="hidden" />
                                     <label htmlFor="blog-img" className="cursor-pointer flex flex-col items-center gap-2 text-gray-400 hover:text-white">
@@ -376,7 +416,14 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                 </div>
 
                                 <textarea name="excerpt" defaultValue={editingBlog?.excerpt} placeholder="Kısa Özet" className="input-dark h-20" required />
-                                <textarea name="content" defaultValue={editingBlog?.content} placeholder="İçerik (Markdown)" className="input-dark h-64 font-mono" required />
+
+                                <MarkdownEditor
+                                    value={blogContent}
+                                    onChange={setBlogContent}
+                                    label="Blog İçeriği"
+                                />
+                                <input type="hidden" name="content" value={blogContent} />
+
                                 <button className="btn-success w-full">{editingBlog ? 'Yazıyı Güncelle' : 'Yayınla'}</button>
                             </form>
                         )}
@@ -452,7 +499,7 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
             <aside className="w-72 bg-gray-950 border-r border-gray-900 fixed h-full flex flex-col z-20 top-0 left-0">
                 <div className="p-8 border-b border-gray-900">
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">
-                        Admin Panel
+                        Admin Paneli
                     </h1>
                     <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">Kontrol Merkezi</p>
                 </div>

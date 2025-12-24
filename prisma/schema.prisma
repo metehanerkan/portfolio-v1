@@ -21,6 +21,7 @@ model Project {
   updatedAt    DateTime @updatedAt
   isPublished Boolean @default(true)
   isFeatured  Boolean @default(false)
+  viewCount    Int      @default(0)
 }
 
 // 2. BLOG YAZILARI TABLOSU
@@ -36,6 +37,7 @@ model BlogPost {
   updatedAt DateTime @updatedAt
   isPublished Boolean @default(true)
   isFeatured  Boolean @default(false)
+  viewCount    Int      @default(0)
 }
 
 model ContactMessage {

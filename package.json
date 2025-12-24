@@ -12,12 +12,14 @@
     "@prisma/client": "^6.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^1.6.1",
+    "framer-motion": "^12.23.26",
     "next": "^16.1.1",
     "prisma": "^6.0.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
+    "resend": "^6.6.0",
     "typewriter-effect": "^2.22.0"
   },
   "devDependencies": {

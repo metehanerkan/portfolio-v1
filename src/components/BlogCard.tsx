@@ -10,23 +10,25 @@ interface BlogCardProps {
         category: string;
         readTime: string;
         createdAt: Date;
+        isFeatured?: boolean;
+        isPublished?: boolean;
     };
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
     return (
         <Link href={`/blog/${post.id}`} className="group block h-full">
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-green-500/50 transition-all duration-300 flex flex-col h-full hover:shadow-2xl hover:shadow-green-900/10">
+            <div className="group relative bg-gray-900/40 border border-gray-800/50 rounded-3xl overflow-hidden hover:border-green-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-green-900/10 flex flex-col h-full backdrop-blur-sm">
 
-                <div className="relative h-56 overflow-hidden bg-gray-800">
+                <div className="relative h-56 overflow-hidden w-full bg-gray-950">
                     {post.imageUrl && post.imageUrl.length > 5 ? (
                         <img
                             src={post.imageUrl}
                             alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                         />
                     ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 bg-gray-800">
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-700 group-hover:text-gray-600 transition-colors">
                             <FaImage size={32} className="mb-2 opacity-50" />
                             <span className="text-xs">Görsel Yok</span>
                         </div>
@@ -37,6 +39,14 @@ export default function BlogCard({ post }: BlogCardProps) {
                             {post.category}
                         </span>
                     </div>
+
+                    {post.isFeatured && (
+                        <div className="absolute top-4 right-4 z-10">
+                            <span className="bg-yellow-500/20 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full border border-yellow-500/30 shadow-lg backdrop-blur-md flex items-center gap-1">
+                                ★
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-6 flex flex-col flex-grow">

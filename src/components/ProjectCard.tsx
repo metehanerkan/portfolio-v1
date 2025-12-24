@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import { FaGithub, FaExternalLinkAlt, FaCode, FaImage, FaEye } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaImage } from 'react-icons/fa';
 
 interface ProjectCardProps {
     project: {
@@ -11,81 +13,117 @@ interface ProjectCardProps {
         technologies: string[];
         githubUrl?: string | null;
         liveUrl?: string | null;
+        isFeatured?: boolean;
+        isPublished?: boolean;
     };
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
     return (
-        <div className="relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-300 group h-full flex flex-col">
+        <div className="group relative bg-gray-900/40 border border-gray-800/50 rounded-3xl overflow-hidden hover:border-blue-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 flex flex-col h-full backdrop-blur-sm">
 
+            <Link href={`/projects/${project.id}`} className="flex flex-col flex-grow cursor-pointer">
 
-            <Link
-                href={`/projects/${project.id}`}
-                className="absolute inset-0 z-0"
-                aria-label={project.title}
-            />
+                {/* 1. ÜST KISIM: GÖRSEL */}
+                <div className="relative h-56 overflow-hidden w-full bg-gray-950">
+                    {/* Resim Varsa */}
+                    {project.imageUrl ? (
+                        <img
+                            src={project.imageUrl}
+                            alt={project.title}
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                        />
+                    ) : (
+                        /* Resim Yoksa */
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-700 group-hover:text-gray-600 transition-colors">
+                            <FaImage size={40} className="mb-2 opacity-50" />
+                            <span className="text-xs">Görsel Yok</span>
+                        </div>
+                    )}
 
-            <div className="relative h-48 overflow-hidden bg-gray-800">
-                {project.imageUrl && project.imageUrl.length > 5 ? (
-                    <img
-                        src={project.imageUrl}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-600">
-                        <FaImage size={32} className="mb-2 opacity-50" />
-                        <span className="text-xs">Görsel Yok</span>
+                    {/* Kategori Etiketi (Sol Üst) */}
+                    <div className="absolute top-4 left-4 z-10">
+                        <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                            {project.category}
+                        </span>
                     </div>
-                )}
 
-                <div className="absolute top-4 left-4">
-                    <span className="bg-blue-600/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                        {project.category}
-                    </span>
+                    {/* Öne Çıkan Yıldızı (Sağ Üst) */}
+                    {project.isFeatured && (
+                        <div className="absolute top-4 right-4 z-10">
+                            <span className="bg-yellow-500/20 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full border border-yellow-500/30 shadow-lg backdrop-blur-md flex items-center gap-1">
+                                ★
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Hover Overlay (Siyah Perde) */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                </div>
+
+                {/* 2. ORTA KISIM: BAŞLIK VE TEKNOLOJİLER (Açıklama Silindi) */}
+                <div className="p-6 pb-2 flex flex-col flex-grow">
+
+                    {/* Başlık */}
+                    <h3 className="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors line-clamp-1">
+                        {project.title}
+                    </h3>
+
+                    {/* Teknolojiler (Kartın içine aldık, boşluk doldursun) */}
+                    <div className="flex flex-wrap gap-2 mt-auto">
+                        {project.technologies.slice(0, 4).map((tech, index) => (
+                            <span
+                                key={index}
+                                className="px-2.5 py-1 text-xs font-medium bg-blue-500/5 text-blue-300 border border-blue-500/10 rounded-lg group-hover:border-blue-500/20 transition-colors"
+                            >
+                                {tech}
+                            </span>
+                        ))}
+                        {project.technologies.length > 4 && (
+                            <span className="px-2 py-1 text-xs text-gray-500">+{project.technologies.length - 4}</span>
+                        )}
+                    </div>
+                </div>
+            </Link>
+
+            {/* 3. ALT KISIM: BUTONLAR (Ayrı Tıklanabilir Alan) */}
+            <div className="p-6 pt-4 mt-auto">
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-800/50">
+                    {project.githubUrl ? (
+                        <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-800/50 hover:bg-gray-800 text-gray-300 hover:text-white text-sm font-medium transition-all group/btn border border-transparent hover:border-gray-700 z-20 relative"
+                        >
+                            <FaGithub className="group-hover/btn:scale-110 transition-transform" /> Kodlar
+                        </a>
+                    ) : (
+                        <span className="flex items-center justify-center py-2.5 rounded-xl bg-gray-900/30 text-gray-600 text-sm border border-gray-800/30 cursor-not-allowed">
+                            Gizli
+                        </span>
+                    )}
+
+                    {project.liveUrl ? (
+                        <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-600/30 group/btn z-20 relative"
+                        >
+                            <FaExternalLinkAlt className="group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" /> Demo
+                        </a>
+                    ) : (
+                        <Link
+                            href={`/projects/${project.id}`}
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-800 text-white text-sm font-medium hover:bg-gray-700 transition-all z-20 relative"
+                        >
+                            İncele
+                        </Link>
+                    )}
                 </div>
             </div>
 
-            <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
-                    {project.title}
-                </h3>
-
-                <p className="text-gray-400 text-sm line-clamp-3 mb-4 flex-grow">
-                    {project.description}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {project.technologies.slice(0, 3).map((tech, index) => (
-                        <span key={index} className="flex items-center gap-1 text-[10px] bg-gray-800 text-gray-300 px-2 py-1 rounded border border-gray-700">
-                            <FaCode size={10} /> {tech}
-                        </span>
-                    ))}
-                    {project.technologies.length > 3 && (
-                        <span className="text-[10px] text-gray-500 py-1">+{project.technologies.length - 3}</span>
-                    )}
-                </div>
-
-                <div className="relative z-10 flex gap-3 mt-auto pt-4 border-t border-gray-800">
-                    {project.githubUrl && (
-                        <Link href={project.githubUrl} target="_blank" className="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg text-sm transition hover:scale-105 active:scale-95">
-                            <FaGithub /> Kodlar
-                        </Link>
-                    )}
-
-                    {project.liveUrl && (
-                        <Link href={project.liveUrl} target="_blank" className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm transition hover:scale-105 active:scale-95">
-                            <FaExternalLinkAlt /> Demo
-                        </Link>
-                    )}
-
-                    {!project.liveUrl && !project.githubUrl && (
-                        <span className="flex-1 flex items-center justify-center gap-2 bg-gray-800 text-gray-400 py-2 rounded-lg text-sm cursor-pointer group-hover:bg-gray-700 group-hover:text-white transition">
-                            <FaEye /> İncele
-                        </span>
-                    )}
-                </div>
-            </div>
         </div>
     );
 }
