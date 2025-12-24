@@ -204,6 +204,9 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                             <div>
                                                 <h4 className="font-bold text-white flex items-center gap-2">
                                                     {proj.title}
+                                                    <span className="text-[10px] text-gray-500 font-mono bg-gray-900 px-1 rounded border border-gray-800">
+                                                        {proj.id}
+                                                    </span>
                                                     {!proj.isPublished && <span className="bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded border border-red-500/20">Taslak</span>}
                                                 </h4>
                                                 <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded mt-1 inline-block">{proj.category}</span>
