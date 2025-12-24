@@ -8,6 +8,9 @@ interface BlogDetailPageProps {
     params: Promise<{ id: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function BlogDetailPage(props: BlogDetailPageProps) {
     const params = await props.params;
 

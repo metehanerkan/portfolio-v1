@@ -8,8 +8,11 @@ interface ProjectDetailPageProps {
     params: Promise<{ id: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
     const params = await props.params;
+
 
     // ÖNCE: Veritabanında viewCount'u 1 artır ve güncel veriyi çek
     const project = await db.project.update({
