@@ -1,10 +1,11 @@
 import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaGithub, FaExternalLinkAlt, FaImage, FaLink, FaQuoteLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaGithub, FaExternalLinkAlt, FaImage, FaLink, FaQuoteLeft, FaEye } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
+import ViewCounter from '@/components/ViewCounter'; // 👈 YENİ IMPORT
 
-// 👇 CANLI SİTE İÇİN KRİTİK AYARLAR (Cache'i kapatır)
+// Cache Ayarları
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
@@ -14,34 +15,24 @@ interface ProjectDetailPageProps {
 }
 
 export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
-    // 1. Parametreleri al
     const { id } = await props.params;
 
-    // 2. Veriyi çek (findFirst cache sorunlarını aşar)
+    // Sadece veriyi çekiyoruz (Artırma işini ViewCounter yapacak)
     const project = await db.project.findFirst({
         where: { id: id },
     });
 
-    // 3. Bulunamazsa 404 ver
     if (!project) {
         return notFound();
     }
 
-    // 4. Sayaç Artırma (Hata korumalı)
-    try {
-        await db.project.update({
-            where: { id: id },
-            data: { viewCount: { increment: 1 } }
-        });
-        project.viewCount += 1;
-    } catch (error) {
-        console.error("Sayaç hatası:", error);
-    }
-
-    // 5. ASIL TASARIM KODLARI
     return (
         <main className="min-h-screen bg-black text-white py-24 px-6">
+            {/* 👇 SAYAÇ BİLEŞENİ BURADA (GİZLİ ÇALIŞIR) */}
+            <ViewCounter id={id} type="project" />
+
             <div className="max-w-5xl mx-auto">
+                {/* ... (Geri kalan tüm tasarım kodların AYNI kalacak) ... */}
 
                 {/* ÜST KISIM */}
                 <Link href="/projects" className="inline-flex items-center text-gray-400 hover:text-blue-400 mb-8 transition-colors font-medium group">
@@ -106,7 +97,6 @@ export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
                                         {children}
                                     </blockquote>
                                 ),
-                                // KOD BLOKLARI (Kopyala butonu olmadan sade hali)
                                 code: ({ className, children, ...props }) => {
                                     const isBlock = className || (typeof children === 'string' && children.includes('\n'));
                                     if (isBlock) {

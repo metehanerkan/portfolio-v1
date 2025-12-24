@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { FaArrowLeft, FaCalendar, FaClock, FaTag, FaImage, FaEye, FaQuoteLeft } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
+import ViewCounter from '@/components/ViewCounter'; // 👈 YENİ IMPORT
 
 // 👇 CANLI SİTE İÇİN KRİTİK AYARLAR (Cache'i tamamen kapatır)
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,7 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
     // 1. Parametreleri al
     const { id } = await props.params;
 
-    // 2. Veriyi çek (findFirst kullanarak cache sorununu aşıyoruz)
+    // 2. Veriyi çek (Sadece okuma yapıyoruz, artırma işini ViewCounter yapacak)
     const post = await db.blogPost.findFirst({
         where: { id: id },
     });
@@ -27,21 +28,13 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
         return notFound();
     }
 
-    // 4. Sayaç Artırma (Hata korumalı)
-    try {
-        await db.blogPost.update({
-            where: { id: id },
-            data: { viewCount: { increment: 1 } }
-        });
-        // Ekranda güncel gözükmesi için manuel artırıyoruz
-        post.viewCount += 1;
-    } catch (error) {
-        console.error("Sayaç hatası:", error);
-    }
-
-    // 5. BLOG TASARIMI
+    // 4. BLOG TASARIMI
     return (
         <div className="min-h-screen bg-black text-white py-24 px-6">
+
+            {/* 👇 SAYAÇ BİLEŞENİ BURADA (Sayfa yüklenince arkada çalışır) */}
+            <ViewCounter id={id} type="blog" />
+
             <article className="max-w-4xl mx-auto">
 
                 {/* Geri Dön Butonu */}
@@ -59,10 +52,6 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
                     </span>
                     <span className="flex items-center gap-2 bg-gray-900 px-3 py-1 rounded-full border border-gray-800">
                         <FaClock /> {post.readTime}
-                    </span>
-                    {/* GÖRÜNTÜLENME SAYISI */}
-                    <span className="flex items-center gap-2 text-gray-300 bg-gray-900 px-3 py-1 rounded-full border border-gray-800">
-                        <FaEye className="text-green-500" /> {post.viewCount} okuma
                     </span>
                 </div>
 
@@ -105,7 +94,7 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
                                     {children}
                                 </blockquote>
                             ),
-                            // KOD BLOKLARI (Kopyala butonu olmadan)
+                            // KOD BLOKLARI
                             code: ({ className, children, ...props }) => {
                                 const isBlock = className || (typeof children === 'string' && children.includes('\n'));
                                 if (isBlock) {
