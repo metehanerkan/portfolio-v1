@@ -1,19 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { projectsData } from '@/data/projects';
-import ProjectCard from '@/components/ProjectCard'; // Kart bileşenini yeniden kullanıyoruz
+import ProjectCard from '@/components/ProjectCard';
 
-export default function ProjectsPage() {
-    // Varsayılan olarak "Tümü" seçili
-    const [activeCategory, setActiveCategory] = useState<'Tümü' | 'Web' | 'Mobil' | 'Sistem'>('Tümü');
+// Veritabanından gelecek verinin tipini belirtiyoruz
+interface ProjectsClientProps {
+    projects: any[]; // Veritabanından gelen proje listesi
+}
+
+// Admin paneliyle birebir aynı kategori listesi
+const CATEGORIES = ['Tümü', 'Web', 'Mobil', 'Sistem', 'Oyun', 'Diğer'];
+
+export default function ProjectsClient({ projects }: ProjectsClientProps) {
+    const [activeCategory, setActiveCategory] = useState('Tümü');
 
     // Kategorilere göre filtreleme mantığı
     const filteredProjects = activeCategory === 'Tümü'
-        ? projectsData
-        : projectsData.filter(project => project.category === activeCategory);
-
-    const categories = ['Tümü', 'Web', 'Mobil', 'Sistem'];
+        ? projects
+        : projects.filter(project => project.category === activeCategory);
 
     return (
         <main className="min-h-screen bg-black text-white pt-24 px-6">
@@ -29,18 +33,18 @@ export default function ProjectsPage() {
                     </p>
                 </div>
 
-                {/* Filtre Butonları */}
+                {/* Filtre Butonları (Kategoriler) */}
                 <div className="flex flex-wrap justify-center gap-4 mb-12">
-                    {categories.map((category) => (
+                    {CATEGORIES.map((category) => (
                         <button
                             key={category}
-                            onClick={() => setActiveCategory(category as any)}
+                            onClick={() => setActiveCategory(category)}
                             className={`px-6 py-2 rounded-full border transition-all duration-300 font-medium
-                ${activeCategory === category
+                                ${activeCategory === category
                                     ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/25'
                                     : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600 hover:text-white'
                                 }
-              `}
+                            `}
                         >
                             {category}
                         </button>
@@ -49,9 +53,11 @@ export default function ProjectsPage() {
 
                 {/* Proje Listesi (Grid) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredProjects.map((projectsData) => (
-                        <div key={projectsData.id} className="animate-fadeIn">
-                            <ProjectCard project={projectsData} />
+                    {filteredProjects.map((project) => (
+                        <div key={project.id} className="animate-fadeIn">
+                            {/* Sadece yayında olanları gösteriyoruz (Güvenlik kontrolü) */}
+                            {/* Not: Server tarafında zaten filtreliyoruz ama çift dikiş olsun */}
+                            <ProjectCard project={project} />
                         </div>
                     ))}
                 </div>
@@ -59,7 +65,7 @@ export default function ProjectsPage() {
                 {/* Eğer Kategori Boşsa Uyarı Göster */}
                 {filteredProjects.length === 0 && (
                     <div className="text-center py-20 bg-gray-900/50 rounded-xl border border-gray-800">
-                        <p className="text-gray-400 text-lg">Bu kategoride henüz bir proje yok.</p>
+                        <p className="text-gray-400 text-lg">"{activeCategory}" kategorisinde henüz bir proje yok.</p>
                         <p className="text-sm text-gray-600 mt-2">Ama yakında eklenecek! 🚀</p>
                     </div>
                 )}

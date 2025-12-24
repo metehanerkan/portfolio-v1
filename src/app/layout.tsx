@@ -44,14 +44,14 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className={inter.className}>
-        <Navbar />
+
 
 
         <div className="pt-16 min-h-screen flex flex-col">
           {children}
         </div>
 
-        <Footer />
+
         <ScrollToTop />
         <Analytics />
       </body>

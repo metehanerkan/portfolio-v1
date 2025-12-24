@@ -10,7 +10,6 @@ export default function Footer() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
 
-                    {/* Bölüm 1: Logo ve Açıklama */}
                     <div className="space-y-4">
                         <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                             Metehan.
@@ -20,18 +19,16 @@ export default function Footer() {
                         </p>
                     </div>
 
-                    {/* Bölüm 2: Hızlı Linkler */}
                     <div className="space-y-4">
                         <h4 className="text-white font-bold text-lg">Hızlı Linkler</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
                             <li><Link href="/projects" className="hover:text-blue-400 transition">Projeler</Link></li>
-                            <li><Link href="/blog" className="hover:text-blue-400 transition">Blog Yazıları</Link></li>
+                            <li><Link href="/blog" className="hover:text-blue-400 transition">Bloglar</Link></li>
                             <li><Link href="/about" className="hover:text-blue-400 transition">Hakkımda</Link></li>
                             <li><Link href="/contact" className="hover:text-blue-400 transition">İletişim</Link></li>
                         </ul>
                     </div>
 
-                    {/* Bölüm 3: İletişim */}
                     <div className="space-y-4">
                         <h4 className="text-white font-bold text-lg">İletişim</h4>
                         <p className="text-gray-400 text-sm">

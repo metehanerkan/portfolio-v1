@@ -13,13 +13,15 @@ model Project {
   id           String   @id @default(cuid())
   title        String
   description  String
-  technologies String[] // Dizi olarak (Örn: ["React", "Next.js"])
+  technologies String[] 
   githubUrl    String?
   liveUrl      String?
   imageUrl     String
-  category     String   // 'Web', 'Mobil' vs.
+  category     String 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  isPublished Boolean @default(true)
+  isFeatured  Boolean @default(false)
 }
 
 // 2. BLOG YAZILARI TABLOSU
@@ -27,10 +29,20 @@ model BlogPost {
   id        String   @id @default(cuid())
   title     String
   excerpt   String
-  content   String   // Markdown içeriği buraya gelecek
+  content   String 
   imageUrl  String
-  category  String   // 'Teknoloji', 'Kariyer' vs.
+  category  String 
   readTime  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isPublished Boolean @default(true)
+  isFeatured  Boolean @default(false)
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
 }
