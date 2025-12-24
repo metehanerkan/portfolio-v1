@@ -89,7 +89,7 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
     // --- İSTATİSTİK KARTLARI ---
     const renderStats = () => (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fadeIn">
-            {/* Toplam Görüntülenme (YENİ) */}
+            {/* Toplam Görüntülenme */}
             <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 hover:border-yellow-500 transition group">
                 <div className="flex justify-between items-start">
                     <div>
@@ -214,7 +214,7 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                         </div>
 
                                         <div className="flex items-center gap-4">
-                                            {/* GÖRÜNTÜLENME SAYISI */}
+                                            {/* GÖRÜNTÜLENME SAYISI (YENİ EKLENDİ) */}
                                             <div className="flex items-center gap-2 text-gray-400 bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800 text-sm">
                                                 <FaEye className="text-blue-500" />
                                                 <span className="font-mono">{proj.viewCount || 0}</span>
@@ -346,7 +346,7 @@ export default function AdminClient({ projects, blogs, messages }: AdminClientPr
                                         </div>
 
                                         <div className="flex items-center gap-4">
-                                            {/* GÖRÜNTÜLENME SAYISI */}
+                                            {/* GÖRÜNTÜLENME SAYISI (YENİ EKLENDİ) */}
                                             <div className="flex items-center gap-2 text-gray-400 bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800 text-sm">
                                                 <FaEye className="text-green-500" />
                                                 <span className="font-mono">{blog.viewCount || 0}</span>
