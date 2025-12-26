@@ -2,53 +2,71 @@
 
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { Resend } from 'resend';
-
-// Resend kurulumu
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendMessage(formData: FormData) {
+    const projectName = formData.get('projectName') as string;
+
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
-    const message = formData.get('message') as string;
+    const subject = formData.get('subject') as string || 'Genel İletişim';
+    const budget = formData.get('budget') as string;
+    const deadline = formData.get('deadline') as string;
+    const designState = formData.get('designState') as string;
+    const designUrl = formData.get('designUrl') as string;
+    const referenceSites = formData.get('referenceSites') as string;
 
-    if (!name || !email || !message) {
-        return { success: false, error: 'Lütfen tüm alanları doldurun.' };
+    const platforms = formData.getAll('platforms');
+    const features = formData.getAll('features');
+    const customFeatures = formData.getAll('customFeatures');
+    const rawMessage = formData.get('message') as string;
+
+    let finalMessage = rawMessage;
+
+    if (budget || deadline) {
+        const allFeatures = [...features, ...customFeatures];
+
+        // Mesaj formatını güncelliyoruz (En başa Proje Adı geldi)
+        finalMessage = `
+📂 PROJE ADI: ${projectName.toUpperCase()}
+------------------------------------------------
+👤 Müşteri: ${name}
+📧 E-posta: ${email}
+------------------------------------------------
+📱 Platformlar: ${platforms.length > 0 ? platforms.join(', ') : '-'}
+💰 Bütçe: ${budget}
+📅 Süre: ${deadline}
+🎨 Tasarım Durumu: ${designState}
+------------------------------------------------
+
+🔗 TASARIM DETAYLARI
+${designUrl ? `• Link: ${designUrl}` : ''}
+${referenceSites ? `• Referanslar: ${referenceSites}` : ''}
+${!designUrl && !referenceSites ? '• Tasarım detayı yok.' : ''}
+
+🛠️ TEKNİK ÖZELLİKLER
+${allFeatures.length > 0 ? allFeatures.join(', ') : 'Standart.'}
+
+📝 NOTLAR:
+${rawMessage}
+    `.trim();
     }
 
     try {
-        // 1. Veritabanına Kaydet (Admin Paneli için)
+        // Subject kısmını da güncelleyelim ki listede direkt proje adı gözüksün
         await db.contactMessage.create({
-            data: { name, email, message },
+            data: {
+                name,
+                email,
+                subject: budget ? `🚀 ${projectName}` : subject, // Konu başlığı proje adı oldu
+                message: finalMessage,
+            },
         });
 
-        // 2. Sana E-posta Gönder (Bildirim için)
-        if (process.env.RESEND_API_KEY && process.env.MY_EMAIL) {
-            await resend.emails.send({
-                from: 'Portfolio Contact <onboarding@resend.dev>', // Ücretsiz planda burası sabit kalmalı
-                to: process.env.MY_EMAIL, // .env dosyasındaki senin mailin
-                subject: `🔔 Yeni Mesaj: ${name}`,
-                replyTo: email, // Yanıtla deyince direkt gönderen kişiye yanıtla
-                html: `
-          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e5e7eb; border-radius: 10px;">
-            <h2 style="color: #2563eb;">Yeni Proje/Mesaj Talebi!</h2>
-            <p><strong>Gönderen:</strong> ${name}</p>
-            <p><strong>E-posta:</strong> ${email}</p>
-            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
-            <p style="font-size: 16px; color: #374151;">${message}</p>
-            <br />
-            <a href="mailto:${email}" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Yanıtla</a>
-          </div>
-        `
-            });
-        }
-
         revalidatePath('/admin');
+        revalidatePath('/contact');
         return { success: true };
-
     } catch (error) {
-        console.error("Mesaj gönderme hatası:", error);
-        return { success: false, error: 'Bir hata oluştu, lütfen tekrar deneyin.' };
+        return { success: false, error: 'Mesaj gönderilemedi.' };
     }
 }
 
@@ -56,4 +74,5 @@ export async function deleteMessage(formData: FormData) {
     const id = formData.get('id') as string;
     await db.contactMessage.delete({ where: { id } });
     revalidatePath('/admin');
+    revalidatePath('/contact');
 }

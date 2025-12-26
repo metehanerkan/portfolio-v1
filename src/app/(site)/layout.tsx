@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ProjectRequestBtn from '@/components/ProjectRequestBtn';
 
 export default function SiteLayout({
     children,
@@ -11,6 +12,7 @@ export default function SiteLayout({
             <Navbar />
             <main>{children}</main>
             <Footer />
+            <ProjectRequestBtn />
         </>
     );
 }

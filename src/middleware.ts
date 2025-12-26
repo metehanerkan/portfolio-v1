@@ -2,26 +2,33 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    // 1. Kullanıcı nereye gitmeye çalışıyor?
-    const path = request.nextUrl.pathname;
+    const { pathname } = request.nextUrl;
 
-    // 2. Eğer gidilen yer "/admin" ile başlıyorsa kontrol et
-    if (path.startsWith('/admin')) {
+    // 1. ADMİN KORUMASI
+    // Eğer kullanıcı /admin sayfasına girmeye çalışıyorsa
+    if (pathname.startsWith('/admin')) {
+        // Çerezlerde 'admin_session' var mı diye bak
+        const isAdmin = request.cookies.get('admin_session')?.value === 'true';
 
-        // 3. Çerezlerde "admin_session" var mı?
-        const adminSession = request.cookies.get('admin_session')?.value;
-
-        // 4. Yoksa direkt Login sayfasına fırlat
-        if (!adminSession) {
+        // Yoksa, giriş sayfasına at
+        if (!isAdmin) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
     }
 
-    // Sorun yoksa devam et
+    // 2. LOGİN SAYFASI KONTROLÜ
+    // Eğer zaten giriş yapmışsa ve tekrar /login sayfasına gitmeye çalışırsa
+    if (pathname === '/login') {
+        const isAdmin = request.cookies.get('admin_session')?.value === 'true';
+        if (isAdmin) {
+            return NextResponse.redirect(new URL('/admin', request.url)); // Direkt panele at
+        }
+    }
+
     return NextResponse.next();
 }
 
-// Hangi yollarda çalışacağını belirt
+// Hangi sayfalarda çalışacağını belirtiyoruz
 export const config = {
-    matcher: '/admin/:path*', // /admin ve altındaki her şeyde çalış
+    matcher: ['/admin/:path*', '/login'],
 };

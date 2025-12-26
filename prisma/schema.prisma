@@ -7,43 +7,105 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. PROJELER TABLOSU
+// 1. PROJELER TABLOSU (Portfolio Kısmı)
 model Project {
   id           String   @id @default(cuid())
   title        String
   description  String
-  technologies String[] 
+  technologies String[]
   githubUrl    String?
   liveUrl      String?
   imageUrl     String
-  category     String 
+  category     String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  isPublished Boolean @default(true)
-  isFeatured  Boolean @default(false)
+  isPublished  Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
   viewCount    Int      @default(0)
 }
 
 // 2. BLOG YAZILARI TABLOSU
 model BlogPost {
-  id        String   @id @default(cuid())
-  title     String
-  excerpt   String
-  content   String 
-  imageUrl  String
-  category  String 
-  readTime  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isPublished Boolean @default(true)
-  isFeatured  Boolean @default(false)
-  viewCount    Int      @default(0)
+  id          String   @id @default(cuid())
+  title       String
+  excerpt     String
+  content     String
+  imageUrl    String
+  category    String
+  readTime    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isPublished Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  viewCount   Int      @default(0)
 }
 
+// 3. İLETİŞİM MESAJLARI
 model ContactMessage {
   id        String   @id @default(cuid())
   name      String
   email     String
-  message   String
+  subject   String   @default("Genel Başvuru")
+  message   String   @db.Text // Uzun mesajlar kesilmesin diye Text yaptık
   createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+}
+
+// 4. MÜŞTERİ PROJELERİ (Yönetim Paneli Kısmı)
+model ClientProject {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Temel Bilgiler
+  name        String   // Müşteri Adı
+  email       String   // Müşteri E-postası
+  accessCode  String   @unique // Giriş Kodu
+  description String   @db.Text // Tüm detaylı başvuru formu buraya kaydedilir
+
+  // Durum Yönetimi (String yerine Enum kullanıyoruz ki kodda hata yapmayalım)
+  status      ProjectStatus @default(BRIEF_SUBMITTED)
+
+  // --- ADMİNİN VERDİĞİ TEKLİF ---
+  budget      String?  // Admin'in verdiği fiyat
+  deadline    String?  // Admin'in verdiği tarih
+  adminNotes  String?  @db.Text // Admin'in kapsam notları
+
+  // --- MÜŞTERİ REVİZE / PAZARLIK ---
+  clientOfferPrice    String?  // Müşterinin istediği fiyat
+  clientOfferDeadline String?  // Müşterinin istediği süre
+  clientOfferNotes    String?  @db.Text // Müşterinin revize notları (Platform, Özellikler vb.)
+
+  // --- CANLI TAKİP (PROGRESS) ---
+  progress     Int     @default(0) // Yüzde kaç bitti? (0-100)
+  currentStage String? @default("Hazırlık") // Şu an ne yapılıyor?
+  
+  // Opsiyonel alanlar (Eski yapıdan kalanlar, zarar gelmez dursun)
+  features     String? 
+  notes        String? 
+  startDate    DateTime @default(now())
+  requests ProjectRequest[] // 👈 YENİ: Talepleri projeye bağladık
+}
+
+// 5. PROJE DURUMLARI (Kod içinde kullandığımız statüler)
+enum ProjectStatus {
+  WAITING_BRIEF   // Beklemede
+  BRIEF_SUBMITTED // İnceleniyor (İlk Başvuru)
+  PRICING_SENT    // Teklif Gönderildi
+  NEGOTIATION     // Pazarlık / Revize Aşamasında
+  APPROVED        // Onaylandı / Canlı Yayında
+  COMPLETED       // Tamamlandı
+  CANCELLED       // İptal Edildi
+}
+
+model ProjectRequest {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  projectId String
+  project   ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  type      String   // 'new_feature', 'change', 'cancel', 'bug'
+  message   String   @db.Text
+  status    String   @default("PENDING") // PENDING (Bekliyor), APPROVED (Onaylandı), REJECTED (Red)
 }

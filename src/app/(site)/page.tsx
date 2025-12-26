@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaArrowRight } from 'react-icons/fa';
 import ProjectCard from '@/components/ProjectCard';
 import BlogCard from '@/components/BlogCard';
+import ProjectRequestBtn from '@/components/ProjectRequestBtn';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // 1. Veritabanından SON 3 Projeyi çek
   const featuredProjects = await db.project.findMany({
     where: {
       isPublished: true, // Sadece yayında olanlar
@@ -18,8 +18,6 @@ export default async function Home() {
     orderBy: { createdAt: 'desc' }
   });
 
-  // 2. Veritabanından SON 3 Blog Yazısını çek
-  // (Not: Model adın şemada 'BlogPost' ise db.blogPost, 'Blog' ise db.blog kullan)
   const recentBlogs = await db.blogPost.findMany({
     where: {
       isPublished: true, // Sadece yayında olanlar
@@ -44,8 +42,8 @@ export default async function Home() {
             Merhaba, Ben Metehan.
           </h1>
 
-          {/* Typewriter Bileşeni (Client Component olduğu için içinde 'use client' vardır, sorun olmaz) */}
           <HeroTypewriter />
+
 
           <p className="text-gray-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed mt-6">
             Modern web teknolojileri ile ölçeklenebilir, kullanıcı dostu ve estetik dijital çözümler üretiyorum.
@@ -72,6 +70,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+
 
       {/* --- SON PROJELER --- */}
       <section className="py-24 px-6 bg-gray-900/30">

@@ -36,3 +36,17 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+@keyframes gradientMove {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0 0;
+  }
+}
+
+.animate-gradientMove {
+  animation: gradientMove 3s linear infinite;
+}

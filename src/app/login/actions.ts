@@ -3,26 +3,36 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export async function login(formData: FormData) {
+// GİRİŞ YAPMA FONKSİYONU
+export async function loginAdmin(formData: FormData) {
     const password = formData.get('password') as string;
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (password === process.env.ADMIN_PASSWORD) {
+    const correctPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
+    if (password === correctPassword) {
         const cookieStore = await cookies();
+
+        // Cookie oluştur
         cookieStore.set('admin_session', 'true', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 60 * 24,
+            sameSite: 'lax',
             path: '/',
+            maxAge: 60 * 60 * 24 // 1 gün
         });
 
         redirect('/admin');
     } else {
-        return { error: 'Hatalı parola!' };
+        return { success: false, error: 'Hatalı şifre!' };
     }
 }
+
+// 👇 EKSİK OLAN FONKSİYON BU: ÇIKIŞ YAPMA
 export async function logout() {
     const cookieStore = await cookies();
+
+    // Cookie'yi sil
     cookieStore.delete('admin_session');
+
+    // Giriş sayfasına yönlendir
     redirect('/login');
 }

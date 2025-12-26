@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { FaLock } from 'react-icons/fa'; // İkonu ekledik
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function Navbar() {
                         Metehan.dev
                     </Link>
 
+                    {/* Masaüstü Menü */}
                     <div className="hidden md:flex items-center gap-2">
                         {navLinks.map((link) => {
                             const isActive = pathname === link.href;
@@ -33,19 +35,28 @@ export default function Navbar() {
                                     key={link.name}
                                     href={link.href}
                                     className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300
-                    ${isActive
+                                    ${isActive
                                             ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105'
                                             : 'text-gray-300 hover:text-white hover:bg-white/10'
                                         }
-                  `}
+                                  `}
                                 >
                                     {link.name}
                                 </Link>
                             );
                         })}
+
+                        {/* 👇 Müşteri Giriş Butonu (Masaüstü) */}
+                        <Link
+                            href="/portal"
+                            className="ml-4 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-full text-sm font-medium transition border border-gray-700 hover:border-gray-500"
+                        >
+                            <FaLock size={12} />
+                            Projem
+                        </Link>
                     </div>
 
-
+                    {/* Mobil Menü Butonu */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition"
@@ -62,6 +73,7 @@ export default function Navbar() {
                     </button>
                 </div>
 
+                {/* Mobil Menü */}
                 {isOpen && (
                     <div className="md:hidden py-4 border-t border-gray-800 animate-fadeIn">
                         <div className="flex flex-col gap-2">
@@ -73,16 +85,26 @@ export default function Navbar() {
                                         href={link.href}
                                         onClick={() => setIsOpen(false)}
                                         className={`block px-4 py-3 rounded-lg text-base font-medium transition
-                      ${isActive
+                                      ${isActive
                                                 ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30'
                                                 : 'text-gray-400 hover:text-white hover:bg-white/5'
                                             }
-                    `}
+                                    `}
                                     >
                                         {link.name}
                                     </Link>
                                 );
                             })}
+
+                            {/* 👇 Müşteri Giriş Butonu (Mobil) */}
+                            <Link
+                                href="/portal"
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-base font-medium bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 transition mt-2"
+                            >
+                                <FaLock size={14} />
+                                Projem (Müşteri Girişi)
+                            </Link>
                         </div>
                     </div>
                 )}
