@@ -331,20 +331,60 @@ export async function updateProjectStatus(formData: FormData) {
 }
 
 
-// 👇 YENİ: Müşteri Taleplerini Yönet (Onayla/Reddet)
+
+// 👇 YENİ: Müşteri Taleplerini Yönet (Onayla/Reddet ve OTOMATİK GÜNCELLE)
 export async function updateRequestStatus(formData: FormData) {
     const requestId = formData.get('requestId') as string;
     const status = formData.get('status') as string; // 'APPROVED' veya 'REJECTED'
 
     try {
+        // 1. Önce talebi ve bağlı olduğu projeyi bul
+        const request = await db.projectRequest.findUnique({
+            where: { id: requestId },
+            include: { project: true }
+        });
+
+        if (!request) return { success: false, error: 'Talep bulunamadı.' };
+
+        // 2. EĞER ONAYLANDIYSA VE BU BİR 'YENİ ÖZELLİK' TALEBİ İSE -> PROJEYE EKLE
+        if (status === 'APPROVED' && request.type === 'new_feature') {
+
+            // Mesajın içinden özellikleri ayıkla (Format: "- Özellik Adı")
+            const lines = request.message.split('\n');
+            const newFeatures = lines
+                .filter(line => line.trim().startsWith('- ')) // Sadece tire ile başlayanları al
+                .map(line => line.trim().substring(2)); // "- " kısmını sil, sadece ismi al
+
+            if (newFeatures.length > 0) {
+                // Mevcut özellik listesini al (String -> Array)
+                const currentFeatures = request.project.features
+                    ? request.project.features.split(', ').map(f => f.trim())
+                    : [];
+
+                // Yeni özellikleri eskisinin üzerine ekle (Tekrar edenleri engellemek için Set kullan)
+                const mergedFeatures = Array.from(new Set([...currentFeatures, ...newFeatures]));
+
+                // Veritabanını güncelle (Array -> String)
+                await db.clientProject.update({
+                    where: { id: request.projectId },
+                    data: { features: mergedFeatures.join(', ') }
+                });
+            }
+        }
+
+        // 3. Talebin Statüsünü Güncelle
         await db.projectRequest.update({
             where: { id: requestId },
             data: { status }
         });
 
+        // Müşteri paneli ve Admin paneli güncellensin
         revalidatePath('/admin');
+        revalidatePath('/portal/dashboard');
+
         return { success: true };
     } catch (error) {
+        console.error(error);
         return { success: false, error: 'Talep güncellenemedi.' };
     }
 }
