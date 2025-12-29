@@ -50,7 +50,7 @@ export default function ClientLoginPage() {
                             <input
                                 name="accessCode"
                                 type="text"
-                                placeholder="Örn: PRJ-123456"
+                                placeholder="Örn: PRJ-123"
                                 className="w-full bg-black border border-gray-800 text-white pl-11 pr-4 py-4 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition font-mono tracking-wider placeholder:tracking-normal"
                                 required
                             />
