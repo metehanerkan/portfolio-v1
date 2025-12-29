@@ -3,18 +3,19 @@
 import { useState, useRef } from 'react';
 import {
     FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
-    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots
+    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt
 } from 'react-icons/fa';
 import {
     addProject, deleteProject, addBlog, deleteBlog, deleteMessage,
     toggleProjectStatus, toggleProjectFeatured, toggleBlogStatus, toggleBlogFeatured,
-    updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus
+    updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject
 } from './actions';
 import Link from 'next/link';
 import { logout } from '@/app/login/actions';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateRequestStatus } from '@/app/admin/actions';
+import { toast } from 'react-hot-toast';
 
 interface AdminClientProps {
     projects: any[];
@@ -70,14 +71,14 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const totalBlogViews = blogs.reduce((acc, curr) => acc + (curr.viewCount || 0), 0);
     const totalViews = totalProjectViews + totalBlogViews;
 
-    // Filtreleme (Aktif Projeler)
-    const activeClientProjects = clientProjects.filter(p => p.status === 'APPROVED' || p.status === 'COMPLETED');
+    // Filtreleme (Aktif Projeler - İptal edilenler dahil)
+    const activeClientProjects = clientProjects.filter(p => p.status === 'APPROVED' || p.status === 'COMPLETED' || p.status === 'CANCELLED');
 
     // Helperlar
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) { alert("Dosya çok büyük! Lütfen 2MB altı bir resim seçin."); return; }
+            if (file.size > 2 * 1024 * 1024) { toast.error("Dosya çok büyük! Lütfen 2MB altı bir resim seçin."); return; }
             const reader = new FileReader();
             reader.onloadend = () => setImagePreview(reader.result as string);
             reader.readAsDataURL(file);
@@ -94,7 +95,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const handleAcceptClientOffer = async (formData: FormData) => {
         await acceptClientOffer(formData);
         setProjectToNegotiate(null);
-        alert("Müşteri teklifi kabul edildi ve proje başlatıldı! 🎉");
+        toast.success("Müşteri teklifi kabul edildi ve proje başlatıldı! 🎉");
     };
 
     const executeAcceptance = async () => {
@@ -108,7 +109,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
         await sendProposal(formData);
         setProjectToOffer(null);
         setProjectToNegotiate(null);
-        alert("Teklif başarıyla gönderildi! 🚀");
+        toast.success("Teklif başarıyla gönderildi! 🚀");
         setShowSuccessModal(true);
         setTimeout(() => setShowSuccessModal(false), 3000);
     };
@@ -116,7 +117,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const handleUpdateProgress = async (formData: FormData) => {
         await updateProjectStatus(formData);
         setActiveProjectToEdit(null);
-        alert("Proje durumu güncellendi! Müşteri bilgilendirildi.");
+        toast.success("Proje durumu güncellendi! Müşteri bilgilendirildi.");
     };
 
     const renderStats = () => (
@@ -144,25 +145,39 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                 <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">{activeClientProjects.length}</span>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {activeClientProjects.map((proj) => (
-                                    <div key={proj.id} className="bg-[#0f1115] border border-gray-800 rounded-2xl p-6 hover:border-green-500/30 transition group relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-green-600"></div>
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div>
-                                                <h3 className="text-lg font-bold text-white truncate max-w-[150px]">{proj.name}</h3>
-                                                <p className="text-xs text-gray-500 truncate max-w-[150px]">{proj.email}</p>
+                                {activeClientProjects.map((proj) => {
+                                    let statusColor = "text-orange-400 bg-orange-500/20 border-orange-500/20";
+                                    let statusText = "DEVAM EDİYOR";
+
+                                    if (proj.status === 'WAITING_BRIEF') { statusColor = "text-blue-400 bg-blue-500/20 border-blue-500/20"; statusText = "DETAY BEKLENİYOR"; }
+                                    if (proj.status === 'BRIEF_SUBMITTED') { statusColor = "text-purple-400 bg-purple-500/20 border-purple-500/20"; statusText = "İNCELEME BEKLİYOR"; }
+                                    if (proj.status === 'PRICING_SENT') { statusColor = "text-yellow-400 bg-yellow-500/20 border-yellow-500/20"; statusText = "TEKLİF GÖNDERİLDİ"; }
+                                    if (proj.status === 'NEGOTIATION') { statusColor = "text-yellow-400 bg-yellow-500/20 border-yellow-500/20 animate-pulse"; statusText = "PAZARLIK / REVİZE"; }
+                                    if (proj.status === 'APPROVED') { statusColor = "text-green-400 bg-green-500/20 border-green-500/20"; statusText = "ONAYLANDI / AKTİF"; }
+                                    if (proj.status === 'CANCELLED') { statusColor = "text-red-500 bg-red-500/10 border-red-500/20"; statusText = "İPTAL EDİLDİ"; }
+
+                                    return (
+                                        <div key={proj.id} className={`bg-[#0f1115] border rounded-2xl p-6 transition group relative overflow-hidden ${proj.status === 'CANCELLED' ? 'border-red-500/20 hover:border-red-500/40 opacity-75' : 'border-gray-800 hover:border-green-500/30'}`}>
+                                            <div className={`absolute top-0 left-0 w-full h-1 ${proj.status === 'CANCELLED' ? 'bg-red-500' : 'bg-green-600'}`}></div>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-white truncate max-w-[150px]">{proj.name}</h3>
+                                                    <p className="text-xs text-gray-500 truncate max-w-[150px]">{proj.email}</p>
+                                                </div>
+                                                <span className={`text-2xl font-mono font-bold ${proj.status === 'CANCELLED' ? 'text-red-500' : 'text-green-500'}`}>%{proj.progress}</span>
                                             </div>
-                                            <span className="text-2xl font-mono font-bold text-green-500">%{proj.progress}</span>
+                                            <div className="w-full bg-gray-900 rounded-full h-2 mb-4 overflow-hidden">
+                                                <div style={{ width: `${proj.progress}%` }} className={`h-full rounded-full ${proj.status === 'CANCELLED' ? 'bg-red-600' : 'bg-green-600'}`}></div>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs text-gray-400 mb-6">
+                                                <span className={`px-2 py-1 rounded border ${statusColor}`}>{statusText}</span>
+                                            </div>
+                                            <button onClick={() => setActiveProjectToEdit(proj)} className="w-full py-3 bg-gray-900 border border-gray-800 rounded-xl text-gray-300 font-bold hover:bg-gray-800 hover:text-white hover:border-green-500/50 transition flex items-center justify-center gap-2 text-sm">
+                                                <FaTools /> Yönet / Güncelle
+                                            </button>
                                         </div>
-                                        <div className="w-full bg-gray-900 rounded-full h-2 mb-4 overflow-hidden">
-                                            <div style={{ width: `${proj.progress}%` }} className="h-full bg-green-600 rounded-full"></div>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs text-gray-400 mb-6">
-                                            <span className="bg-gray-900 px-2 py-1 rounded border border-gray-800">{proj.currentStage || 'Hazırlık'}</span>
-                                        </div>
-                                        <button onClick={() => setActiveProjectToEdit(proj)} className="w-full py-3 bg-gray-900 border border-gray-800 rounded-xl text-gray-300 font-bold hover:bg-gray-800 hover:text-white hover:border-green-500/50 transition flex items-center justify-center gap-2 text-sm"><FaTools /> Yönet / Güncelle</button>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                                 {activeClientProjects.length === 0 && (
                                     <div className="col-span-full p-8 border border-gray-800 border-dashed rounded-2xl text-center text-gray-600">
                                         Şu an aktif yürütülen bir proje yok.
@@ -262,14 +277,10 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                             {messages.length === 0 && <p className="text-center py-10 text-gray-500 bg-gray-900 rounded-2xl">Mesaj yok.</p>}
                             {messages.map((msg) => {
                                 const isProjectRequest = msg.message.includes('PROJE') || msg.subject.includes('🚀');
-
-                                // Mesaj içeriğini parse et (Eğer proje ise)
                                 const parsed = isProjectRequest ? parseProjectDescription(msg.message) : null;
 
                                 return (
                                     <div key={msg.id} onClick={() => setSelectedMessage(msg)} className={`bg-gray-900 p-6 rounded-2xl border transition relative cursor-pointer group ${isProjectRequest ? 'border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.1)]' : 'border-gray-800 hover:border-gray-700'}`}>
-
-                                        {/* Header */}
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
                                                 <h4 className="font-bold text-white text-lg flex items-center gap-2">
@@ -281,7 +292,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                             <span className="text-xs text-gray-500">{new Date(msg.createdAt).toLocaleDateString('tr-TR')}</span>
                                         </div>
 
-                                        {/* Content */}
                                         {isProjectRequest && parsed ? (
                                             <div className="bg-gray-950 p-4 rounded-xl border border-gray-800 grid grid-cols-1 gap-3">
                                                 <div className="flex gap-2 items-center text-sm font-bold text-white border-b border-gray-800 pb-2 mb-2">
@@ -311,7 +321,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                             </p>
                                         )}
 
-                                        {/* Actions */}
                                         <div className="mt-4 flex justify-end gap-3" onClick={(e) => e.stopPropagation()}>
                                             {isProjectRequest && (<button onClick={() => setProjectToAccept(msg)} className="text-green-400 text-sm hover:text-green-300 flex items-center gap-1 bg-green-500/10 px-3 py-2 rounded-lg border border-green-500/20 transition hover:bg-green-500/20"><FaCheck /> İncele & Başlat</button>)}
                                             <form action={deleteMessage}><input type="hidden" name="id" value={msg.id} /><button className="text-red-400 text-sm hover:text-red-300 flex items-center gap-1 px-3 py-2"><FaTrash size={12} /> Sil</button></form>
@@ -342,8 +351,8 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                     if (proj.status === 'PRICING_SENT') { statusColor = "text-yellow-400 bg-yellow-500/20 border-yellow-500/20"; statusText = "TEKLİF GÖNDERİLDİ"; }
                                     if (proj.status === 'NEGOTIATION') { statusColor = "text-yellow-400 bg-yellow-500/20 border-yellow-500/20 animate-pulse"; statusText = "PAZARLIK / REVİZE"; }
                                     if (proj.status === 'APPROVED') { statusColor = "text-green-400 bg-green-500/20 border-green-500/20"; statusText = "ONAYLANDI / AKTİF"; }
+                                    if (proj.status === 'CANCELLED') { statusColor = "text-red-500 bg-red-500/10 border-red-500/20"; statusText = "İPTAL EDİLDİ"; }
 
-                                    // Parse Description for Clean UI
                                     const parsed = parseProjectDescription(proj.description);
 
                                     return (
@@ -356,7 +365,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                 <div className="text-right"><span className="text-xs text-gray-500 flex items-center justify-end gap-1"><FaClock /> Kod: {proj.accessCode}</span></div>
                                             </div>
 
-                                            {/* YENİLENEN PROJE ÖZET ALANI (ESKİ LOG GÖRÜNÜMÜ YERİNE) */}
                                             <div className="bg-gray-950 p-5 rounded-xl border border-gray-800 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] text-gray-500 font-bold uppercase mb-1">Bütçe</span>
@@ -377,7 +385,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                 </div>
                                             </div>
 
-                                            {/* Aksiyon Butonları */}
                                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
                                                 {proj.status === 'BRIEF_SUBMITTED' && (
                                                     <button onClick={() => setProjectToOffer(proj)} className="text-white text-sm hover:bg-purple-600 flex items-center gap-2 bg-purple-500 px-4 py-2 rounded-lg transition font-bold shadow-lg shadow-purple-900/20">
@@ -444,13 +451,12 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
             <main className="flex-1 ml-72 p-10 bg-black min-h-screen relative">
                 <div className="max-w-6xl mx-auto">{renderContent()}</div>
 
-                {/* MODAL 1: PROJE KABUL - Zaten güncellediğimiz kısım */}
+                {/* MODAL 1: PROJE KABUL & BAŞLATMA */}
                 <AnimatePresence>
                     {projectToAccept && (
                         <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setProjectToAccept(null)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
                             <motion.div initial={{ scale: 0.95, opacity: 0, y: 50 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 50 }} className="bg-[#0f1115] border border-green-500/30 rounded-3xl shadow-2xl relative z-10 max-w-5xl w-full flex flex-col md:flex-row overflow-hidden max-h-[90vh]">
-                                {/* ... (Modal İçeriği - Zaten Güncel) ... */}
                                 <div className="w-full md:w-7/12 bg-[#0a0c10] border-r border-gray-800 flex flex-col">
                                     <div className="p-8 border-b border-gray-900 bg-gray-950/50">
                                         <div className="flex items-center gap-2 mb-2"><span className="bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] font-bold px-2 py-1 rounded uppercase flex items-center gap-1"><FaRocket /> Yeni Başvuru</span><span className="text-gray-500 text-xs">{new Date(projectToAccept.createdAt).toLocaleDateString('tr-TR')}</span></div>
@@ -460,19 +466,12 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                     <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
                                         {(() => {
                                             const parsed = parseProjectDescription(projectToAccept.message);
-                                            // Özellikleri çekme mantığı (Modal içi için detaylı)
                                             const featuresPart = projectToAccept.message.split('🛠️ TEKNİK ÖZELLİKLER')[1]?.split('📝')[0]?.replace(':', '').trim();
                                             const features = featuresPart && featuresPart !== 'Standart.' ? featuresPart.split(', ') : [];
                                             return (
                                                 <>
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="bg-gray-900/50 p-4 rounded-2xl border border-green-500/20 flex flex-col justify-center text-center"><span className="text-[10px] text-green-500 font-bold uppercase block mb-1">Bütçe Beklentisi</span><span className="text-white font-mono font-bold text-lg">{parsed.budget}</span></div>
-                                                        <div className="bg-gray-900/50 p-4 rounded-2xl border border-orange-500/20 flex flex-col justify-center text-center"><span className="text-[10px] text-orange-500 font-bold uppercase block mb-1">İstenen Süre</span><span className="text-white font-mono font-bold text-lg">{parsed.deadline}</span></div>
-                                                    </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-800/50"><span className="text-[10px] text-blue-400 font-bold uppercase block mb-3 flex items-center gap-2"><FaLaptopCode /> Platformlar</span><div className="flex flex-wrap gap-2">{parsed.platforms.length > 0 ? parsed.platforms.map((p: string, i: number) => (<span key={i} className="text-xs bg-blue-500/10 text-blue-300 px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1"><FaCheck size={8} /> {p}</span>)) : <span className="text-gray-500 text-xs">-</span>}</div></div>
-                                                        <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-800/50"><span className="text-[10px] text-purple-400 font-bold uppercase block mb-3 flex items-center gap-2"><FaPaintBrush /> Tasarım</span><span className="text-white font-bold text-sm block">{parsed.design}</span></div>
-                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4"><div className="bg-gray-900/50 p-4 rounded-2xl border border-green-500/20 flex flex-col justify-center text-center"><span className="text-[10px] text-green-500 font-bold uppercase block mb-1">Bütçe Beklentisi</span><span className="text-white font-mono font-bold text-lg">{parsed.budget}</span></div><div className="bg-gray-900/50 p-4 rounded-2xl border border-orange-500/20 flex flex-col justify-center text-center"><span className="text-[10px] text-orange-500 font-bold uppercase block mb-1">İstenen Süre</span><span className="text-white font-mono font-bold text-lg">{parsed.deadline}</span></div></div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="bg-gray-900/50 p-4 rounded-xl border border-gray-800/50"><span className="text-[10px] text-blue-400 font-bold uppercase block mb-3 flex items-center gap-2"><FaLaptopCode /> Platformlar</span><div className="flex flex-wrap gap-2">{parsed.platforms.length > 0 ? parsed.platforms.map((p: string, i: number) => (<span key={i} className="text-xs bg-blue-500/10 text-blue-300 px-2 py-1 rounded border border-blue-500/20 flex items-center gap-1"><FaCheck size={8} /> {p}</span>)) : <span className="text-gray-500 text-xs">-</span>}</div></div><div className="bg-gray-900/50 p-4 rounded-xl border border-gray-800/50"><span className="text-[10px] text-purple-400 font-bold uppercase block mb-3 flex items-center gap-2"><FaPaintBrush /> Tasarım</span><span className="text-white font-bold text-sm block">{parsed.design}</span></div></div>
                                                     {features.length > 0 && (<div className="bg-gray-900 rounded-xl border border-gray-800 p-5"><span className="text-[10px] font-bold text-gray-500 uppercase block mb-3 flex items-center gap-2"><FaListUl /> İstenen Teknik Özellikler</span><div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">{features.map((f: string, i: number) => (<div key={i} className="flex items-center gap-2 text-xs text-gray-300"><div className="w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 flex-shrink-0"><FaCheck size={8} /></div>{f.trim()}</div>))}</div></div>)}
                                                     <div><span className="text-[10px] font-bold text-gray-500 uppercase block mb-2">Müşteri Notu</span><div className="bg-black/40 p-4 rounded-xl border border-gray-800 text-gray-300 text-sm leading-relaxed italic relative"><FaInfoCircle className="absolute top-4 right-4 text-gray-700" />"{parsed.notes}"</div></div>
                                                 </>
@@ -511,10 +510,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     )}
                 </AnimatePresence>
 
-                {/* MODAL 3, 4, 5, 6 (Teklif, Revize, Yönetim, Başarı) - Zaten güncelledik, kodun devamında aynen korunuyor */}
-                {/* ... (Kodun geri kalanı aynı, yukarıda verdiğim tam blokta zaten var) ... */}
-
-                {/* MODAL 3: İLK TEKLİF VERME */}
+                {/* MODAL 3, 4, 6 (Teklif, Revize, Başarı) - Mevcut haliyle korundu */}
                 <AnimatePresence>
                     {projectToOffer && (
                         <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
@@ -525,7 +521,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                     <div className="p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
                                         {(() => {
                                             const parsed = parseProjectDescription(projectToOffer.description);
-                                            // Özellik listesi için ekstra parsing
                                             const featuresPart = projectToOffer.description.split('🛠️ TEKNİK ÖZELLİKLER')[1]?.split('📝 NOTLAR')[0]?.trim();
                                             const features = featuresPart && featuresPart !== 'Standart.' ? featuresPart.split(', ') : [];
                                             return (
@@ -554,7 +549,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     )}
                 </AnimatePresence>
 
-                {/* MODAL 4: MÜŞTERİ REVİZE TALEBİ */}
                 <AnimatePresence>
                     {projectToNegotiate && (
                         <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
@@ -567,7 +561,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                             <div className="bg-gray-900/50 border border-green-500/20 p-5 rounded-2xl flex flex-col items-center justify-center text-center"><span className="text-[10px] font-bold text-green-500 uppercase tracking-widest mb-2">Müşterinin Teklifi</span><span className="text-2xl md:text-3xl font-bold text-white font-mono">{projectToNegotiate.clientOfferPrice}</span></div>
                                             <div className="bg-gray-900/50 border border-orange-500/20 p-5 rounded-2xl flex flex-col items-center justify-center text-center"><span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2">İstenen Süre</span><span className="text-xl md:text-2xl font-bold text-white font-mono">{projectToNegotiate.clientOfferDeadline}</span></div>
                                         </div>
-                                        {/* Parsing Logic for Revise - Cleaned up version */}
                                         {(() => {
                                             const notes = projectToNegotiate.clientOfferNotes || '';
                                             const getVal = (key: string) => { const line = notes.split('\n').find((l: string) => l.includes(key)); return line ? line.split(':')[1]?.trim() : null; };
@@ -603,94 +596,419 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     )}
                 </AnimatePresence>
 
-                {/* MODAL 5: PROJE KONTROL MERKEZİ (DÜZENLENDİ) */}
+                {/* 👇 MODAL 5: PROJE KONTROL MERKEZİ (TASARIM & ÖZELLİKLER GÜNCELLENDİ) */}
                 <AnimatePresence>
                     {activeProjectToEdit && (
                         <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveProjectToEdit(null)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+
                             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#0f1115] border border-green-500/30 rounded-3xl shadow-2xl relative z-10 max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+
                                 {/* 1. HEADER */}
-                                <div className="p-6 border-b border-gray-800 bg-gray-950 flex justify-between items-center"><div><h3 className="text-xl font-bold text-white flex items-center gap-2"><FaTools className="text-green-500" /> Proje Kontrol Merkezi</h3><p className="text-gray-500 text-xs mt-1">{activeProjectToEdit.name} &bull; {activeProjectToEdit.email}</p></div><button onClick={() => setActiveProjectToEdit(null)} className="text-gray-500 hover:text-white"><FaTimes /></button></div>
+                                <div className="p-6 border-b border-gray-800 bg-gray-950 flex justify-between items-center">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                            <FaTools className="text-green-500" /> Proje Kontrol Merkezi
+                                        </h3>
+                                        <p className="text-gray-500 text-xs mt-1">{activeProjectToEdit.name} &bull; {activeProjectToEdit.email}</p>
+                                    </div>
+                                    <button onClick={() => setActiveProjectToEdit(null)} className="text-gray-500 hover:text-white"><FaTimes /></button>
+                                </div>
+
                                 {/* 2. TAB MENÜSÜ */}
                                 <div className="flex border-b border-gray-800 bg-gray-900">
-                                    <button onClick={() => setManageTab('info')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 ${manageTab === 'info' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}><FaInfoCircle /> Proje Bilgileri</button>
-                                    <button onClick={() => setManageTab('progress')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 ${manageTab === 'progress' ? 'text-green-400 border-b-2 border-green-500 bg-green-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}><FaChartBar /> Durum & İlerleme</button>
-                                    <button onClick={() => setManageTab('requests')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 ${manageTab === 'requests' ? 'text-yellow-400 border-b-2 border-yellow-500 bg-yellow-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}><FaEnvelope /> Gelen Talepler ({activeProjectToEdit.requests?.filter((r: any) => r.status === 'PENDING').length || 0})</button>
+                                    <button
+                                        onClick={() => setManageTab('info')}
+                                        className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2
+                        ${manageTab === 'info' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                                    >
+                                        <FaInfoCircle /> Proje Bilgileri
+                                    </button>
+                                    <button
+                                        onClick={() => setManageTab('progress')}
+                                        className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2
+                        ${manageTab === 'progress' ? 'text-green-400 border-b-2 border-green-500 bg-green-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                                    >
+                                        <FaChartBar /> Durum & İlerleme
+                                    </button>
+                                    <button
+                                        onClick={() => setManageTab('requests')}
+                                        className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2
+                        ${manageTab === 'requests' ? 'text-yellow-400 border-b-2 border-yellow-500 bg-yellow-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                                    >
+                                        <FaEnvelope /> Gelen Talepler ({activeProjectToEdit.requests?.filter((r: any) => r.status === 'PENDING').length || 0})
+                                    </button>
                                 </div>
+
                                 {/* 3. İÇERİK ALANI */}
                                 <div className="overflow-y-auto custom-scrollbar flex-1 bg-[#0a0c10] min-h-[500px]">
+
                                     {/* --- SEKME 1: PROJE BİLGİLERİ (YENİLENDİ) --- */}
                                     {manageTab === 'info' && (
                                         <div className="p-8 space-y-6">
-                                            {/* A) Proje Künyesi */}
+
+                                            {/* A) Proje Künyesi (Grid) */}
                                             <div className="grid grid-cols-3 gap-4">
-                                                <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-xl text-center"><span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Bütçe</span><span className="text-white font-mono font-bold text-lg">{activeProjectToEdit.budget || activeProjectToEdit.clientOfferPrice || '-'}</span></div>
-                                                <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-xl text-center"><span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Teslim Tarihi</span><span className="text-white font-mono font-bold text-lg">{activeProjectToEdit.deadline || activeProjectToEdit.clientOfferDeadline || '-'}</span></div>
-                                                <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-xl text-center"><span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Başlangıç</span><span className="text-white font-mono font-bold text-lg">{activeProjectToEdit.startDate ? new Date(activeProjectToEdit.startDate).toLocaleDateString('tr-TR') : '-'}</span></div>
+                                                <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-xl text-center group hover:border-green-500/30 transition">
+                                                    <FaMoneyBillWave className="text-green-500 mx-auto mb-2 group-hover:scale-110 transition" />
+                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Anlaşılan Bütçe</span>
+                                                    <span className="text-white font-mono font-bold text-lg">{activeProjectToEdit.budget || activeProjectToEdit.clientOfferPrice || 'Belirtilmedi'}</span>
+                                                </div>
+                                                <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-xl text-center group hover:border-orange-500/30 transition">
+                                                    <FaClock className="text-orange-500 mx-auto mb-2 group-hover:scale-110 transition" />
+                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Teslim Tarihi</span>
+                                                    <span className="text-white font-mono font-bold text-lg">{activeProjectToEdit.deadline || activeProjectToEdit.clientOfferDeadline || 'Belirtilmedi'}</span>
+                                                </div>
+                                                <div className="bg-gray-900/50 border border-gray-800 p-4 rounded-xl text-center group hover:border-blue-500/30 transition">
+                                                    <FaRocket className="text-blue-500 mx-auto mb-2 group-hover:scale-110 transition" />
+                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Başlangıç</span>
+                                                    <span className="text-white font-mono font-bold text-lg">
+                                                        {activeProjectToEdit.startDate ? new Date(activeProjectToEdit.startDate).toLocaleDateString('tr-TR') : '-'}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            {/* B) Aktif Özellikler */}
+
+                                            {/* B) Canlı Özellik Listesi (Envanter) */}
                                             <div className="bg-gray-900/30 border border-blue-500/20 p-6 rounded-2xl relative overflow-hidden">
                                                 <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                                                <span className="text-[10px] text-blue-400 font-bold uppercase block mb-4 flex items-center gap-2"><FaListUl /> Aktif Kapsam</span>
+
+                                                <span className="text-[10px] text-blue-400 font-bold uppercase block mb-4 flex items-center gap-2">
+                                                    <FaListUl /> Aktif Proje Kapsamı & Özellikler
+                                                </span>
+
                                                 {(() => {
+                                                    // 1. Veritabanındaki 'features' sütununu kontrol et
                                                     let featList: string[] = [];
-                                                    if (activeProjectToEdit.features && activeProjectToEdit.features.length > 0) { featList = activeProjectToEdit.features.split(', ').map((f: string) => f.trim()); }
-                                                    else { const parsed = parseProjectDescription(activeProjectToEdit.description); const raw = parsed.notes.split('🛠️ TEKNİK ÖZELLİKLER')[1]?.split('📝')[0]?.trim(); if (raw) featList = raw.split(', '); }
+                                                    if (activeProjectToEdit.features && activeProjectToEdit.features.length > 0) {
+                                                        featList = activeProjectToEdit.features.split(', ').map((f: string) => f.trim());
+                                                    } else {
+                                                        // 2. Yedek: Description'dan parse et
+                                                        const desc = activeProjectToEdit.description || "";
+                                                        const raw = desc.split('🛠️ TEKNİK ÖZELLİKLER')[1]?.split('📝')[0]?.trim();
+                                                        if (raw) featList = raw.split(', ');
+                                                    }
+                                                    // Tekrar edenleri temizle
                                                     featList = Array.from(new Set(featList));
+
                                                     return (
                                                         <div className="grid grid-cols-2 gap-3">
-                                                            {featList.length > 0 ? featList.map((f, i) => (<div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-500/5 transition border border-transparent hover:border-blue-500/10"><div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0"><FaCheck className="text-blue-500 text-[10px]" /></div><span className="text-xs text-gray-300 font-medium">{f}</span></div>)) : <p className="text-gray-500 text-xs italic">Liste boş.</p>}
+                                                            {featList.length > 0 ? featList.map((f, i) => (
+                                                                <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-500/5 transition border border-transparent hover:border-blue-500/10">
+                                                                    <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                                                        <FaCheck className="text-blue-500 text-[10px]" />
+                                                                    </div>
+                                                                    <span className="text-xs text-gray-300 font-medium">{f}</span>
+                                                                </div>
+                                                            )) : <p className="text-gray-500 text-xs italic">Özellik listesi bulunamadı.</p>}
                                                         </div>
                                                     );
                                                 })()}
                                             </div>
-                                            {/* C) Orijinal Detaylar (Yenilenmiş) */}
+
+                                            {/* C) Orijinal Başvuru Detayları (Log Görünümü Yerine Kartlar) */}
                                             <div className="bg-gray-900/30 border border-purple-500/20 p-6 rounded-2xl relative overflow-hidden">
-                                                <span className="text-[10px] text-purple-400 font-bold uppercase block mb-4 flex items-center gap-2"><FaAlignLeft /> Orijinal Başvuru Özeti</span>
+                                                <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                                                <span className="text-[10px] text-purple-400 font-bold uppercase block mb-4 flex items-center gap-2">
+                                                    <FaAlignLeft /> Orijinal Başvuru Detayları
+                                                </span>
+
                                                 {(() => {
-                                                    const parsed = parseProjectDescription(activeProjectToEdit.description);
+                                                    const desc = activeProjectToEdit.description || "";
+                                                    // Helper: Satır bulucu
+                                                    const getVal = (key: string) => desc.split('\n').find((l: string) => l.includes(key))?.split(':')[1]?.trim();
+
+                                                    const platforms = getVal('Platformlar')?.split(', ') || [];
+                                                    // Tasarım detaylarını al: "TASARIM DETAYLARI" başlığından sonrasını al, bir sonraki başlığa kadar
+                                                    const designDetails = desc.split('TASARIM DETAYLARI')[1]?.split('TEKNİK ÖZELLİKLER')[0]?.trim();
+
+                                                    // Teknik özellikleri listeden çek (description içindeki tireli liste)
+                                                    const technicalFeatures = desc.split('TEKNİK ÖZELLİKLER')[1]?.split('📝 NOTLAR')[0]?.trim()?.split('\n')
+                                                        .filter((l: string) => l.trim().startsWith('-'))
+                                                        .map((l: string) => l.replace('-', '').trim()) || [];
+
+                                                    const notes = desc.split('📝 NOTLAR:')[1]?.trim();
+
                                                     return (
-                                                        <div className="space-y-4">
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50"><span className="text-[10px] text-gray-500 font-bold uppercase block mb-2"><FaMobileAlt /> Platformlar</span><div className="flex flex-wrap gap-1">{parsed.platforms.map((p: string, i: number) => <span key={i} className="text-[10px] bg-purple-500/10 text-purple-300 px-2 py-0.5 rounded border border-purple-500/20">{p}</span>)}</div></div>
-                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50"><span className="text-[10px] text-gray-500 font-bold uppercase block mb-2"><FaPaintBrush /> Tasarım</span><span className="text-xs text-white">{parsed.design}</span></div>
+                                                        <div className="space-y-6">
+                                                            {/* Proje ve Müşteri Bilgileri */}
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50 flex items-center gap-3">
+                                                                    <FaFolderOpen className="text-purple-500" />
+                                                                    <div>
+                                                                        <span className="text-[10px] text-gray-500 font-bold uppercase block">Proje Adı</span>
+                                                                        <span className="text-white font-medium text-sm">{getVal('PROJE ADI') || activeProjectToEdit.name}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50 flex items-center gap-3">
+                                                                    <FaUser className="text-purple-500" />
+                                                                    <div>
+                                                                        <span className="text-[10px] text-gray-500 font-bold uppercase block">Müşteri</span>
+                                                                        <span className="text-white font-medium text-sm">{getVal('Müşteri')}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50 flex items-center gap-3 md:col-span-2">
+                                                                    <FaEnvelope className="text-purple-500" />
+                                                                    <div>
+                                                                        <span className="text-[10px] text-gray-500 font-bold uppercase block">E-posta</span>
+                                                                        <span className="text-white font-medium text-sm">{getVal('E-posta')}</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50"><span className="text-[10px] text-gray-500 font-bold uppercase block mb-2"><FaCommentDots /> Müşteri Notları</span><p className="text-gray-300 text-sm whitespace-pre-wrap italic">"{parsed.notes}"</p></div>
+
+                                                            {/* Platformlar, Bütçe, Süre, Tasarım */}
+                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaMobileAlt className="text-purple-500" /> Platformlar</span>
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {platforms.length > 0 ? platforms.map((p: string, i: number) => (
+                                                                            <span key={i} className="text-[10px] bg-purple-500/10 text-purple-300 px-2 py-1 rounded border border-purple-500/20">{p}</span>
+                                                                        )) : <span className="text-xs text-gray-500">-</span>}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaMoneyBillWave className="text-green-500" /> Bütçe Aralığı</span>
+                                                                    <span className="text-white font-medium text-xs">{getVal('Bütçe') || '-'}</span>
+                                                                </div>
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaClock className="text-orange-500" /> Süre Hedefi</span>
+                                                                    <span className="text-white font-medium text-xs">{getVal('Süre') || '-'}</span>
+                                                                </div>
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaPaintBrush className="text-blue-500" /> Tasarım</span>
+                                                                    <span className="text-white font-medium text-xs">{getVal('Tasarım Durumu') || '-'}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Tasarım Detayları */}
+                                                            {designDetails && !designDetails.includes('yok') && (
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaLink className="text-purple-500" /> Tasarım Detayları</span>
+                                                                    <p className="text-gray-300 text-sm whitespace-pre-wrap">{designDetails}</p>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Teknik Özellikler (Orijinal Başvurudaki) */}
+                                                            {technicalFeatures.length > 0 && (
+                                                                <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaListUl className="text-purple-500" /> İstenen Teknik Özellikler (Başvuru)</span>
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        {technicalFeatures.map((f: string, i: number) => (
+                                                                            <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
+                                                                                <FaCheck className="text-purple-500 text-[10px]" /> {f}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Notlar */}
+                                                            <div className="bg-black/40 p-3 rounded-xl border border-gray-800/50">
+                                                                <span className="text-[10px] text-gray-500 font-bold uppercase block mb-2 flex items-center gap-2"><FaCommentDots className="text-purple-500" /> Müşteri Notları</span>
+                                                                <p className="text-gray-300 text-sm whitespace-pre-wrap italic">"{notes || 'Not yok.'}"</p>
+                                                            </div>
                                                         </div>
                                                     );
                                                 })()}
+                                            </div>
+
+                                            {/* D) TEHLİKELİ BÖLGE (İPTAL ETME) */}
+                                            <div className="mt-8 pt-8 border-t border-red-500/20">
+                                                <h4 className="text-xs font-bold text-red-500 uppercase mb-4 flex items-center gap-2">
+                                                    <FaExclamationTriangle /> Tehlikeli İşlemler
+                                                </h4>
+                                                <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 flex justify-between items-center">
+                                                    <div>
+                                                        <h5 className="text-white font-bold text-sm">Projeyi İptal Et</h5>
+                                                        <p className="text-gray-500 text-xs mt-1">Bu işlem projeyi durdurur ve müşteriye iptal edildiğini bildirir.</p>
+                                                    </div>
+                                                    <form action={async (formData) => {
+                                                        if (!confirm('Projeyi iptal etmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
+                                                        await cancelProject(formData);
+                                                        setActiveProjectToEdit(null);
+                                                        toast.error('Proje iptal edildi ve durduruldu.');
+                                                    }}>
+                                                        <input type="hidden" name="id" value={activeProjectToEdit.id} />
+                                                        <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-lg shadow-red-900/20">
+                                                            Projeyi İptal Et
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
-                                    {/* --- SEKME 2 & 3 (İlerleme & Talepler) - Önceki kod ile aynı --- */}
+
+                                    {/* --- SEKME 2: İLERLEME YÖNETİMİ --- */}
                                     {manageTab === 'progress' && (
                                         <div className="p-8">
                                             <div className="bg-gray-900/30 border border-green-500/10 p-6 rounded-2xl mb-6">
-                                                <h4 className="text-sm font-bold text-white mb-6 flex items-center gap-2"><FaRocket className="text-green-500" /> Canlı Durum Güncelleme</h4>
+                                                <h4 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                                                    <FaRocket className="text-green-500" /> Canlı Durum Güncelleme
+                                                </h4>
                                                 <form action={handleUpdateProgress} className="space-y-6">
                                                     <input type="hidden" name="id" value={activeProjectToEdit.id} />
-                                                    <div><div className="flex justify-between text-xs font-bold uppercase text-gray-500 mb-2"><span>İlerleme Yüzdesi</span><span className="text-green-500 text-2xl font-mono">%{activeProjectToEdit.progress}</span></div><input type="range" name="progress" min="0" max="100" defaultValue={activeProjectToEdit.progress} className="w-full h-3 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-green-500" /></div>
-                                                    <div><label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Müşteriye Görünen Aşama</label><div className="flex gap-2"><input name="currentStage" defaultValue={activeProjectToEdit.currentStage || ''} placeholder="Örn: Veritabanı Tasarlanıyor..." className="flex-1 bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" /><button className="bg-green-600 hover:bg-green-500 text-white px-8 rounded-xl font-bold transition shadow-lg shadow-green-900/20">Kaydet</button></div></div>
+
+                                                    <div>
+                                                        <div className="flex justify-between text-xs font-bold uppercase text-gray-500 mb-2">
+                                                            <span>İlerleme Yüzdesi</span>
+                                                            <span className="text-green-500 text-2xl font-mono">%{activeProjectToEdit.progress}</span>
+                                                        </div>
+                                                        <input type="range" name="progress" min="0" max="100" defaultValue={activeProjectToEdit.progress} className="w-full h-3 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-green-500" />
+                                                        <div className="flex justify-between text-[10px] text-gray-600 mt-2">
+                                                            <span>Başlangıç</span>
+                                                            <span>Geliştirme</span>
+                                                            <span>Test</span>
+                                                            <span>Bitiş</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Müşteriye Görünen Aşama</label>
+                                                        <div className="flex gap-2">
+                                                            <input name="currentStage" defaultValue={activeProjectToEdit.currentStage || ''} placeholder="Örn: Veritabanı Tasarlanıyor..." className="flex-1 bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" />
+                                                            <button className="bg-green-600 hover:bg-green-500 text-white px-8 rounded-xl font-bold transition shadow-lg shadow-green-900/20">
+                                                                Kaydet
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </form>
+                                            </div>
+
+                                            <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 flex gap-3 items-start">
+                                                <FaInfoCircle className="text-blue-500 mt-1 flex-shrink-0" />
+                                                <p className="text-xs text-blue-300 leading-relaxed">
+                                                    Burada yaptığın güncellemeler anlık olarak müşteri panelindeki "Canlı Takip" ekranına yansır.
+                                                </p>
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* --- SEKME 3: GELEN TALEPLER (YENİLENDİ & DOSYA DESTEKLİ) --- */}
                                     {manageTab === 'requests' && (
                                         <div className="p-8">
-                                            <div className="flex justify-between items-center mb-6"><h4 className="text-sm font-bold text-white">Müşteri Bildirimleri</h4><span className="bg-gray-800 text-gray-400 text-[10px] px-2 py-1 rounded-full border border-gray-700">Toplam {activeProjectToEdit.requests?.length || 0}</span></div>
+                                            <div className="flex justify-between items-center mb-6">
+                                                <h4 className="text-sm font-bold text-white">Müşteri Bildirimleri</h4>
+                                                <span className="bg-gray-800 text-gray-400 text-[10px] px-2 py-1 rounded-full border border-gray-700">
+                                                    Toplam {activeProjectToEdit.requests?.length || 0}
+                                                </span>
+                                            </div>
+
                                             <div className="space-y-4">
-                                                {(!activeProjectToEdit.requests || activeProjectToEdit.requests.length === 0) ? (<div className="text-center py-12 border-2 border-gray-800 border-dashed rounded-2xl"><div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-600"><FaEnvelope /></div><p className="text-gray-500 text-sm">Henüz bir talep veya bildirim yok.</p></div>) : (
-                                                    activeProjectToEdit.requests.map((req: any) => (
-                                                        <div key={req.id} className={`p-5 rounded-2xl border flex flex-col gap-3 transition ${req.status === 'PENDING' ? 'bg-gray-900/80 border-yellow-500/30' : 'bg-black border-gray-800 opacity-60'}`}>
-                                                            <div className="flex justify-between items-start"><div className="flex items-center gap-2">{req.type === 'new_feature' && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded border border-blue-500/30 font-bold flex items-center gap-1"><FaPlus size={8} /> EK ÖZELLİK</span>}{req.type === 'bug' && <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-1 rounded border border-orange-500/30 font-bold flex items-center gap-1"><FaTools size={8} /> HATA</span>}<span className="text-[10px] text-gray-500 ml-2">{new Date(req.createdAt).toLocaleDateString('tr-TR')}</span></div>{req.status === 'PENDING' && <span className="text-yellow-500 text-[10px] font-bold border border-yellow-500/20 bg-yellow-500/10 px-2 py-1 rounded flex items-center gap-1 animate-pulse"><FaClock /> BEKLİYOR</span>}</div>
-                                                            <div className="bg-black p-3 rounded-xl border border-gray-800/50"><p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed font-mono">{req.message}</p></div>
-                                                            {req.status === 'PENDING' && (<div className="flex gap-3 justify-end mt-2 pt-4 border-t border-gray-800/50"><form action={async (formData) => { const { updateRequestStatus } = await import('./actions'); await updateRequestStatus(formData); setActiveProjectToEdit(null); alert("Talep reddedildi."); }}><input type="hidden" name="requestId" value={req.id} /><input type="hidden" name="status" value="REJECTED" /><button className="text-xs text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 px-4 py-2 rounded-lg transition border border-red-500/20">Reddet</button></form><form action={async (formData) => { const { updateRequestStatus } = await import('./actions'); await updateRequestStatus(formData); setActiveProjectToEdit(null); alert("Talep onaylandı ve proje kapsamına eklendi!"); }}><input type="hidden" name="requestId" value={req.id} /><input type="hidden" name="status" value="APPROVED" /><button className="text-xs text-white bg-green-600 hover:bg-green-500 px-5 py-2 rounded-lg transition font-bold shadow-lg shadow-green-900/20 flex items-center gap-2"><FaCheck /> Onayla & İşe Ekle</button></form></div>)}
-                                                        </div>
-                                                    ))
+                                                {(!activeProjectToEdit.requests || activeProjectToEdit.requests.length === 0) ? (
+                                                    <div className="text-center py-12 border-2 border-gray-800 border-dashed rounded-2xl">
+                                                        <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-600"><FaEnvelope /></div>
+                                                        <p className="text-gray-500 text-sm">Henüz bir talep veya bildirim yok.</p>
+                                                    </div>
+                                                ) : (
+                                                    activeProjectToEdit.requests.map((req: any) => {
+                                                        // --- MESAJ AYRIŞTIRMA (PARSING) ---
+                                                        // "Yeni Özellik" istekleri genellikle "🚀 EKLENECEK..." diye başlar. Bunları parçalayalım.
+                                                        let features: string[] = [];
+                                                        let notes = req.message;
+
+                                                        if (req.type === 'new_feature' && req.message.includes('🚀')) {
+                                                            const parts = req.message.split('📝 NOT:');
+                                                            // Özellikleri çek
+                                                            const featuresPart = parts[0].replace('🚀 EKLENECEK ÖZELLİKLER:', '').trim();
+                                                            features = featuresPart.split('\n').map((f: string) => f.replace('-', '').trim()).filter((f: string) => f);
+                                                            // Notu çek
+                                                            notes = parts[1] ? parts[1].trim() : "Not yok.";
+                                                        }
+
+                                                        return (
+                                                            <div key={req.id} className={`p-5 rounded-2xl border flex flex-col gap-4 transition relative overflow-hidden group ${req.status === 'PENDING' ? 'bg-gray-900/80 border-yellow-500/30' : 'bg-black border-gray-800 opacity-60'}`}>
+
+                                                                {/* Header: Tür ve Tarih */}
+                                                                <div className="flex justify-between items-start">
+                                                                    <div className="flex items-center gap-2">
+                                                                        {req.type === 'new_feature' && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded border border-blue-500/30 font-bold flex items-center gap-1"><FaPlus size={8} /> EK ÖZELLİK</span>}
+                                                                        {req.type === 'change' && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-1 rounded border border-purple-500/30 font-bold flex items-center gap-1"><FaExchangeAlt size={8} /> DEĞİŞİKLİK</span>}
+                                                                        {req.type === 'cancel' && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-1 rounded border border-red-500/30 font-bold flex items-center gap-1"><FaTimes size={8} /> İPTAL/SORUN</span>}
+                                                                        {req.type === 'bug' && <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-1 rounded border border-orange-500/30 font-bold flex items-center gap-1"><FaTools size={8} /> HATA</span>}
+
+                                                                        <span className="text-[10px] text-gray-500 ml-2">{new Date(req.createdAt).toLocaleDateString('tr-TR')}</span>
+                                                                    </div>
+
+                                                                    {req.status === 'APPROVED' && <span className="text-green-500 text-[10px] font-bold border border-green-500/20 bg-green-500/10 px-2 py-1 rounded flex items-center gap-1"><FaCheck /> ONAYLANDI</span>}
+                                                                    {req.status === 'REJECTED' && <span className="text-red-500 text-[10px] font-bold border border-red-500/20 bg-red-500/10 px-2 py-1 rounded flex items-center gap-1"><FaTimes /> REDDEDİLDİ</span>}
+                                                                    {req.status === 'PENDING' && <span className="text-yellow-500 text-[10px] font-bold border border-yellow-500/20 bg-yellow-500/10 px-2 py-1 rounded flex items-center gap-1 animate-pulse"><FaClock /> BEKLİYOR</span>}
+                                                                </div>
+
+                                                                {/* İçerik Alanı */}
+                                                                <div className="space-y-3">
+                                                                    {/* Eğer özellik listesi varsa Etiket olarak göster */}
+                                                                    {features.length > 0 && (
+                                                                        <div className="flex flex-wrap gap-2 mb-2">
+                                                                            {features.map((f, i) => (
+                                                                                <span key={i} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                                                                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> {f}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Not / Mesaj Alanı */}
+                                                                    <div className="bg-black p-4 rounded-xl border border-gray-800/50 flex gap-3">
+                                                                        <FaCommentDots className="text-gray-600 mt-1 flex-shrink-0" />
+                                                                        <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                                                            {notes}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    {/* 👇 DOSYA EKİ VARSA GÖSTER (YENİ) */}
+                                                                    {req.attachmentUrl && (
+                                                                        <div className="flex items-center gap-3">
+                                                                            <a
+                                                                                href={req.attachmentUrl}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="flex items-center gap-2 bg-blue-600/10 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-500/30 px-4 py-2 rounded-xl text-xs font-bold transition group/file"
+                                                                            >
+                                                                                <FaPaperclip className="group-hover/file:rotate-45 transition" />
+                                                                                Ekli Dosyayı Görüntüle
+                                                                                <FaExternalLinkAlt size={10} className="ml-1 opacity-50" />
+                                                                            </a>
+                                                                            <span className="text-[10px] text-gray-600">Müşteri bir dosya yükledi.</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                {/* Aksiyon Butonları (Sadece Bekleyenler İçin) */}
+                                                                {req.status === 'PENDING' && (
+                                                                    <div className="flex gap-3 justify-end mt-2 pt-4 border-t border-gray-800/50">
+                                                                        <form action={async (formData) => {
+                                                                            const { updateRequestStatus } = await import('./actions');
+                                                                            await updateRequestStatus(formData);
+                                                                            setActiveProjectToEdit(null);
+                                                                            toast.error("Talep reddedildi.");
+                                                                        }}>
+                                                                            <input type="hidden" name="requestId" value={req.id} />
+                                                                            <input type="hidden" name="status" value="REJECTED" />
+                                                                            <button className="text-xs text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 px-4 py-2 rounded-lg transition border border-red-500/20">Reddet</button>
+                                                                        </form>
+
+                                                                        <form action={async (formData) => {
+                                                                            const { updateRequestStatus } = await import('./actions');
+                                                                            await updateRequestStatus(formData);
+                                                                            setActiveProjectToEdit(null);
+                                                                            toast.success("Talep onaylandı ve proje kapsamına eklendi!");
+                                                                        }}>
+                                                                            <input type="hidden" name="requestId" value={req.id} />
+                                                                            <input type="hidden" name="status" value="APPROVED" />
+                                                                            <button className="text-xs text-white bg-green-600 hover:bg-green-500 px-5 py-2 rounded-lg transition font-bold shadow-lg shadow-green-900/20 flex items-center gap-2">
+                                                                                <FaCheck /> Onayla & İşe Ekle
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })
                                                 )}
                                             </div>
                                         </div>
                                     )}
+
                                 </div>
                             </motion.div>
                         </div>

@@ -388,3 +388,18 @@ export async function updateRequestStatus(formData: FormData) {
         return { success: false, error: 'Talep güncellenemedi.' };
     }
 }
+
+export async function cancelProject(formData: FormData) {
+    const id = formData.get('id') as string;
+
+    try {
+        await db.clientProject.update({
+            where: { id },
+            data: { status: 'CANCELLED' } // Dikkat: Prisma Schema'da CANCELLED enum'ı olmalı!
+        });
+        revalidatePath('/admin');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: 'İptal işlemi başarısız.' };
+    }
+}

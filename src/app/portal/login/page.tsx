@@ -2,8 +2,9 @@
 
 import { useActionState } from 'react'; // Veya useState ile manuel handle
 import { loginClient } from './actions';
-import { FaRocket, FaLock, FaArrowRight } from 'react-icons/fa';
+import { FaRocket, FaLock, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function ClientLoginPage() {
     const [loading, setLoading] = useState(false);
@@ -25,6 +26,11 @@ export default function ClientLoginPage() {
 
     return (
         <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+
+            {/* 👇 YENİ: ANA SAYFAYA DÖN BUTONU */}
+            <Link href="/" className="absolute top-8 left-8 text-gray-500 hover:text-white flex items-center gap-2 transition text-sm font-bold z-50 group">
+                <FaArrowLeft className="group-hover:-translate-x-1 transition" /> Ana Sayfaya Dön
+            </Link>
 
             {/* Arka Plan Efektleri */}
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black pointer-events-none"></div>

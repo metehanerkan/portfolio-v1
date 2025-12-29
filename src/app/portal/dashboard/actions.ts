@@ -106,6 +106,7 @@ export async function submitProjectRequest(formData: FormData) {
     const code = formData.get('code') as string;
     const requestType = formData.get('type') as string; // 'new_feature', 'change', 'cancel'
     const message = formData.get('message') as string;
+    const attachmentUrl = formData.get('attachmentUrl') as string | null;
 
     // Projeyi bul
     const project = await db.clientProject.findUnique({ where: { accessCode: code } });
@@ -117,11 +118,12 @@ export async function submitProjectRequest(formData: FormData) {
             projectId: project.id,
             type: requestType,
             message: message,
+            attachmentUrl,
             status: 'PENDING'
         }
     });
 
-    // İstersen buraya da bir e-posta bildirimi ekleyebilirsin ama panelde görüneceği için şart değil.
-
+    revalidatePath('/portal/dashboard');
+    revalidatePath('/admin'); // Admin de anında görsün
     return { success: true };
 }

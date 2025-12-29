@@ -62,25 +62,15 @@ model ClientProject {
   email       String   // Müşteri E-postası
   accessCode  String   @unique // Giriş Kodu
   description String   @db.Text // Tüm detaylı başvuru formu buraya kaydedilir
-
-  // Durum Yönetimi (String yerine Enum kullanıyoruz ki kodda hata yapmayalım)
   status      ProjectStatus @default(BRIEF_SUBMITTED)
-
-  // --- ADMİNİN VERDİĞİ TEKLİF ---
   budget      String?  // Admin'in verdiği fiyat
   deadline    String?  // Admin'in verdiği tarih
   adminNotes  String?  @db.Text // Admin'in kapsam notları
-
-  // --- MÜŞTERİ REVİZE / PAZARLIK ---
   clientOfferPrice    String?  // Müşterinin istediği fiyat
   clientOfferDeadline String?  // Müşterinin istediği süre
   clientOfferNotes    String?  @db.Text // Müşterinin revize notları (Platform, Özellikler vb.)
-
-  // --- CANLI TAKİP (PROGRESS) ---
   progress     Int     @default(0) // Yüzde kaç bitti? (0-100)
   currentStage String? @default("Hazırlık") // Şu an ne yapılıyor?
-  
-  // Opsiyonel alanlar (Eski yapıdan kalanlar, zarar gelmez dursun)
   features     String? 
   notes        String? 
   startDate    DateTime @default(now())
@@ -101,11 +91,10 @@ enum ProjectStatus {
 model ProjectRequest {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  
   projectId String
   project   ClientProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
   type      String   // 'new_feature', 'change', 'cancel', 'bug'
   message   String   @db.Text
   status    String   @default("PENDING") // PENDING (Bekliyor), APPROVED (Onaylandı), REJECTED (Red)
+  attachmentUrl String?
 }

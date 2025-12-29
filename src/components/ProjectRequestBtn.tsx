@@ -131,7 +131,7 @@ export default function ProjectRequestBtn() {
                 className={`fixed bottom-6 left-6 z-40 flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-white/10 group hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]
                 ${isHome ? 'px-6 py-4 rounded-full gap-3' : 'w-14 h-14 justify-center rounded-full'}`}
             >
-                {isHome && <span className="font-bold tracking-wide hidden md:block whitespace-nowrap">Projemi Başlat</span>}
+                {isHome && <span className="font-bold tracking-wide hidden md:block whitespace-nowrap">Bir Fikrim Var!</span>}
                 <div className={`${isHome ? 'bg-white/20 p-2 rounded-full' : ''}`}>
                     <FaRocket className={`transition-transform duration-300 ${isHome ? 'text-xl' : 'text-2xl'}`} />
                 </div>
