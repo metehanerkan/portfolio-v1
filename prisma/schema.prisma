@@ -98,3 +98,9 @@ model ProjectRequest {
   status    String   @default("PENDING") // PENDING (Bekliyor), APPROVED (Onaylandı), REJECTED (Red)
   attachmentUrl String?
 }
+
+
+model SiteSettings {
+  id              String  @id @default(uuid())
+  maintenanceMode Boolean @default(false) // Varsayılan: Kapalı
+}

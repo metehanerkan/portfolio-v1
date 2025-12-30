@@ -123,17 +123,27 @@ export default function ProjectRequestBtn() {
         <>
             <motion.button
                 onClick={() => setIsOpen(true)}
-                initial={{ scale: 0, y: 0 }}
-                animate={{ scale: 1, y: [0, -12, 0] }}
-                transition={{ scale: { duration: 0.5 }, y: { duration: 2, repeat: Infinity, ease: "easeInOut", repeatType: "loop" } }}
-                whileHover={{ scale: 1.05, y: 0, rotate: isHome ? 0 : 15 }}
+                // BAŞLANGIÇ: Artık scale 0 veya opacity 0 YOK. Direkt görünür başlıyor.
+                initial={{ y: 0 }}
+                // ANİMASYON: Sadece Y ekseninde zıplama hareketi var.
+                animate={{
+                    y: [0, -12, 0] // Aşağı -> Yukarı -> Aşağı döngüsü
+                }}
+                // GEÇİŞ AYARLARI
+                transition={{
+                    y: {
+                        duration: 2, // 2 saniyede bir tur
+                        repeat: Infinity, // Sonsuz döngü
+                        ease: "easeInOut", // Yumuşak geçiş
+                        repeatType: "loop"
+                    }
+                }}
+                whileHover={{ scale: 1.05, rotate: isHome ? 0 : 15 }}
                 whileTap={{ scale: 0.95 }}
-                // ✨ GÜNCELLEME: Boyutlar küçültüldü (px-5 py-3 ve w-12 h-12)
                 className={`fixed bottom-5 left-6 z-40 flex items-center bg-gradient-to-r from-purple-600 to-indigo-900 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-500/30 backdrop-blur-md group hover:shadow-sm hover:border-purple-400/50 transition-all duration-300
     ${isHome ? 'px-5 py-3 rounded-full gap-2' : 'w-12 h-12 justify-center rounded-full'}`}
             >
                 {isHome && (
-                    // ✨ Yazı boyutu text-sm yapıldı
                     <span className="font-bold tracking-wide hidden md:block whitespace-nowrap drop-shadow-md text-sm">
                         Bir Fikrim Var!
                     </span>
@@ -141,7 +151,6 @@ export default function ProjectRequestBtn() {
 
                 {/* İkon Arkası */}
                 <div className={`${isHome ? 'bg-white/10 p-1.5 rounded-full border border-white/10' : ''}`}>
-                    {/* ✨ İkon boyutu text-lg yapıldı */}
                     <FaRocket className={`transition-transform duration-300 drop-shadow-md ${isHome ? 'text-lg text-purple-200' : 'text-xl text-white'}`} />
                 </div>
             </motion.button>

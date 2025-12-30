@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
     FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
     FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt
@@ -10,8 +10,10 @@ import {
     toggleProjectStatus, toggleProjectFeatured, toggleBlogStatus, toggleBlogFeatured,
     updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject
 } from './actions';
+import { getSettings, toggleMaintenance } from './settings/actions';
+
 import Link from 'next/link';
-import { logout } from '@/app/login/actions';
+import { logout } from '@/app/admin/login/actions';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateRequestStatus } from '@/app/admin/actions';
@@ -65,6 +67,29 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
         newPassword: '',
         confirmPassword: ''
     });
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [loadingSettings, setLoadingSettings] = useState(true);
+    useEffect(() => {
+        async function fetchSettings() {
+            try {
+                const data = await getSettings();
+                if (data) {
+                    setMaintenanceMode(data.maintenanceMode);
+                }
+            } catch (error) {
+                console.error("Ayarlar çekilemedi:", error);
+            } finally {
+                setLoadingSettings(false);
+            }
+        }
+        fetchSettings();
+    }, []);
+    const handleMaintenanceToggle = async () => {
+        const oldState = maintenanceMode;
+        setMaintenanceMode(!oldState); // UI'ı hemen güncelle (Hız hissi için)
+
+        await toggleMaintenance(oldState); // Veritabanını güncelle
+    };
 
     const handleSettingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -572,21 +597,39 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                 </div>
 
                                 {/* Bakım Modu Toggle */}
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-800">
-                                    <div>
-                                        <h5 className="text-white font-medium">Bakım Modu</h5>
-                                        <p className="text-xs text-gray-500">Aktif edildiğinde site ziyaretçilere kapatılır.</p>
+                                <div className="space-y-8 animate-fadeIn pb-12">
+                                    <h2 className="text-3xl font-bold text-white mb-6">Sistem Ayarları</h2>
+
+                                    {/* BAKIM MODU KARTI */}
+                                    <div className={`p-8 rounded-2xl border transition-all duration-500 ${maintenanceMode ? 'bg-purple-900/20 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.2)]' : 'bg-gray-900 border-gray-800'}`}>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <h3 className="text-xl font-bold text-white">Bakım Modu</h3>
+                                                    {maintenanceMode && (
+                                                        <span className="px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full animate-pulse">
+                                                            AKTİF
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-gray-400 max-w-md">
+                                                    Aktif edildiğinde, <strong>Admin Paneli hariç</strong> tüm site ziyaretçilere kapatılır ve "Bakımdayız" sayfası gösterilir.
+                                                </p>
+                                            </div>
+
+                                            {/* TOGGLE SWITCH */}
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    checked={maintenanceMode}
+                                                    onChange={handleMaintenanceToggle}
+                                                    disabled={loadingSettings}
+                                                />
+                                                <div className="w-16 h-8 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600 shadow-inner"></div>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            name="maintenanceMode"
-                                            checked={settingsForm.maintenanceMode}
-                                            onChange={handleSettingChange}
-                                            className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                                    </label>
                                 </div>
 
                                 <div className="flex justify-end pt-4">

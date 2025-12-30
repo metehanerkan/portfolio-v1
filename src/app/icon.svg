@@ -1,12 +1,27 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="32" cy="32" r="32" fill="url(#paint0_linear)"/>
-  
-  <path d="M18 46V20H24L32 32L40 20H46V46H40V28L32 40L24 28V46H18Z" fill="white"/>
-  
   <defs>
-    <linearGradient id="paint0_linear" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#3B82F6"/>
-      <stop offset="1" stop-color="#6810bbff"/>
+    <linearGradient id="rich-bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(45)">
+      <stop offset="0%" stop-color="#3a1c71" />   <stop offset="50%" stop-color="#d76d77" />   <stop offset="100%" stop-color="#ffaf7b" />  </linearGradient>
+     <linearGradient id="theme-gradient" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#5B21B6"/> <stop offset="1" stop-color="#3B82F6"/> </linearGradient>
+
+
+    <linearGradient id="glass-m-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.75"/>
     </linearGradient>
+
+    <filter id="soft-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
   </defs>
+
+  <rect x="4" y="4" width="56" height="56" rx="18" fill="url(#theme-gradient)" shadow="url(#soft-shadow)"/>
+  
+  <path d="M20 44V22H25L32 32.5L39 22H44V44H39V29.5L32 40L25 29.5V44H20Z" 
+        fill="url(#glass-m-gradient)" 
+        filter="url(#soft-shadow)"/>
+
+  <path d="M20 22H25L32 32.5L39 22H44" stroke="white" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round"/>
+
 </svg>

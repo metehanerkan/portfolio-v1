@@ -34,5 +34,5 @@ export async function logout() {
     cookieStore.delete('admin_session');
 
     // Giriş sayfasına yönlendir
-    redirect('/login');
+    redirect('/admin/login');
 }
