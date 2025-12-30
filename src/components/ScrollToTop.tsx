@@ -36,10 +36,10 @@ export default function ScrollToTop() {
     return (
         <button
             onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-50 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 hover:scale-110 animate-bounce"
+            className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-to-b from-purple-500 to-purple-700 text-white rounded-full shadow-[0_0_10px_rgba(168,85,247,0.4)] border border-white/20 hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:bg-purple-600 transition-all duration-300 hover:scale-110 animate-bounce backdrop-blur-md"
             aria-label="Yukarı Çık"
         >
-            <FaArrowUp size={20} />
+            <FaArrowUp size={20} className="drop-shadow-md" />
         </button>
     );
 }

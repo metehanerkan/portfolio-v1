@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 // GİRİŞ YAPMA FONKSİYONU
 export async function loginAdmin(formData: FormData) {
     const password = formData.get('password') as string;
-    const correctPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const correctPassword = process.env.ADMIN_PASSWORD;
 
     if (password === correctPassword) {
         const cookieStore = await cookies();

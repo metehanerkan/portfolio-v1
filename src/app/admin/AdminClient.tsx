@@ -16,6 +16,7 @@ import MarkdownEditor from '@/components/MarkdownEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateRequestStatus } from '@/app/admin/actions';
 import { toast } from 'react-hot-toast';
+import { features } from 'process';
 
 interface AdminClientProps {
     projects: any[];
@@ -29,7 +30,7 @@ const BLOG_CATEGORIES = ['Yazılım', 'Kariyer', 'Teknoloji', 'Rehber', 'Diğer'
 
 // --- YARDIMCI FONKSİYON: Log Metnini Parse Etme ---
 const parseProjectDescription = (desc: string) => {
-    if (!desc) return { budget: '-', deadline: '-', platforms: [], design: '-', notes: '' };
+    if (!desc) return { budget: '-', deadline: '-', platforms: [], design: '-', notes: '', features: [] };
 
     const getVal = (key: string) => desc.split('\n').find((l: string) => l.includes(key))?.split(':')[1]?.trim();
 
@@ -54,6 +55,24 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const [projectToNegotiate, setProjectToNegotiate] = useState<any>(null);
     const [activeProjectToEdit, setActiveProjectToEdit] = useState<any>(null);
     const [manageTab, setManageTab] = useState<'info' | 'progress' | 'requests'>('progress');
+    // Ayarlar Sayfası İçin State'ler
+    const [settingsForm, setSettingsForm] = useState({
+        siteTitle: 'Metehan Erkan Portfolio',
+        siteDesc: 'Full Stack Developer Portfolyosu',
+        maintenanceMode: false,
+        githubUrl: 'https://github.com/metehanerkan',
+        linkedinUrl: 'https://linkedin.com/in/metehan-erkan',
+        newPassword: '',
+        confirmPassword: ''
+    });
+
+    const handleSettingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setSettingsForm(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
 
     // State'ler (Blog/Proje Ekleme)
     const [blogContent, setBlogContent] = useState('');
@@ -306,7 +325,39 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                         <span className="text-orange-500 font-bold mb-1">Süre</span>
                                                         <span className="text-gray-300">{parsed.deadline}</span>
                                                     </div>
+                                                    <div className="bg-gray-900/50 p-2 rounded border border-gray-800 flex flex-col">
+                                                        <span className="text-purple-500 font-bold mb-1">Tasarım Durumu</span>
+                                                        <span className="text-gray-300">{parsed.design}</span>
+                                                    </div>
                                                 </div>
+
+                                                {(() => {
+                                                    // Mesaj metninden özellikleri canlı olarak çekip ayıklıyoruz
+                                                    const featuresPart = msg.message.split('🛠️ TEKNİK ÖZELLİKLER')[1]?.split('📝')[0]?.replace(':', '').trim();
+                                                    // Eğer özellik varsa virgülden ayırıp dizi yap, yoksa boş dizi
+                                                    const features = featuresPart && featuresPart !== 'Standart.' ? featuresPart.split(', ') : [];
+
+                                                    if (features.length > 0) {
+                                                        return (
+                                                            <div className="mt-2 pt-2 border-t border-gray-800/50">
+                                                                <span className="text-[10px] font-bold text-gray-500 uppercase mb-1 block">İstenen Özellikler</span>
+                                                                <div className="flex flex-wrap gap-1">
+                                                                    {features.slice(0, 4).map((f: string, i: number) => (
+                                                                        <span key={i} className="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700 flex items-center gap-1">
+                                                                            <div className="w-1 h-1 bg-green-500 rounded-full"></div> {f}
+                                                                        </span>
+                                                                    ))}
+                                                                    {features.length > 4 && (
+                                                                        <span className="text-[9px] text-gray-500 self-center px-1">
+                                                                            +{features.length - 4} diğer
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
                                                 {parsed.platforms.length > 0 && (
                                                     <div className="flex flex-wrap gap-1 mt-1">
                                                         {parsed.platforms.map((p: string, i: number) => (
@@ -416,15 +467,134 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
 
             case 'settings':
                 return (
-                    <div className="space-y-6 animate-fadeIn">
-                        <h2 className="text-2xl font-bold text-white">Ayarlar</h2>
-                        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
-                            <div className="flex items-center gap-4 mb-8"><div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold text-white">M</div><div><h3 className="text-xl font-bold text-white">Admin Hesabı</h3><p className="text-gray-400">Yönetici yetkileri aktif</p></div></div>
-                            <form className="space-y-4 opacity-50 pointer-events-none">
-                                <label className="block text-sm text-gray-400">Site Başlığı</label><input type="text" value="Metehan Erkan Portfolio" className="input-dark" readOnly />
-                                <label className="block text-sm text-gray-400">E-posta Bildirimleri</label><input type="text" value="Aktif" className="input-dark" readOnly />
-                                <p className="text-xs text-yellow-500 pt-2">* Ayarlar modülü geliştirme aşamasındadır.</p>
+                    <div className="space-y-8 animate-fadeIn pb-12">
+                        <h2 className="text-3xl font-bold text-white mb-6">Ayarlar & Konfigürasyon</h2>
+
+                        {/* 1. KART: PROFİL VE GÜVENLİK */}
+                        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl">
+                            <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-800">
+                                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                                    M
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">Admin Hesabı</h3>
+                                    <p className="text-gray-400 text-sm">Süper Yönetici Yetkileri Aktif</p>
+                                </div>
+                            </div>
+
+                            <form className="space-y-6">
+                                <h4 className="text-lg font-semibold text-white mb-4 border-l-4 border-blue-500 pl-3">Güvenlik Ayarları</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400">Yeni Şifre</label>
+                                        <input
+                                            type="password"
+                                            name="newPassword"
+                                            value={settingsForm.newPassword}
+                                            onChange={handleSettingChange}
+                                            placeholder="••••••••"
+                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400">Şifre Tekrar</label>
+                                        <input
+                                            type="password"
+                                            name="confirmPassword"
+                                            value={settingsForm.confirmPassword}
+                                            onChange={handleSettingChange}
+                                            placeholder="••••••••"
+                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end">
+                                    <button type="button" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition text-sm">
+                                        Şifreyi Güncelle
+                                    </button>
+                                </div>
                             </form>
+                        </div>
+
+                        {/* 2. KART: GENEL SİTE AYARLARI */}
+                        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl">
+                            <h4 className="text-lg font-semibold text-white mb-6 border-l-4 border-purple-500 pl-3">Genel Site Ayarları</h4>
+
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400">Site Başlığı (Title)</label>
+                                        <input
+                                            type="text"
+                                            name="siteTitle"
+                                            value={settingsForm.siteTitle}
+                                            onChange={handleSettingChange}
+                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400">SEO Açıklaması</label>
+                                        <input
+                                            type="text"
+                                            name="siteDesc"
+                                            value={settingsForm.siteDesc}
+                                            onChange={handleSettingChange}
+                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Sosyal Medya */}
+                                <div className="pt-4 border-t border-gray-800">
+                                    <label className="text-sm font-medium text-gray-400 mb-4 block">Sosyal Medya Bağlantıları</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="flex items-center gap-3">
+                                            <span className="bg-gray-800 p-3 rounded-lg text-white"><i className="fab fa-github"></i> GH</span>
+                                            <input
+                                                type="text"
+                                                name="githubUrl"
+                                                value={settingsForm.githubUrl}
+                                                onChange={handleSettingChange}
+                                                className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="bg-gray-800 p-3 rounded-lg text-white"><i className="fab fa-linkedin"></i> LI</span>
+                                            <input
+                                                type="text"
+                                                name="linkedinUrl"
+                                                value={settingsForm.linkedinUrl}
+                                                onChange={handleSettingChange}
+                                                className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Bakım Modu Toggle */}
+                                <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+                                    <div>
+                                        <h5 className="text-white font-medium">Bakım Modu</h5>
+                                        <p className="text-xs text-gray-500">Aktif edildiğinde site ziyaretçilere kapatılır.</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="maintenanceMode"
+                                            checked={settingsForm.maintenanceMode}
+                                            onChange={handleSettingChange}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <button type="button" className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition shadow-lg shadow-green-900/20">
+                                        Ayarları Kaydet
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -445,7 +615,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     <button onClick={() => setActiveTab('messages')} className={`nav-item ${activeTab === 'messages' ? 'active' : ''}`}><div className="flex justify-between w-full items-center"><span className="flex items-center gap-3"><FaEnvelope /> Mesajlar</span>{messages.length > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{messages.length}</span>}</div></button>
                     <button onClick={() => setActiveTab('settings')} className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}><FaCog /> Ayarlar</button>
                 </nav>
-                <div className="p-4 border-t border-gray-900 space-y-2"><Link href="/" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 rounded-xl transition text-sm"><FaEye /> Siteyi Görüntüle</Link><form action={logout}><button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition text-sm"><FaSignOutAlt /> Güvenli Çıkış</button></form></div>
+                <div className="p-4 border-t border-gray-900 space-y-2"><Link href="/" target='_blank' className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 rounded-xl transition text-sm"><FaEye /> Siteyi Görüntüle</Link><form action={logout}><button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition text-sm"><FaSignOutAlt /> Güvenli Çıkış</button></form></div>
             </aside>
 
             <main className="flex-1 ml-72 p-10 bg-black min-h-screen relative">

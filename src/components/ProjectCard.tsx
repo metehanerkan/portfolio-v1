@@ -20,12 +20,12 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project }: ProjectCardProps) {
     return (
-        <div className="group relative bg-gray-900/40 border border-gray-800/50 rounded-3xl overflow-hidden hover:border-blue-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 flex flex-col h-full backdrop-blur-sm">
+        <div className="group relative bg-[#0a0a0a]/40 border border-white/10 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] flex flex-col h-full backdrop-blur-md hover:-translate-y-1">
 
             <Link href={`/projects/${project.id}`} className="flex flex-col flex-grow cursor-pointer">
 
                 {/* 1. ÜST KISIM: GÖRSEL */}
-                <div className="relative h-56 overflow-hidden w-full bg-gray-950">
+                <div className="relative h-56 overflow-hidden w-full bg-[#030014]">
                     {/* Resim Varsa */}
                     {project.imageUrl ? (
                         <img
@@ -35,15 +35,15 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                         />
                     ) : (
                         /* Resim Yoksa */
-                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-700 group-hover:text-gray-600 transition-colors">
+                        <div className="w-full h-full flex flex-col items-center justify-center text-purple-200/30 group-hover:text-purple-200/50 transition-colors">
                             <FaImage size={40} className="mb-2 opacity-50" />
-                            <span className="text-xs">Görsel Yok</span>
+                            <span className="text-xs font-medium">Görsel Yok</span>
                         </div>
                     )}
 
                     {/* Kategori Etiketi (Sol Üst) */}
                     <div className="absolute top-4 left-4 z-10">
-                        <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                        <span className="bg-purple-600/90 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-md border border-white/10">
                             {project.category}
                         </span>
                     </div>
@@ -57,49 +57,49 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                         </div>
                     )}
 
-                    {/* Hover Overlay (Siyah Perde) */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                    {/* Hover Overlay (Mor Perde) */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                 </div>
 
-                {/* 2. ORTA KISIM: BAŞLIK VE TEKNOLOJİLER (Açıklama Silindi) */}
+                {/* 2. ORTA KISIM: BAŞLIK VE TEKNOLOJİLER */}
                 <div className="p-6 pb-2 flex flex-col flex-grow">
 
                     {/* Başlık */}
-                    <h3 className="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors line-clamp-1">
+                    <h3 className="text-xl font-bold text-white mb-4 group-hover:text-purple-300 transition-colors line-clamp-1">
                         {project.title}
                     </h3>
 
-                    {/* Teknolojiler (Kartın içine aldık, boşluk doldursun) */}
+                    {/* Teknolojiler */}
                     <div className="flex flex-wrap gap-2 mt-auto">
                         {project.technologies.slice(0, 4).map((tech, index) => (
                             <span
                                 key={index}
-                                className="px-2.5 py-1 text-xs font-medium bg-blue-500/5 text-blue-300 border border-blue-500/10 rounded-lg group-hover:border-blue-500/20 transition-colors"
+                                className="px-2.5 py-1 text-xs font-medium bg-white/5 text-purple-200/70 border border-white/5 rounded-lg group-hover:border-purple-500/20 group-hover:text-purple-100 transition-colors"
                             >
                                 {tech}
                             </span>
                         ))}
                         {project.technologies.length > 4 && (
-                            <span className="px-2 py-1 text-xs text-gray-500">+{project.technologies.length - 4}</span>
+                            <span className="px-2 py-1 text-xs text-purple-200/40">+{project.technologies.length - 4}</span>
                         )}
                     </div>
                 </div>
             </Link>
 
-            {/* 3. ALT KISIM: BUTONLAR (Ayrı Tıklanabilir Alan) */}
+            {/* 3. ALT KISIM: BUTONLAR */}
             <div className="p-6 pt-4 mt-auto">
-                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-800/50">
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
                     {project.githubUrl ? (
                         <a
                             href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-800/50 hover:bg-gray-800 text-gray-300 hover:text-white text-sm font-medium transition-all group/btn border border-transparent hover:border-gray-700 z-20 relative"
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-purple-200/70 hover:text-white text-sm font-medium transition-all group/btn border border-white/5 hover:border-white/20 z-20 relative"
                         >
                             <FaGithub className="group-hover/btn:scale-110 transition-transform" /> Kodlar
                         </a>
                     ) : (
-                        <span className="flex items-center justify-center py-2.5 rounded-xl bg-gray-900/30 text-gray-600 text-sm border border-gray-800/30 cursor-not-allowed">
+                        <span className="flex items-center justify-center py-2.5 rounded-xl bg-[#0a0a0a]/30 text-purple-200/30 text-sm border border-white/5 cursor-not-allowed">
                             Gizli
                         </span>
                     )}
@@ -109,14 +109,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                             href={project.liveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-600/30 group/btn z-20 relative"
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-medium transition-all shadow-lg shadow-purple-900/20 hover:shadow-purple-600/30 group/btn z-20 relative border border-white/10"
                         >
-                            <FaExternalLinkAlt className="group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" /> Demo
+                            <FaExternalLinkAlt className="group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform text-xs" /> Demo
                         </a>
                     ) : (
                         <Link
                             href={`/projects/${project.id}`}
-                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-800 text-white text-sm font-medium hover:bg-gray-700 transition-all z-20 relative"
+                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all z-20 relative border border-white/10"
                         >
                             İncele
                         </Link>
