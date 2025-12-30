@@ -127,7 +127,7 @@ export default function ProjectRequestBtn() {
                 initial={{ y: 0 }}
                 // ANİMASYON: Sadece Y ekseninde zıplama hareketi var.
                 animate={{
-                    y: [0, -12, 0] // Aşağı -> Yukarı -> Aşağı döngüsü
+                    y: [0, -30, 0] // Aşağı -> Yukarı -> Aşağı döngüsü
                 }}
                 // GEÇİŞ AYARLARI
                 transition={{
