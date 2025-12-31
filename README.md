@@ -1,13 +1,11 @@
 # 🚀 Metehan Erkan | Personal Portfolio & Blog Architecture
 
-![Project Banner](https://via.placeholder.com/1200x600/030014/a855f7?text=Metehan+Erkan+Portfolio+Showcase)
-
 > **Modern Web Teknolojileri ve Özgün Tasarımın Birleşimi.**
 > Bu proje, standart bir portfolyo sitesinin ötesinde; Next.js 14 App Router mimarisi, Server Actions ve güçlü bir Admin Yönetim Paneli içeren full-stack bir web uygulamasıdır.
 
 <div align="center">
 
-[![Live Demo](https://img.shields.io/badge/Canlı_Demo-Visit_Site-7c3aed?style=for-the-badge&logo=vercel)](https://metehanerkan.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Canlı_Demo-Visit_Site-7c3aed?style=for-the-badge&logo=vercel)]([https://metehanerkan.vercel.app](https://portfolio-v1-eta-taupe.vercel.app/))
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
