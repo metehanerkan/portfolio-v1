@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FaGithub, FaExternalLinkAlt, FaImage } from 'react-icons/fa';
+import { Dictionary } from '@/dictionaries';
 
 interface ProjectCardProps {
     project: {
@@ -16,11 +17,12 @@ interface ProjectCardProps {
         isFeatured?: boolean;
         isPublished?: boolean;
     };
+    dict?: Dictionary['projects']['card']; // Optional for now to support simple usage if needed, or mandatory
 }
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project, dict }: ProjectCardProps) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
@@ -35,6 +37,15 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
     const rotateX = useTransform(mouseY, [-300, 300], [5, -5]); // Hafif eğim
     const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
+
+    // Fallback texts if dict is not provided (should be provided)
+    const t = dict || {
+        noImage: "Görsel Yok",
+        code: "Kodlar",
+        private: "Gizli",
+        demo: "Demo",
+        review: "İncele"
+    };
 
     return (
         <motion.div
@@ -59,7 +70,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                         /* Resim Yoksa */
                         <div className="w-full h-full flex flex-col items-center justify-center text-purple-200/30 group-hover:text-purple-200/50 transition-colors">
                             <FaImage size={40} className="mb-2 opacity-50" />
-                            <span className="text-xs font-medium">Görsel Yok</span>
+                            <span className="text-xs font-medium">{t.noImage}</span>
                         </div>
                     )}
 
@@ -118,11 +129,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-purple-200/70 hover:text-white text-sm font-medium transition-all group/btn border border-white/5 hover:border-white/20 z-20 relative"
                         >
-                            <FaGithub className="group-hover/btn:scale-110 transition-transform" /> Kodlar
+                            <FaGithub className="group-hover/btn:scale-110 transition-transform" /> {t.code}
                         </a>
                     ) : (
                         <span className="flex items-center justify-center py-2.5 rounded-xl bg-[#0a0a0a]/30 text-purple-200/30 text-sm border border-white/5 cursor-not-allowed">
-                            Gizli
+                            {t.private}
                         </span>
                     )}
 
@@ -133,14 +144,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-medium transition-all shadow-lg shadow-purple-900/20 hover:shadow-purple-600/30 group/btn z-20 relative border border-white/10"
                         >
-                            <FaExternalLinkAlt className="group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform text-xs" /> Demo
+                            <FaExternalLinkAlt className="group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform text-xs" /> {t.demo}
                         </a>
                     ) : (
                         <Link
                             href={`/projects/${project.id}`}
                             className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all z-20 relative border border-white/10"
                         >
-                            İncele
+                            {t.review}
                         </Link>
                     )}
                 </div>

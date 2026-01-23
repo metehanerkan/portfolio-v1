@@ -3,10 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import {
     FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
-    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt, FaTerminal, FaEnvelopeOpenText
+    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt, FaTerminal, FaEnvelopeOpenText,
+    FaHome, FaChevronDown, FaChevronRight
 } from 'react-icons/fa';
 import {
-    addProject, deleteProject, addBlog, deleteBlog, deleteMessage,
+    addProject, deleteProject, addBlog, deleteBlog, deleteMessage, replyToMessage,
     toggleProjectStatus, toggleProjectFeatured, toggleBlogStatus, toggleBlogFeatured,
     updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject
 } from './actions';
@@ -15,6 +16,7 @@ import { createBackup } from '@/actions/backup';
 import LiveLogs from './LiveLogs';
 import SystemHealthWidget from './SystemHealthWidget';
 import AnalyticsWidget from './AnalyticsWidget';
+import DetailedAnalytics from './DetailedAnalytics';
 import NewsletterManager from './NewsletterManager';
 
 import Link from 'next/link';
@@ -24,6 +26,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { updateRequestStatus } from '@/app/admin/actions';
 import { toast } from 'react-hot-toast';
 import { features } from 'process';
+import { FaReply } from 'react-icons/fa';
 
 interface AdminClientProps {
     projects: any[];
@@ -51,12 +54,16 @@ const parseProjectDescription = (desc: string) => {
 };
 
 export default function AdminClient({ projects, blogs, messages, clientProjects }: AdminClientProps) {
-    const [activeTab, setActiveTab] = useState<'stats' | 'projects' | 'blogs' | 'messages' | 'activeProjects' | 'settings' | 'logs' | 'newsletter'>('stats');
+    const [activeTab, setActiveTab] = useState<'stats' | 'projects' | 'blogs' | 'messages' | 'activeProjects' | 'settings' | 'logs' | 'newsletter' | 'analytics'>('stats');
     const [subTab, setSubTab] = useState<'list' | 'form'>('list');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [isContentOpen, setIsContentOpen] = useState(true);
+    const [isSystemOpen, setIsSystemOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     // --- STATE YÖNETİMİ ---
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
+    const [replyingTo, setReplyingTo] = useState<any>(null); // Cevap verilecek mesaj
     const [projectToAccept, setProjectToAccept] = useState<any>(null);
     const [projectToOffer, setProjectToOffer] = useState<any>(null);
     const [projectToNegotiate, setProjectToNegotiate] = useState<any>(null);
@@ -406,6 +413,12 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
 
                                         <div className="mt-4 flex justify-end gap-3" onClick={(e) => e.stopPropagation()}>
                                             {isProjectRequest && (<button onClick={() => setProjectToAccept(msg)} className="text-green-400 text-sm hover:text-green-300 flex items-center gap-1 bg-green-500/10 px-3 py-2 rounded-lg border border-green-500/20 transition hover:bg-green-500/20"><FaCheck /> İncele & Başlat</button>)}
+
+                                            {/* Yeni Cevapla Butonu */}
+                                            <button onClick={() => setReplyingTo(msg)} className="text-blue-400 text-sm hover:text-blue-300 flex items-center gap-1 px-3 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg transition hover:bg-blue-500/20">
+                                                <FaReply size={12} /> Cevapla
+                                            </button>
+
                                             <form action={deleteMessage}><input type="hidden" name="id" value={msg.id} /><button className="text-red-400 text-sm hover:text-red-300 flex items-center gap-1 px-3 py-2"><FaTrash size={12} /> Sil</button></form>
                                         </div>
                                     </div>
@@ -507,6 +520,10 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                         <LiveLogs />
                     </div>
                 );
+
+
+            case 'analytics':
+                return <DetailedAnalytics />;
 
 
 
@@ -711,25 +728,94 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
 
     return (
         <div className="flex min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
-            <aside className="w-72 bg-gray-950 border-r border-gray-900 fixed h-full flex flex-col z-20 top-0 left-0">
-                <div className="p-8 border-b border-gray-900"><h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">Admin Paneli</h1><p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">Kontrol Merkezi</p></div>
-                <nav className="flex-1 p-4 space-y-1">
-                    <button onClick={() => setActiveTab('stats')} className={`nav-item ${activeTab === 'stats' ? 'active' : ''}`}><FaChartBar /> İstatistikler</button>
-                    <button onClick={() => setActiveTab('activeProjects')} className={`nav-item ${activeTab === 'activeProjects' ? 'active' : ''}`}><div className="flex justify-between w-full items-center"><span className="flex items-center gap-3"><FaBriefcase /> Müşteri İşleri</span>{activeClientProjects.length > 0 && <span className="bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-full">{activeClientProjects.length}</span>}</div></button>
-                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-6 ml-4">İçerik</div>
-                    <button onClick={() => { setActiveTab('projects'); setSubTab('list') }} className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}><FaProjectDiagram /> Projeler</button>
-                    <button onClick={() => { setActiveTab('blogs'); setSubTab('list') }} className={`nav-item ${activeTab === 'blogs' ? 'active' : ''}`}><FaPenNib /> Blog Yazıları</button>
-                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-6 ml-4">Sistem</div>
-                    <button onClick={() => setActiveTab('messages')} className={`nav-item ${activeTab === 'messages' ? 'active' : ''}`}><div className="flex justify-between w-full items-center"><span className="flex items-center gap-3"><FaEnvelope /> Mesajlar</span>{messages.length > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{messages.length}</span>}</div></button>
-                    <button onClick={() => setActiveTab('logs')} className={`nav-item ${activeTab === 'logs' ? 'active' : ''}`}><FaTerminal /> Canlı Loglar</button>
-                    <button onClick={() => setActiveTab('newsletter')} className={`nav-item ${activeTab === 'newsletter' ? 'active' : ''}`}><FaEnvelopeOpenText /> E-Bülten</button>
-                    <button onClick={() => setActiveTab('settings')} className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}><FaCog /> Ayarlar</button>
+            <aside className={`bg-gray-950 border-r border-gray-900 fixed h-full flex flex-col z-20 top-0 left-0 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-16'}`}>
+                <div className={`border-b border-gray-900 flex items-center justify-between ${isSidebarOpen ? 'p-6' : 'p-4 justify-center'}`}>
+                    {isSidebarOpen ? (
+                        <>
+                            <div><h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">Admin Paneli</h1><p className="text-[10px] text-gray-500 uppercase tracking-widest">Kontrol Merkezi</p></div>
+                            <button onClick={() => setIsSidebarOpen(false)} className="text-gray-500 hover:text-white transition"><FaChevronRight className="rotate-180" /></button>
+                        </>
+                    ) : (
+                        <button onClick={() => setIsSidebarOpen(true)} className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg text-sm hover:scale-105 transition">A</button>
+                    )}
+                </div>
+                <nav className={`flex-1 p-2 space-y-1 ${!isSidebarOpen && 'flex flex-col items-center'}`}>
+                    <button onClick={() => setActiveTab('stats')} className={`nav-item ${activeTab === 'stats' ? 'active' : ''} ${!isSidebarOpen && 'justify-center w-10 h-10 p-0 rounded-xl'}`}>
+                        <FaHome size={isSidebarOpen ? 16 : 18} title="Genel Bakış" />
+                        {isSidebarOpen && <span>Genel Bakış</span>}
+                    </button>
+                    <button onClick={() => setActiveTab('activeProjects')} className={`nav-item ${activeTab === 'activeProjects' ? 'active' : ''} ${!isSidebarOpen && 'justify-center w-10 h-10 p-0 rounded-xl'}`}>
+                        {isSidebarOpen ? (
+                            <div className="flex justify-between w-full items-center"><span className="flex items-center gap-3"><FaBriefcase /> Müşteri İşleri</span>{activeClientProjects.length > 0 && <span className="bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-full">{activeClientProjects.length}</span>}</div>
+                        ) : (
+                            <div className="relative flex items-center justify-center w-full h-full"><FaBriefcase size={20} title="Müşteri İşleri" />{activeClientProjects.length > 0 && <span className="absolute -top-1 -right-1 bg-green-600 text-white text-[9px] w-3 h-3 flex items-center justify-center rounded-full">{activeClientProjects.length}</span>}</div>
+                        )}
+                    </button>
+                    <div className={`pt-2 ${!isSidebarOpen && 'hidden'}`}>
+                        <button onClick={() => setIsContentOpen(!isContentOpen)} className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 ml-4 w-full hover:text-white transition">
+                            {isContentOpen ? <FaChevronDown /> : <FaChevronRight />} İçerik
+                        </button>
+                        {isContentOpen && (
+                            <div className="space-y-1 animate-fadeIn">
+                                <button onClick={() => { setActiveTab('projects'); setSubTab('list') }} className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}><FaProjectDiagram /> Projeler</button>
+                                <button onClick={() => { setActiveTab('blogs'); setSubTab('list') }} className={`nav-item ${activeTab === 'blogs' ? 'active' : ''}`}><FaPenNib /> Blog Yazıları</button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Mini Sidebar Content Icons */}
+                    {!isSidebarOpen && (
+                        <>
+                            <div className="h-px bg-gray-800 w-8 my-2"></div>
+                            <button onClick={() => { setActiveTab('projects'); setSubTab('list') }} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'projects' ? 'active' : ''}`}><FaProjectDiagram size={20} title="Projeler" /></button>
+                            <button onClick={() => { setActiveTab('blogs'); setSubTab('list') }} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'blogs' ? 'active' : ''}`}><FaPenNib size={20} title="Blog Yazıları" /></button>
+                        </>
+                    )}
+
+                    <div className={`pt-2 ${!isSidebarOpen && 'hidden'}`}>
+                        <button onClick={() => setIsSystemOpen(!isSystemOpen)} className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 ml-4 w-full hover:text-white transition">
+                            {isSystemOpen ? <FaChevronDown /> : <FaChevronRight />} Sistem
+                        </button>
+                        {isSystemOpen && (
+                            <div className="space-y-1 animate-fadeIn">
+                                <button onClick={() => setActiveTab('messages')} className={`nav-item ${activeTab === 'messages' ? 'active' : ''}`}><div className="flex justify-between w-full items-center"><span className="flex items-center gap-3"><FaEnvelope /> Mesajlar</span>{messages.length > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{messages.length}</span>}</div></button>
+                                <button onClick={() => setActiveTab('logs')} className={`nav-item ${activeTab === 'logs' ? 'active' : ''}`}><FaTerminal /> Canlı Loglar</button>
+                                <button onClick={() => setActiveTab('analytics')} className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`}><FaChartBar /> Detaylı Analiz</button>
+                                <button onClick={() => setActiveTab('newsletter')} className={`nav-item ${activeTab === 'newsletter' ? 'active' : ''}`}><FaEnvelopeOpenText /> E-Bülten</button>
+                                <button onClick={() => setActiveTab('settings')} className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}><FaCog /> Ayarlar</button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Mini Sidebar System Icons */}
+                    {!isSidebarOpen && (
+                        <>
+                            <div className="h-px bg-gray-800 w-8 my-2"></div>
+                            <button onClick={() => setActiveTab('messages')} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'messages' ? 'active' : ''}`}><div className="relative flex items-center justify-center w-full h-full"><FaEnvelope size={20} title="Mesajlar" />{messages.length > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-3 h-3 flex items-center justify-center rounded-full">{messages.length}</span>}</div></button>
+                            <button onClick={() => setActiveTab('logs')} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'logs' ? 'active' : ''}`}><FaTerminal size={20} title="Canlı Loglar" /></button>
+                            <button onClick={() => setActiveTab('analytics')} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'analytics' ? 'active' : ''}`}><FaChartBar size={20} title="Detaylı Analiz" /></button>
+                            <button onClick={() => setActiveTab('newsletter')} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'newsletter' ? 'active' : ''}`}><FaEnvelopeOpenText size={20} title="E-Bülten" /></button>
+                            <button onClick={() => setActiveTab('settings')} className={`nav-item justify-center w-10 h-10 p-0 rounded-xl ${activeTab === 'settings' ? 'active' : ''}`}><FaCog size={20} title="Ayarlar" /></button>
+                        </>
+                    )}
                 </nav>
-                <div className="p-4 border-t border-gray-900 space-y-2"><Link href="/" target='_blank' className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 rounded-xl transition text-sm"><FaEye /> Siteyi Görüntüle</Link><form action={logout}><button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition text-sm"><FaSignOutAlt /> Güvenli Çıkış</button></form></div>
+                <div className={`p-4 border-t border-gray-900 space-y-2 ${!isSidebarOpen ? 'flex flex-col items-center px-2' : ''}`}>
+                    <Link href="/" target='_blank' className={`flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 rounded-xl transition text-sm ${!isSidebarOpen ? 'justify-center px-0 w-full' : ''}`}>
+                        <FaEye size={isSidebarOpen ? 16 : 20} title="Siteyi Görüntüle" />
+                        {isSidebarOpen && <span>Siteyi Görüntüle</span>}
+                    </Link>
+                    <form action={logout} className={!isSidebarOpen ? 'w-full' : ''}>
+                        <button type="submit" className={`w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition text-sm ${!isSidebarOpen ? 'justify-center px-0' : ''}`}>
+                            <FaSignOutAlt size={isSidebarOpen ? 16 : 20} title="Güvenli Çıkış" />
+                            {isSidebarOpen && <span>Güvenli Çıkış</span>}
+                        </button>
+                    </form>
+                </div>
             </aside>
 
-            <main className="flex-1 ml-72 p-10 bg-black min-h-screen relative">
-                <div className="max-w-6xl mx-auto">{renderContent()}</div>
+            <main className={`flex-1 p-10 bg-black min-h-screen relative transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
+
+                <div className="max-w-6xl mx-auto pt-8">{renderContent()}</div>
 
                 {/* MODAL 1: PROJE KABUL & BAŞLATMA */}
                 <AnimatePresence>
@@ -1306,6 +1392,46 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                         </div>
                     )}
                 </AnimatePresence>
+
+                {/* MODAL 7: REPLY MODAL */}
+                {replyingTo && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                        <div className="bg-gray-900 w-full max-w-lg rounded-2xl border border-gray-800 shadow-2xl overflow-hidden animate-scaleIn">
+                            <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-950">
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2"><FaReply /> Cevapla: {replyingTo.name}</h3>
+                                <button onClick={() => setReplyingTo(null)} className="text-gray-500 hover:text-white transition"><FaTimes size={20} /></button>
+                            </div>
+                            <form action={async (formData) => {
+                                const result = await replyToMessage(formData);
+                                if (result.success) {
+                                    toast.success('Cevap gönderildi! 📨');
+                                    setReplyingTo(null);
+                                } else {
+                                    toast.error(result.error || 'İşlem başarısız.');
+                                }
+                            }} className="p-6 space-y-4">
+                                <input type="hidden" name="email" value={replyingTo.email} />
+                                <input type="hidden" name="name" value={replyingTo.name} />
+                                <input type="hidden" name="subject" value={replyingTo.subject} />
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Kime</label>
+                                    <div className="text-gray-300 text-sm font-mono bg-black/30 p-2 rounded border border-gray-800">{replyingTo.email}</div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Mesajınız</label>
+                                    <textarea name="message" rows={6} className="input-dark resize-none" placeholder="Cevabınızı buraya yazın..." required></textarea>
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
+                                    <button type="button" onClick={() => setReplyingTo(null)} className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition">İptal</button>
+                                    <button type="submit" className="btn-primary flex items-center gap-2"><FaPaperPlane /> Gönder</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
 
             </main>
             <style jsx global>{`

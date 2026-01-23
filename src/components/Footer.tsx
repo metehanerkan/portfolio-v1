@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import NewsletterForm from './NewsletterForm';
+import { Locale, Dictionary } from '@/dictionaries';
 
-export default function Footer() {
+interface FooterProps {
+    lang: Locale;
+    dict: Dictionary['footer'] & { nav: Dictionary['nav'] }; // footer + nav (for links)
+}
+
+export default function Footer({ lang, dict }: FooterProps) {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -29,32 +35,32 @@ export default function Footer() {
                             Metehan.
                         </h3>
                         <p className="text-purple-200/60 text-sm leading-relaxed max-w-xs">
-                            Modern web teknolojileri ile kullanıcı dostu, hızlı ve estetik dijital deneyimler tasarlıyorum.
+                            {dict.brandDesc}
                         </p>
                     </div>
 
                     {/* HIZLI LİNKLER */}
                     <div className="space-y-6">
-                        <h4 className="text-white font-bold text-lg tracking-wide">Hızlı Linkler</h4>
+                        <h4 className="text-white font-bold text-lg tracking-wide">{dict.quickLinks}</h4>
                         <ul className="space-y-3 text-purple-200/60 text-sm">
                             <li>
-                                <Link href="/projects" className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
-                                    Projeler
+                                <Link href={`/${lang}/projects`} className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
+                                    {dict.nav.projects}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/blog" className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
-                                    Bloglar
+                                <Link href={`/${lang}/blog`} className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
+                                    {dict.nav.blog}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/about" className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
-                                    Hakkımda
+                                <Link href={`/${lang}/about`} className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
+                                    {dict.nav.about}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/contact" className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
-                                    İletişim
+                                <Link href={`/${lang}/contact`} className="hover:text-white hover:translate-x-1 transition-all duration-300 inline-block">
+                                    {dict.nav.contact}
                                 </Link>
                             </li>
                         </ul>
@@ -62,7 +68,7 @@ export default function Footer() {
 
                     {/* İLETİŞİM */}
                     <div className="space-y-6">
-                        <h4 className="text-white font-bold text-lg tracking-wide">İletişim</h4>
+                        <h4 className="text-white font-bold text-lg tracking-wide">{dict.contact}</h4>
                         <p className="text-purple-200/60 text-sm">
                             Projeleriniz veya sorularınız için her zaman ulaşabilirsiniz.
                         </p>
@@ -98,7 +104,7 @@ export default function Footer() {
                 {/* ALT TELİF ALANI */}
                 <div className="border-t border-purple-500/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-purple-200/40 text-sm text-center md:text-left">
-                        © {currentYear} Metehan Erkan. Tüm hakları saklıdır.
+                        © {currentYear} Metehan Erkan. {dict.rights}
                     </p>
                 </div>
 

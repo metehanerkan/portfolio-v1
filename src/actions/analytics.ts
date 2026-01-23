@@ -29,6 +29,23 @@ export async function logVisit(path: string) {
 
         const ipHash = await hashIP(ip)
 
+        // DEDUPLICATION: Son 5 saniye içinde aynı IP ve path ile kayıt var mı?
+        const fiveSecondsAgo = new Date(Date.now() - 5000)
+        const existingLog = await db.visitLog.findFirst({
+            where: {
+                ipHash,
+                path,
+                createdAt: {
+                    gte: fiveSecondsAgo
+                }
+            }
+        })
+
+        if (existingLog) {
+            // Mükerrer kayıt engellendi (Strict Mode veya Spam)
+            return
+        }
+
         // Veritabanına Yaz
         await db.visitLog.create({
             data: {
@@ -38,8 +55,8 @@ export async function logVisit(path: string) {
                 browser,
                 os,
                 device,
-                country: headersList.get('x-vercel-ip-country') || null,
-                city: headersList.get('x-vercel-ip-city') || null
+                country: headersList.get('x-vercel-ip-country') || (process.env.NODE_ENV === 'development' ? 'Yerel Ağ (Dev)' : null),
+                city: headersList.get('x-vercel-ip-city') || (process.env.NODE_ENV === 'development' ? 'İstanbul' : null)
             }
         })
     } catch (error) {
@@ -51,8 +68,38 @@ export async function getAnalyticsStats() {
     try {
         const logs = await db.visitLog.findMany({
             orderBy: { createdAt: 'desc' },
-            take: 1000
+            take: 5000
         })
+
+        // Toplam Görüntüleme (Page Views)
+        const pageViews = logs.length
+
+        // Tekil Ziyaretçi (Unique Visitors)
+        // Set kullanarak benzersiz ipHash sayısını bul
+        const uniqueIPs = new Set(logs.map(log => log.ipHash))
+        const uniqueVisitors = uniqueIPs.size
+
+        // En Çok Ziyaret Edilen Sayfalar (Top Pages)
+        const pathStats: Record<string, number> = {}
+        logs.forEach((log: any) => {
+            const p = log.path || '/'
+            pathStats[p] = (pathStats[p] || 0) + 1
+        })
+        const topPages = Object.entries(pathStats)
+            .map(([path, count]) => ({ path, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10)
+
+        // Coğrafi Dağılım (Countries)
+        const countryStats: Record<string, number> = {}
+        logs.forEach((log: any) => {
+            const country = log.country || 'Bilinmiyor'
+            countryStats[country] = (countryStats[country] || 0) + 1
+        })
+        const locations = Object.entries(countryStats)
+            .map(([country, count]) => ({ country, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10)
 
         // Tarayıcı İstatistiği
         const browserStats: Record<string, number> = {}
@@ -68,18 +115,35 @@ export async function getAnalyticsStats() {
             deviceStats[d] = (deviceStats[d] || 0) + 1
         })
 
-        // Son 7 Günlük Ziyaret Grafiği
-        const dailyStats: Record<string, number> = {}
+        // Son 7 Günlük Ziyaret Grafiği (Page Views & Unique Visitors)
+        // Date -> { pageViews: number, uniqueVisitors: Set<string> }
+        const dailyMap: Record<string, { pageViews: number, uniqueIPs: Set<string> }> = {}
+
         logs.forEach((log: any) => {
             const date = log.createdAt.toISOString().split('T')[0]
-            dailyStats[date] = (dailyStats[date] || 0) + 1
+            if (!dailyMap[date]) {
+                dailyMap[date] = { pageViews: 0, uniqueIPs: new Set() }
+            }
+            dailyMap[date].pageViews += 1
+            dailyMap[date].uniqueIPs.add(log.ipHash)
         })
 
+        // Grafiğe uygun formata çevir
+        // { date: '2023-10-27', pageViews: 150, uniqueVisitors: 45 }
+        const daily = Object.entries(dailyMap).map(([date, data]) => ({
+            date,
+            pageViews: data.pageViews,
+            uniqueVisitors: data.uniqueIPs.size
+        })).sort((a, b) => a.date.localeCompare(b.date)).slice(-30) // Son 30 gün (Frontend'de filtrelenecek)
+
         return {
-            total: logs.length,
+            pageViews,
+            uniqueVisitors,
             browsers: Object.entries(browserStats).map(([name, value]) => ({ name, value })),
             devices: Object.entries(deviceStats).map(([name, value]) => ({ name, value })),
-            daily: Object.entries(dailyStats).map(([date, count]) => ({ date, count })).reverse()
+            daily,
+            topPages,
+            locations
         }
     } catch (error) {
         console.error(error)

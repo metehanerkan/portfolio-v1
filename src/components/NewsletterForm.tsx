@@ -31,10 +31,11 @@ export default function NewsletterForm() {
                     ) : (
                         <form action={async (formData) => {
                             const email = formData.get('email') as string
+                            const honeypot = formData.get('confirmEmail') as string
                             if (!email) return
 
                             setStatus('loading')
-                            const result = await subscribeToNewsletter(email)
+                            const result = await subscribeToNewsletter(email, honeypot)
 
                             if (result.success) {
                                 setStatus('success')
@@ -51,6 +52,14 @@ export default function NewsletterForm() {
                                 placeholder="E-posta adresin..."
                                 className="flex-1 bg-black/50 border border-white/10 text-white px-5 py-4 rounded-xl focus:border-purple-500 focus:bg-black outline-none transition backdrop-blur-sm"
                             />
+                            {/* Honeypot Field */}
+                            <input
+                                name="confirmEmail"
+                                type="text"
+                                style={{ display: 'none' }}
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
                             <button
                                 disabled={status === 'loading'}
                                 className="bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-white/5 disabled:opacity-50 whitespace-nowrap"
@@ -61,6 +70,6 @@ export default function NewsletterForm() {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

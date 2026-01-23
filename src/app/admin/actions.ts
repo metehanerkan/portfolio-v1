@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { Resend } from 'resend';
 import { randomBytes } from 'crypto';
+import { createLog } from '@/actions/logger';
 
 // Müşteriye Fiyat ve Süre Teklifi Gönder
 export async function sendProposal(formData: FormData) {
@@ -76,6 +77,7 @@ export async function addProject(formData: FormData) {
     await db.project.create({
         data: { title, description, imageUrl, category, technologies, githubUrl, liveUrl },
     });
+    await createLog(`Yeni proje eklendi: ${title}`, 'SUCCESS', 'Content System');
     revalidatePath('/admin');
     revalidatePath('/projects');
 }
@@ -94,6 +96,7 @@ export async function updateProject(formData: FormData) {
         where: { id },
         data: { title, description, imageUrl, category, technologies, githubUrl, liveUrl },
     });
+    await createLog(`Proje güncellendi: ${title}`, 'INFO', 'Content System');
     revalidatePath('/admin');
     revalidatePath('/projects');
 }
@@ -128,6 +131,7 @@ export async function addBlog(formData: FormData) {
     await db.blogPost.create({
         data: { title, content, imageUrl, category, readTime, excerpt },
     });
+    await createLog(`Yeni blog yazısı: ${title}`, 'SUCCESS', 'Content System');
     revalidatePath('/admin');
     revalidatePath('/blog');
 }
@@ -171,10 +175,38 @@ export async function toggleBlogFeatured(id: string, currentFeatured: boolean) {
 export async function deleteMessage(formData: FormData) {
     const id = formData.get('id') as string;
     await db.contactMessage.delete({ where: { id } });
+    await createLog(`Mesaj silindi: ${id}`, 'INFO', 'Message System');
     revalidatePath('/admin');
 }
 
-// --- 👇 MÜŞTERİ PROJE YÖNETİMİ (KABUL ETME & DETAYLANDIRMA) ---
+export async function replyToMessage(formData: FormData) {
+    const email = formData.get('email') as string;
+    const name = formData.get('name') as string;
+    const subject = formData.get('subject') as string; // Orijinal konu
+    const message = formData.get('message') as string; // Admin cevabı
+
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'API Key eksik.' };
+
+    try {
+        await resend.emails.send({
+            from: 'Metehan Erkan <onboarding@resend.dev>',
+            to: email,
+            subject: `Re: ${subject}`,
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; color: #333;">
+                    <p>Merhaba <strong>${name}</strong>,</p>
+                    <p>Mesajınız için teşekkürler. İşte cevabım:</p>
+                    <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #7c3aed; margin: 20px 0; white-space: pre-wrap;">${message}</div>
+                    <p>Saygılarımla,<br/>Metehan Erkan</p>
+                </div>
+            `
+        });
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: 'Mail gönderilemedi.' };
+    }
+}
+
 
 export async function acceptProject(id: string, clientName: string, email: string, message: string, subject: string) {
     try {

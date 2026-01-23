@@ -8,10 +8,8 @@ export default function AnalyticsListener() {
     const pathname = usePathname()
 
     useEffect(() => {
-        // Sadece ana sayfayı logla
-        if (pathname === '/') {
-            logVisit(pathname)
-        }
+        // Tüm sayfaları logla (i18n uyumlu olması için '/' kontrolünü kaldırdık)
+        logVisit(pathname)
     }, [pathname])
 
     return null // Görünmez bileşen

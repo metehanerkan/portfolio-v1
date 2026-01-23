@@ -35,16 +35,29 @@ export default function AnalyticsWidget() {
 
             {/* Özet Kartları */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gray-900 p-4 rounded-xl border border-gray-800">
-                    <span className="text-gray-500 text-xs font-bold uppercase block mb-1">Toplam Ziyaret (Son 1000)</span>
-                    <span className="text-2xl font-bold text-white">{stats.total}</span>
+                <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-bl-full -mr-2 -mt-2"></div>
+                    <span className="text-gray-500 text-xs font-bold uppercase block mb-1">Sayfa Görüntüleme</span>
+                    <span className="text-2xl font-bold text-white flex items-baseline gap-2">
+                        {stats.pageViews}
+                        <span className="text-xs font-normal text-blue-500 font-mono">views</span>
+                    </span>
+                </div>
+
+                <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-bl-full -mr-2 -mt-2"></div>
+                    <span className="text-gray-500 text-xs font-bold uppercase block mb-1">Tekil Ziyaretçi</span>
+                    <span className="text-2xl font-bold text-white flex items-baseline gap-2">
+                        {stats.uniqueVisitors}
+                        <span className="text-xs font-normal text-purple-500 font-mono">users</span>
+                    </span>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Günlük Ziyaret Grafiği */}
                 <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[300px]">
-                    <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaChartLine /> Son 7 Gün</h4>
+                    <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaChartLine /> Son 7 Gün (Görüntüleme vs Ziyaretçi)</h4>
                     <div className="h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={stats.daily}>
@@ -54,7 +67,9 @@ export default function AnalyticsWidget() {
                                     contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }}
                                     itemStyle={{ color: '#fff' }}
                                 />
-                                <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                                <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                                <Bar name="Görüntüleme" dataKey="pageViews" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                <Bar name="Tekil Kişi" dataKey="uniqueVisitors" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

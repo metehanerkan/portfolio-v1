@@ -42,7 +42,7 @@ export default function LiveLogs() {
     }
 
     return (
-        <div className="w-full max-w-4xl mx-auto p-4 bg-gray-900 rounded-lg shadow-xl border border-gray-800 font-mono text-sm">
+        <div className="w-full max-w-6xl mx-auto p-4 bg-gray-900 rounded-lg shadow-xl border border-gray-800 font-mono text-sm">
             <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
                 <h3 className="text-gray-300 font-bold flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -56,7 +56,7 @@ export default function LiveLogs() {
                 </button>
             </div>
 
-            <div className="h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent space-y-2">
+            <div className="h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent space-y-2">
                 {loading ? (
                     <p className="text-gray-500 animate-pulse">Sistem taranıyor...</p>
                 ) : (

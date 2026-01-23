@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { FaClock, FaArrowRight, FaImage } from 'react-icons/fa';
+import { Dictionary, Locale } from '@/dictionaries';
 
 interface BlogCardProps {
     post: {
@@ -13,9 +16,19 @@ interface BlogCardProps {
         isFeatured?: boolean;
         isPublished?: boolean;
     };
+    dict?: Dictionary['blog']['card'];
+    lang?: Locale;
 }
 
-export default function BlogCard({ post }: BlogCardProps) {
+export default function BlogCard({ post, dict, lang = 'tr' }: BlogCardProps) {
+    const t = dict || {
+        noImage: "Görsel Yok",
+        readMore: "Devamını Oku",
+        readTime: "okuma"
+    };
+
+    const dateLocale = lang === 'en' ? 'en-US' : 'tr-TR';
+
     return (
         <Link href={`/blog/${post.id}`} className="group block h-full">
             <div className="group relative bg-[#0a0a0a]/40 border border-white/10 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] hover:-translate-y-1 flex flex-col h-full backdrop-blur-md">
@@ -33,7 +46,7 @@ export default function BlogCard({ post }: BlogCardProps) {
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-purple-200/30 group-hover:text-purple-200/50 transition-colors">
                             <FaImage size={32} className="mb-2 opacity-50" />
-                            <span className="text-xs font-medium">Görsel Yok</span>
+                            <span className="text-xs font-medium">{t.noImage}</span>
                         </div>
                     )}
 
@@ -60,9 +73,9 @@ export default function BlogCard({ post }: BlogCardProps) {
                     {/* Meta Bilgiler */}
                     <div className="flex items-center gap-2 text-xs text-purple-200/50 mb-3 font-medium">
                         <FaClock className="text-purple-400" />
-                        <span>{post.readTime} okuma</span>
+                        <span>{post.readTime} {t.readTime}</span>
                         <span className="w-1 h-1 bg-purple-500/30 rounded-full"></span>
-                        <span>{new Date(post.createdAt).toLocaleDateString('tr-TR')}</span>
+                        <span>{new Date(post.createdAt).toLocaleDateString(dateLocale)}</span>
                     </div>
 
                     {/* Başlık */}
@@ -77,7 +90,7 @@ export default function BlogCard({ post }: BlogCardProps) {
 
                     {/* Alt Kısım: Buton */}
                     <div className="flex items-center text-purple-400 text-sm font-semibold group-hover:translate-x-1 transition-transform mt-auto group-hover:text-purple-300">
-                        Devamını Oku <FaArrowRight className="ml-2 text-xs" />
+                        {t.readMore} <FaArrowRight className="ml-2 text-xs" />
                     </div>
                 </div>
             </div>

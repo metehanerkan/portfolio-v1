@@ -3,11 +3,28 @@
 import { db } from '@/lib/db'
 import { Resend } from 'resend'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
+import { checkRateLimit } from '@/lib/rateLimit'
+
+import { createLog } from '@/actions/logger'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 // 1. Yeni Abone Kaydı
-export async function subscribeToNewsletter(email: string) {
+export async function subscribeToNewsletter(email: string, honeypot?: string) {
+    if (honeypot) {
+        // Sessizce yut, loglamaya bile gerek yok (veya spam logla)
+        return { success: true }
+    }
+
+    // Rate Limit (10 mins, 5 attempts)
+    const ip = (await headers()).get('x-forwarded-for') || '127.0.0.1'
+    const { success: limitSuccess } = checkRateLimit(ip, { windowMs: 10 * 60 * 1000, max: 5 })
+    if (!limitSuccess) {
+        await createLog(`Bülten aboneliği limit aşımı: ${ip}`, 'WARNING', 'Newsletter')
+        return { success: false, error: 'Çok fazla istek. Lütfen bekleyiniz.' }
+    }
+
     try {
         const existing = await db.newsletterSubscriber.findUnique({ where: { email } })
 
@@ -19,19 +36,17 @@ export async function subscribeToNewsletter(email: string) {
             data: { email }
         })
 
-        // Hoş geldin maili (Opsiyonel, limiti harcamamak için kapalı tutabiliriz, şimdilik açık)
+        // Hoş geldin maili (Opsiyonel)
         if (process.env.RESEND_API_KEY && process.env.MY_EMAIL) {
-            /* await resend.emails.send({
-                 from: 'Metehan Erkan <onboarding@resend.dev>',
-                 to: email,
-                 subject: 'Hoş geldin! 🚀',
-                 html: '<p>Bülten listeme hoş geldin! En yeni yazılarımdan haberdar olacaksın.</p>'
-             }) */
+            // ...
         }
 
+        await createLog(`Yeni bülten abonesi: ${email}`, 'SUCCESS', 'Newsletter')
         revalidatePath('/admin')
         return { success: true }
     } catch (e) {
+        console.error(e);
+        await createLog(`Bülten abonelik hatası: ${email}`, 'ERROR', 'Newsletter')
         return { success: false, error: 'Bir hata oluştu.' }
     }
 }

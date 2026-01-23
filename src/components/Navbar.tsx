@@ -4,8 +4,15 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { FaLock } from 'react-icons/fa';
+import { Locale, Dictionary } from '@/dictionaries';
+import LanguageSwitcher from './LanguageSwitcher';
 
-export default function Navbar() {
+interface NavbarProps {
+    lang: Locale;
+    dict: Dictionary['nav'];
+}
+
+export default function Navbar({ lang, dict }: NavbarProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
@@ -19,13 +26,11 @@ export default function Navbar() {
     }, []);
 
     const navLinks = [
-        { name: 'Ana Sayfa', href: '/' },
-        { name: 'Projeler', href: '/projects' },
-        { name: 'Blog', href: '/blog' },
-        { name: 'Hakkımda', href: '/about' },
-        { name: 'İletişim', href: '/contact' }
-
-
+        { name: dict.home, href: `/${lang}` },
+        { name: dict.projects, href: `/${lang}/projects` },
+        { name: dict.blog, href: `/${lang}/blog` },
+        { name: dict.about, href: `/${lang}/about` },
+        { name: dict.contact, href: `/${lang}/contact` }
     ];
 
     return (
@@ -37,7 +42,7 @@ export default function Navbar() {
                 <div className="flex items-center justify-between h-full transition-all duration-300">
 
                     {/* LOGO */}
-                    <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition]">
+                    <Link href={`/${lang}`} className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition]">
                         Metehan.dev
                     </Link>
 
@@ -45,12 +50,12 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-8">
                         <div className="flex items-center gap-2">
                             {navLinks.map((link) => {
-                                const isActive = pathname === link.href;
+                                // Active check: tam eşleşme veya alt yol (ancak ana sayfa hariç)
+                                const isActive = pathname === link.href || (link.href !== `/${lang}` && pathname.startsWith(link.href));
                                 return (
                                     <Link
                                         key={link.name}
                                         href={link.href}
-                                        // "text-sm" yaptık (Eski boyut)
                                         className={`px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg relative group flex flex-col items-center justify-center
                                             ${isActive ? 'text-white' : 'text-purple-100/70 hover:text-white'}
                                         `}
@@ -66,31 +71,38 @@ export default function Navbar() {
                             })}
                         </div>
 
+                        <LanguageSwitcher currentLang={lang} />
+
                         {/* BUTON */}
                         <Link
                             href="/portal"
                             className="flex items-center gap-2 bg-white/10 border border-purple-500/30 hover:border-purple-400 hover:bg-purple-600/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group backdrop-blur-md"
                         >
                             <FaLock size={12} className="text-purple-300 group-hover:text-white transition-colors" />
-                            Projem
+                            {dict.portal}
                         </Link>
                     </div>
 
-                    {/* MOBİL BUTON */}
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className={`md:hidden p-2 rounded-lg transition duration-300 ${isOpen ? 'text-white bg-purple-500/20' : 'text-purple-200 hover:text-white hover:bg-white/10'}`}
-                    >
-                        {isOpen ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 drop-shadow-md">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 drop-shadow-md">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                            </svg>
-                        )}
-                    </button>
+                    {/* MOBİL VE DİL */}
+                    <div className="flex items-center gap-4 md:hidden">
+                        <LanguageSwitcher currentLang={lang} />
+
+                        {/* MOBİL BUTON */}
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className={`p-2 rounded-lg transition duration-300 ${isOpen ? 'text-white bg-purple-500/20' : 'text-purple-200 hover:text-white hover:bg-white/10'}`}
+                        >
+                            {isOpen ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 drop-shadow-md">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 drop-shadow-md">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {/* MOBİL MENÜ İÇERİK */}
@@ -111,7 +123,7 @@ export default function Navbar() {
                                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-base font-medium bg-gradient-to-r from-purple-900/50 to-purple-800/50 text-white border border-purple-500/30 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition mt-2"
                             >
                                 <FaLock size={14} className="text-purple-300" />
-                                Projem (Giriş)
+                                {dict.portal}
                             </Link>
                         </div>
                     </div>

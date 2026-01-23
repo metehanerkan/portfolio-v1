@@ -4,14 +4,16 @@ import { useState } from 'react';
 import ProjectCard from '@/components/ProjectCard';
 import FadeIn from '@/components/FadeIn';
 import SearchBar from '@/components/SearchBar';
+import { Dictionary } from '@/dictionaries';
 
 interface ProjectsClientProps {
     projects: any[];
+    dict: Dictionary['projects'];
 }
 
 const CATEGORIES = ['Tümü', 'Web', 'Mobil', 'Sistem', 'Oyun', 'Diğer'];
 
-export default function ProjectsClient({ projects }: ProjectsClientProps) {
+export default function ProjectsClient({ projects, dict }: ProjectsClientProps) {
     const [activeCategory, setActiveCategory] = useState('Tümü');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -38,10 +40,10 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
                 {/* BAŞLIK ALANI (TEKRAR ORTALANDI) */}
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-purple-400 mb-6 pb-2 drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]">
-                        Tüm Projelerim
+                        {dict.title}
                     </h1>
                     <p className="text-purple-200/60 text-lg max-w-2xl mx-auto leading-relaxed">
-                        Fikir aşamasından canlıya aldığım, üzerinde çalıştığım tüm yazılım projelerim.
+                        {dict.desc}
                     </p>
                 </div>
 
@@ -84,7 +86,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredProjects.map((project, index) => (
                         <FadeIn key={project.id} delay={index * 0.1} direction="up">
-                            <ProjectCard project={project} />
+                            <ProjectCard project={project} dict={dict.card} />
                         </FadeIn>
                     ))}
                 </div>

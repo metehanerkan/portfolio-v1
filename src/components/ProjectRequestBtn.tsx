@@ -7,7 +7,7 @@ import {
     FaLaptopCode, FaPaintBrush, FaPlus, FaTrash,
     FaFigma, FaLink, FaLightbulb, FaMagic, FaTag, FaArrowLeft
 } from 'react-icons/fa';
-import { sendMessage } from '@/app/(site)/contact/actions';
+import { sendMessage } from '@/app/[lang]/(site)/contact/actions';
 import { usePathname } from 'next/navigation';
 
 // --- VERİLER ---

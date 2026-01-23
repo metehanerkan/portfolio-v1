@@ -4,10 +4,14 @@ import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaArrowRight } from 'react-icons/fa';
 import ProjectCard from '@/components/ProjectCard';
 import BlogCard from '@/components/BlogCard';
+import { Locale, getDictionary } from '@/dictionaries';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home() {
+export default async function Home({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
+  const dict = getDictionary(lang);
+
   const featuredProjects = await db.project.findMany({
     where: { isPublished: true, isFeatured: true },
     take: 3,
@@ -51,33 +55,33 @@ export default async function Home() {
 
             {/* Başlık */}
             <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-tight ">
-              Merhaba,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-purple-300">Ben Metehan.</span>
+              {dict.home.hello}<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-purple-300">{dict.home.iam}</span>
             </h1>
 
             {/* Typewriter */}
             <div className="mb-8">
-              <HeroTypewriter />
+              <HeroTypewriter words={dict.home.typewriter} />
             </div>
 
             {/* Açıklama */}
             <p className="text-purple-100/70 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed drop-shadow-sm">
-              Modern web teknolojileri ile ölçeklenebilir, kullanıcı dostu ve estetik dijital çözümler üretiyorum.
+              {dict.home.desc}
             </p>
 
             {/* Butonlar */}
             <div className="flex flex-wrap justify-center gap-4">
               <Link
-                href="/projects"
+                href={`/${lang}/projects`}
                 className="px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition transform hover:scale-105 flex items-center gap-2 shadow-sm"
               >
-                Projelerimi Gör <FaArrowRight />
+                {dict.common.viewProjects} <FaArrowRight />
               </Link>
               <Link
-                href="/contact"
+                href={`/${lang}/contact`}
                 className="px-8 py-4 bg-purple-600/5 border border-purple-500/30 text-white rounded-full font-bold hover:bg-purple-600/10 transition backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.2)]"
               >
-                İletişime Geç
+                {dict.common.contactMe}
               </Link>
             </div>
 
@@ -95,16 +99,16 @@ export default async function Home() {
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-purple-300 to-white bg-clip-text text-transparent drop-shadow-lg text-center md:text-left">
-              Son Projelerim
+              {dict.home.latestProjects}
             </h2>
             {featuredProjects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {featuredProjects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
+                  <ProjectCard key={project.id} project={project} /> // NOTE: ProjectCard still might have hardcoded text
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-400">Henüz proje eklenmedi.</p>
+              <p className="text-center text-gray-400">{dict.home.noProjects}</p>
             )}
           </div>
         </section>
@@ -113,16 +117,16 @@ export default async function Home() {
         <section className="py-24 px-6 w-full relative z-20 pb-40">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-purple-300 to-white bg-clip-text text-transparent drop-shadow-lg text-center md:text-left">
-              Blogdan Son Yazılar
+              {dict.home.latestBlogs}
             </h2>
             {recentBlogs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {recentBlogs.map((post) => (
-                  <BlogCard key={post.id} post={post} />
+                  <BlogCard key={post.id} post={post} /> // NOTE: BlogCard still might have hardcoded text
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-400">Henüz yazı yayınlanmadı.</p>
+              <p className="text-center text-gray-400">{dict.home.noBlogs}</p>
             )}
           </div>
         </section>

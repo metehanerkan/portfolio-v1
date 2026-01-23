@@ -4,14 +4,17 @@ import { useState } from 'react';
 import BlogCard from '@/components/BlogCard';
 import FadeIn from '@/components/FadeIn';
 import SearchBar from '@/components/SearchBar';
+import { Dictionary, Locale } from '@/dictionaries';
 
 interface BlogClientProps {
     posts: any[];
+    dict: Dictionary['blog'];
+    lang: Locale;
 }
 
 const CATEGORIES = ['Tümü', 'Yazılım', 'Kariyer', 'Teknoloji', 'Rehber', 'Diğer'];
 
-export default function BlogClient({ posts }: BlogClientProps) {
+export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
     const [activeCategory, setActiveCategory] = useState('Tümü');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -37,10 +40,10 @@ export default function BlogClient({ posts }: BlogClientProps) {
                 {/* BAŞLIK ALANI (Burayı ortaladık) */}
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-purple-400 mb-6 pb-2 drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-                        Blog & Yazılar
+                        {dict.title}
                     </h1>
                     <p className="text-purple-200/60 text-lg max-w-2xl mx-auto leading-relaxed">
-                        Yazılım, teknoloji ve kariyer üzerine edindiğim tecrübeleri ve notlarımı paylaşıyorum.
+                        {dict.desc}
                     </p>
                 </div>
 
@@ -91,7 +94,7 @@ export default function BlogClient({ posts }: BlogClientProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredPosts.map((post, index) => (
                             <FadeIn key={post.id} delay={index * 0.1} direction="up">
-                                <BlogCard post={post} />
+                                <BlogCard post={post} dict={dict.card} lang={lang} />
                             </FadeIn>
                         ))}
                     </div>

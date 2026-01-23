@@ -3,8 +3,21 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import { headers } from 'next/headers';
+import { checkRateLimit } from '@/lib/rateLimit';
+
+import { createLog } from '@/actions/logger';
+
 // GİRİŞ YAPMA FONKSİYONU
 export async function loginAdmin(formData: FormData) {
+    const ip = (await headers()).get('x-forwarded-for') || '127.0.0.1';
+
+    // Rate Limiting Check (5 attempts per 15 mins)
+    const { success } = checkRateLimit(ip, { windowMs: 15 * 60 * 1000, max: 5 });
+    if (!success) {
+        await createLog(`Admin giriş denemesi engellendi (Rate Limit): ${ip}`, 'WARNING', 'Auth System');
+        return { success: false, error: 'Çok fazla giriş denemesi. Lütfen 15 dakika bekleyin.' };
+    }
     const password = formData.get('password') as string;
     const correctPassword = process.env.ADMIN_PASSWORD;
 
@@ -20,8 +33,10 @@ export async function loginAdmin(formData: FormData) {
             maxAge: 60 * 60 * 24 // 1 gün
         });
 
+        await createLog('Admin girişi başarılı.', 'SUCCESS', 'Auth System');
         redirect('/admin');
     } else {
+        await createLog(`Hatalı admin şifresi denemesi: ${ip}`, 'WARNING', 'Auth System');
         return { success: false, error: 'Hatalı şifre!' };
     }
 }

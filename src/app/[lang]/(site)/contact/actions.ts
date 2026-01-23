@@ -2,8 +2,25 @@
 
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { checkRateLimit } from '@/lib/rateLimit';
+
+import { createLog } from '@/actions/logger';
 
 export async function sendMessage(formData: FormData) {
+    // Rate Limit (1 hour, 3 messages)
+    const ip = (await headers()).get('x-forwarded-for') || '127.0.0.1';
+    const { success } = checkRateLimit(ip, { windowMs: 60 * 60 * 1000, max: 3 });
+    if (!success) {
+        await createLog(`İletişim formu limit aşımı: ${ip}`, 'WARNING', 'Contact Form');
+        return { success: false, error: 'Çok fazla mesaj gönderdiniz. Lütfen bir süre bekleyin.' };
+    }
+    const honeypot = formData.get('website') as string;
+    if (honeypot) {
+        // Honeypot dolu, bot olabilir. Başarılı gibi dön.
+        return { success: true };
+    }
+
     const projectName = formData.get('projectName') as string;
 
     const name = formData.get('name') as string;
@@ -62,10 +79,12 @@ ${rawMessage}
             },
         });
 
+        await createLog(`Yeni mesaj/talep: ${name} - ${subject}`, 'INFO', 'Contact Form');
         revalidatePath('/admin');
         revalidatePath('/contact');
         return { success: true };
     } catch (error) {
+        await createLog(`Mesaj gönderme hatası: ${name}`, 'ERROR', 'Contact Form');
         return { success: false, error: 'Mesaj gönderilemedi.' };
     }
 }
