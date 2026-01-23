@@ -9,6 +9,25 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: mytestdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://myuser:mypassword@localhost:5432/mytestdb
+      SESSION_SECRET: super-secret-mock-key # Mock secret for build
+
     steps:
     - uses: actions/checkout@v4
 
@@ -20,6 +39,9 @@ jobs:
 
     - name: Install Dependencies
       run: npm ci
+
+    - name: Setup Test Database
+      run: npx prisma db push --skip-generate
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
