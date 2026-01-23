@@ -18,9 +18,31 @@ interface ProjectCardProps {
     };
 }
 
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+
 export default function ProjectCard({ project }: ProjectCardProps) {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+
+    const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
+    const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
+
+    function onMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+        const { left, top, width, height } = currentTarget.getBoundingClientRect();
+        x.set(clientX - left - width / 2);
+        y.set(clientY - top - height / 2);
+    }
+
+    const rotateX = useTransform(mouseY, [-300, 300], [5, -5]); // Hafif eğim
+    const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
+
     return (
-        <div className="group relative bg-[#0a0a0a]/40 border border-white/10 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] flex flex-col h-full backdrop-blur-md hover:-translate-y-1">
+        <motion.div
+            onMouseMove={onMouseMove}
+            onMouseLeave={() => { x.set(0); y.set(0); }}
+            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+            className="group relative bg-[#0a0a0a]/40 border border-white/10 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] flex flex-col h-full backdrop-blur-md"
+        >
 
             <Link href={`/projects/${project.id}`} className="flex flex-col flex-grow cursor-pointer">
 
@@ -124,6 +146,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 </div>
             </div>
 
-        </div>
+        </motion.div>
     );
 }

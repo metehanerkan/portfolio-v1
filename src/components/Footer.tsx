@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
+import NewsletterForm from './NewsletterForm';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -15,6 +16,10 @@ export default function Footer() {
             <div className="absolute -bottom-[20%] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-700/10 rounded-full blur-[100px] pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
+
+                <div className="mb-20">
+                    <NewsletterForm />
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
 

@@ -104,3 +104,41 @@ model SiteSettings {
   id              String  @id @default(uuid())
   maintenanceMode Boolean @default(false) // Varsayılan: Kapalı
 }
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // "INFO", "ERROR", "WARNING", "SUCCESS"
+  message   String   // "İletişim formu gönderildi" veya "DB Bağlantı hatası"
+  source    String?  // Hatayı tetikleyen yer. Örn: "/contact" veya "API"
+  createdAt DateTime @default(now())
+}
+
+// 6. E-BÜLTEN ABONELİKLERİ
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// 7. ZİYARETÇİ LOGLARI (TRAFİK ANALİZİ)
+model VisitLog {
+  id        String   @id @default(cuid())
+  ipHash    String   // KVKK uyumu için hashlenmiş IP
+  userAgent String?
+  browser   String?
+  os        String?
+  device    String?  // Mobile, Desktop, Tablet
+  path      String   // Hangi sayfa?
+  country   String?  // (Opsiyonel) Ülke
+  city      String?  // (Opsiyonel) Şehir
+  createdAt DateTime @default(now())
+}
+
+// 8. SİSTEM METRİKLERİ
+model SystemMetric {
+  id        String   @id @default(cuid())
+  dbLatency Int
+  apiLatency Int
+  createdAt DateTime @default(now())
+}

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import {
     FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
-    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt
+    FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt, FaTerminal, FaEnvelopeOpenText
 } from 'react-icons/fa';
 import {
     addProject, deleteProject, addBlog, deleteBlog, deleteMessage,
@@ -11,6 +11,11 @@ import {
     updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject
 } from './actions';
 import { getSettings, toggleMaintenance } from './settings/actions';
+import { createBackup } from '@/actions/backup';
+import LiveLogs from './LiveLogs';
+import SystemHealthWidget from './SystemHealthWidget';
+import AnalyticsWidget from './AnalyticsWidget';
+import NewsletterManager from './NewsletterManager';
 
 import Link from 'next/link';
 import { logout } from '@/app/admin/login/actions';
@@ -46,7 +51,7 @@ const parseProjectDescription = (desc: string) => {
 };
 
 export default function AdminClient({ projects, blogs, messages, clientProjects }: AdminClientProps) {
-    const [activeTab, setActiveTab] = useState<'stats' | 'projects' | 'blogs' | 'messages' | 'activeProjects' | 'settings'>('stats');
+    const [activeTab, setActiveTab] = useState<'stats' | 'projects' | 'blogs' | 'messages' | 'activeProjects' | 'settings' | 'logs' | 'newsletter'>('stats');
     const [subTab, setSubTab] = useState<'list' | 'form'>('list');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -181,6 +186,8 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     <div className="space-y-8">
                         <h2 className="text-2xl font-bold text-white">Genel Bakış</h2>
                         {renderStats()}
+                        <SystemHealthWidget />
+                        <AnalyticsWidget />
                         <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -490,6 +497,26 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     </div>
                 );
 
+            case 'logs':
+                return (
+                    <div className="space-y-6 animate-fadeIn">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-bold text-white">Sistem Log Terminali</h2>
+                            <p className="text-gray-500 text-sm">Sunucu tarafı loglarını canlı izle.</p>
+                        </div>
+                        <LiveLogs />
+                    </div>
+                );
+
+
+
+            case 'newsletter':
+                return (
+                    <div className="animate-fadeIn">
+                        <NewsletterManager />
+                    </div>
+                );
+
             case 'settings':
                 return (
                     <div className="space-y-8 animate-fadeIn pb-12">
@@ -600,6 +627,44 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                 <div className="space-y-8 animate-fadeIn pb-12">
                                     <h2 className="text-3xl font-bold text-white mb-6">Sistem Ayarları</h2>
 
+                                    {/* VERİ YÖNETİMİ & YEDEKLEME */}
+                                    <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl mb-8 flex items-center justify-between">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                                                <FaSave className="text-blue-500" /> Veritabanı Yedeği
+                                            </h3>
+                                            <p className="text-gray-400 text-sm">
+                                                Tüm projeler, bloglar ve ayarlar dahil tüm veriyi JSON olarak indir.
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={async () => {
+                                                const loadingToast = toast.loading("Yedek oluşturuluyor...");
+                                                const result = await createBackup();
+                                                toast.dismiss(loadingToast);
+
+                                                if (result.success && result.data) {
+                                                    const blob = new Blob([result.data], { type: 'application/json' });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    document.body.removeChild(a);
+                                                    URL.revokeObjectURL(url);
+                                                    toast.success("Yedek indirildi! 📦");
+                                                } else {
+                                                    toast.error("Yedekleme başarısız.");
+                                                }
+                                            }}
+                                            type="button"
+                                            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg shadow-blue-900/20 flex items-center gap-2"
+                                        >
+                                            <FaUpload className="rotate-180" /> Yedeği İndir
+                                        </button>
+                                    </div>
+
                                     {/* BAKIM MODU KARTI */}
                                     <div className={`p-8 rounded-2xl border transition-all duration-500 ${maintenanceMode ? 'bg-purple-900/20 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.2)]' : 'bg-gray-900 border-gray-800'}`}>
                                         <div className="flex items-center justify-between">
@@ -656,6 +721,8 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     <button onClick={() => { setActiveTab('blogs'); setSubTab('list') }} className={`nav-item ${activeTab === 'blogs' ? 'active' : ''}`}><FaPenNib /> Blog Yazıları</button>
                     <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 mt-6 ml-4">Sistem</div>
                     <button onClick={() => setActiveTab('messages')} className={`nav-item ${activeTab === 'messages' ? 'active' : ''}`}><div className="flex justify-between w-full items-center"><span className="flex items-center gap-3"><FaEnvelope /> Mesajlar</span>{messages.length > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{messages.length}</span>}</div></button>
+                    <button onClick={() => setActiveTab('logs')} className={`nav-item ${activeTab === 'logs' ? 'active' : ''}`}><FaTerminal /> Canlı Loglar</button>
+                    <button onClick={() => setActiveTab('newsletter')} className={`nav-item ${activeTab === 'newsletter' ? 'active' : ''}`}><FaEnvelopeOpenText /> E-Bülten</button>
                     <button onClick={() => setActiveTab('settings')} className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}><FaCog /> Ayarlar</button>
                 </nav>
                 <div className="p-4 border-t border-gray-900 space-y-2"><Link href="/" target='_blank' className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 rounded-xl transition text-sm"><FaEye /> Siteyi Görüntüle</Link><form action={logout}><button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition text-sm"><FaSignOutAlt /> Güvenli Çıkış</button></form></div>

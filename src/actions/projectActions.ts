@@ -1,9 +1,12 @@
-'use server' // <--- BU SİHİRLİ KOD. Bu kodun sunucuda çalışacağını garanti eder.
+'use server'
 
-import { getAllProjectsFromDB } from '@/services/projectService';
+import { db } from '@/lib/db';
 
 export async function fetchProjects() {
-    // Buraya güvenlik kontrolü ekleyebilirsin (Kullanıcı admin mi?)
-    const projects = await getAllProjectsFromDB();
+    // Tüm portfolio projelerini çek
+    const projects = await db.project.findMany({
+        orderBy: { createdAt: 'desc' },
+        where: { isPublished: true } // İsteğe bağlı: Sadece yayında olanları çekebiliriz
+    });
     return projects;
 }

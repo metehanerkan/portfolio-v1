@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { db } from "@/lib/db";
 import MaintenancePage from "./maintenance/page";
 import { headers } from "next/headers";
+import AnalyticsListener from "@/components/AnalyticsListener";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -68,6 +69,7 @@ export default async function RootLayout({
         </div>
 
         <ScrollToTop />
+        <AnalyticsListener />
         <Analytics />
       </body>
     </html>

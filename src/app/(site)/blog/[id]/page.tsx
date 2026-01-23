@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FaArrowLeft, FaCalendar, FaClock, FaTag, FaImage, FaQuoteLeft } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
 import ViewCounter from '@/components/ViewCounter';
+import ReadingBar from '@/components/ReadingBar';
+import { Metadata } from 'next';
 
 // 👇 CANLI SİTE İÇİN KRİTİK AYARLAR (Cache'i tamamen kapatır)
 export const dynamic = 'force-dynamic';
@@ -12,6 +14,30 @@ export const fetchCache = 'force-no-store';
 
 interface BlogDetailPageProps {
     params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
+    const { id } = await params;
+    const post = await db.blogPost.findFirst({ where: { id } });
+    if (!post) return { title: 'Blog Bulunamadı' };
+
+    const ogUrl = new URL('https://metehanerkan.vercel.app/api/og');
+    ogUrl.searchParams.set('title', post.title);
+    ogUrl.searchParams.set('type', 'Blog');
+
+    return {
+        title: post.title,
+        description: post.excerpt,
+        openGraph: {
+            title: post.title,
+            description: post.excerpt,
+            images: [{
+                url: ogUrl.toString(),
+                width: 1200,
+                height: 630,
+            }],
+        }
+    };
 }
 
 export default async function BlogDetailPage(props: BlogDetailPageProps) {
@@ -31,6 +57,7 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
     // 4. BLOG TASARIMI
     return (
         <main className="min-h-screen bg-[#030014] text-white py-32 px-6 relative overflow-hidden">
+            <ReadingBar />
 
             {/* 👇 SAYAÇ BİLEŞENİ */}
             <ViewCounter id={id} type="blog" />
