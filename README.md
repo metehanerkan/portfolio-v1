@@ -1,63 +1,65 @@
-# 🚀 Metehan Erkan | Personal Portfolio & Blog Architecture
+# 🚀 Metehan Erkan | Digital Experience Platform
 
-> **Modern Web Teknolojileri ve Özgün Tasarımın Birleşimi.**
-> Bu proje, standart bir portfolyo sitesinin ötesinde; Next.js 14 App Router mimarisi, Server Actions ve güçlü bir Admin Yönetim Paneli içeren full-stack bir web uygulamasıdır.
+**Next-Generation Personal Portfolio & Client Management System**
 
-<div align="center">
+Bu proje, bir kişisel web sitesinden çok daha fazlası; dijital kimliğimi profesyonel bir ekosisteme dönüştüren, **Next.js 16** mimarisi üzerine inşa edilmiş yüksek performanslı bir dijital deneyim platformudur. Modern web standartlarını, estetik tasarımı ve gelişmiş müşteri yönetim süreçlerini tek bir çatı altında birleştirir.
 
-[![Live Demo](https://img.shields.io/badge/Canlı_Demo-Visit_Site-7c3aed?style=for-the-badge&logo=vercel)]([https://metehanerkan.vercel.app](https://portfolio-v1-eta-taupe.vercel.app/))
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-Styling-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-
-</div>
+![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Status](https://img.shields.io/badge/Status-Production%20Ready-success) ![Framework](https://img.shields.io/badge/Framework-Next.js%2016-black)
 
 ---
 
-## 💡 Proje Hakkında & Vizyon
+## 💎 Proje Vizyonu ve Mimari
 
-Bu proje, sadece yeteneklerimi sergilemek için değil, aynı zamanda **ölçeklenebilir**, **yönetilebilir** ve **yüksek performanslı** bir web mimarisi kurma yetkinliğimi göstermek amacıyla geliştirilmiştir. Hazır şablonlar yerine, veritabanı şemasından UI bileşenlerine kadar her satır kod, modern "Deep Purple & Neon" tasarım dili ve "Clean Code" prensipleriyle yazılmıştır.
+Bu platform, sadece projelerimi sergilemekle kalmaz; müşterilerimle olan iş süreçlerimi şeffaf, yönetilebilir ve profesyonel bir zemine taşır.
 
----
-
-## 🏗️ Teknik Mimari ve Kullanılan Teknolojiler
-
-Proje, **Full-Stack** bir yaklaşım ile Next.js ekosistemi üzerine inşa edilmiştir.
-
-### 🎨 Frontend (Arayüz)
-* **Next.js 14 (App Router):** En güncel React mimarisi kullanılarak Client ve Server bileşenleri optimize edildi.
-* **Tailwind CSS:** Özel renk paletleri (Deep Purple/Neon) ve responsive tasarım.
-* **Framer Motion:** Sayfa geçişleri, scroll animasyonları ve etkileşimli mikro-animasyonlar.
-* **Glassmorphism UI:** Modern, buzlu cam efektleri ve "Spotlight" ışıklandırma teknikleri.
-
-### ⚙️ Backend & Veri Yönetimi
-* **Server Actions:** API route'ları yazmadan, form işlemlerini ve veri mutasyonlarını sunucu tarafında güvenli bir şekilde işleme.
-* **Prisma ORM:** Tip güvenli veritabanı sorguları.
-* **Middleware:** Rota koruması ve header manipülasyonu.
-
-### 🛡️ Güvenlik ve Yönetim
-* **Custom Admin Panel:** CMS kullanmadan sıfırdan yazılan, içerik yönetim sistemi.
-* **Session Management:** Cookie tabanlı güvenli oturum yönetimi.
-* **Maintenance Mode System:** Veritabanı ve Middleware entegrasyonu ile tüm siteyi tek tıkla bakıma alma özelliği.
+- **Micro-Interaction Odaklı UX:** Kullanıcı deneyimini zenginleştiren, Framer Motion destekli akıcı geçişler ve etkileşimler.
+- **Enterprise-Grade Performans:** Sunucu tarafı işleme (SSR) ve React Server Components (RSC) ile optimize edilmiş ultra hızlı sayfa yüklemeleri.
+- **Ölçeklenebilir Veri Mimarisi:** PostgreSQL ve Prisma ORM ile güçlendirilmiş, karmaşık veri ilişkilerini yönetebilen sağlam bir backend yapısı.
 
 ---
 
-## 🔥 Öne Çıkan Özellikler
+## 🌟 Çekirdek Özellikler
 
-### 1. Dinamik Bakım Modu Sistemi
-Sıradan statik sitelerin aksine, bu projede geliştirdiğim sistem sayesinde kod değiştirmeden site "Bakım Moduna" alınabilir.
-* **Nasıl Çalışır?** Admin panelinden tetiklenen bir switch, veritabanındaki durumu günceller. `Middleware` ve `Layout`, gelen isteği analiz eder; eğer bakım modu aktifse ve kullanıcı admin değilse, özel tasarlanmış **"Maintenance Page"** arayüzüne yönlendirir.
+### 1. 🎨 İnteraktif Portfolyo ve İçerik Ekosistemi
+Ziyaretçilere sadece ne yaptığımı değil, nasıl yaptığımı da anlatan yaşayan bir vitrin.
+- **Akıllı Proje Vitrini:** Projelerin teknoloji yığınlarını, GitHub/Canlı bağlantılarını ve detaylı vaka analizlerini sunan dinamik yapı.
+- **SEO-Optimized Tech Blog:** Okuma süreleri, semantik etiketleme ve zengin içerik desteği ile arama motorlarında üst sıraları hedefleyen blog modülü.
+- **Global Erişim (i18n):** Türkçe ve İngilizce dilleri arasında anlık geçiş ve tam yerelleştirme desteği.
 
-### 2. Gelişmiş Admin Paneli
-Site içeriğini yönetmek için harici bir dashboard'a ihtiyaç duymaz.
-* **Özellikler:**
-    * Proje Ekleme/Silme/Düzenleme.
-    * Blog Yazısı Yönetimi (Markdown desteği).
-    * Site Ayarları ve Global Konfigürasyon.
-    * Neon/Dark tema ile uyumlu yönetim arayüzü.
+### 2. � Gelişmiş Müşteri Portalı (Client Portal)
+Müşterilerim için şeffaflık ve güven sağlayan özel yönetim alanı.
+- **Gerçek Zamanlı Proje Takibi:** Müşteriler; projelerinin geliştirme sürecini, tamamlanan kilometre taşlarını ve tahmini teslim tarihlerini canlı izleyebilir.
+- **Entegre Talep Yönetimi:** Yeni özellik istekleri, revizyonlar veya hata bildirimleri doğrudan sistem üzerinden yapılarak e-posta karmaşası önlenir.
+- **Dijital Teklif ve Sözleşme:** Fiyat teklifleri, proje kapsamı ve onay süreçleri tamamen dijital ortamda, kayıt altına alınarak yürütülür.
 
-### 3. SEO ve Performans
-* Dinamik Meta Etiketleri (Next.js Metadata API).
-* OpenGraph Görselleri.
-* Vercel Analytics ile kullanıcı takibi.
+### 3. �️ Yönetim ve Güvenlik
+- **Merkezi Admin Dashboard:** İçerik yönetimi, proje güncellemeleri, müşteri ilişkileri ve sistem ayarlarının tek merkezden kontrolü.
+- **Gizlilik Öncelikli Analitik:** Üçüncü parti çerezler kullanmadan, KVKK/GDPR uyumlu IP hashleme yöntemiyle geliştirilmiş özel trafik analiz motoru.
+- **Güvenli Kimlik Doğrulama:** Endüstri standardı JWT (JSON Web Token) ve güvenli oturum yönetimi.
+
+---
+
+## 🏗️ Teknoloji Yığını (Tech Stack)
+
+Proje, performans, güvenlik ve geliştirici deneyimini maksimize etmek için en modern araçlarla geliştirilmiştir.
+
+### Frontend Mimarisi
+- **Framework:** [Next.js 16 (App Router)](https://nextjs.org/) - *React'in en güncel ve güçlü render motoru.*
+- **Library:** [React 19](https://react.dev/) - *Bileşen tabanlı UI geliştirme.*
+- **Styling:** [Tailwind CSS v3](https://tailwindcss.com/) - *Utility-first CSS yaklaşımı ile modern tasarım sistemi.*
+- **Animations:** [Framer Motion](https://www.framer.com/motion/) - *Sinematik UI geçişleri ve animasyonlar.*
+
+### Backend ve Veri Yönetimi
+- **Runtime:** [Node.js](https://nodejs.org/)
+- **Database:** [PostgreSQL](https://www.postgresql.org/) - *Güvenilir, ilişkisel veritabanı.*
+- **ORM:** [Prisma](https://www.prisma.io/) - *Type-safe veritabanı sorgulama ve modelleme.*
+- **API:** React Server Actions - *API endpoint karmaşası olmadan doğrudan sunucu işlemleri.*
+
+### Servisler ve Araçlar
+- **Authentication:** [Jose](https://github.com/panva/jose) - *Hafif ve güvenli JWT implementasyonu.*
+- **Storage:** [UploadThing](https://uploadthing.com/) - *Hızlı ve güvenli medya depolama.*
+- **Email:** [Resend](https://resend.com/) - *Yüksek teslimat oranlı transaksiyonel e-posta servisi.*
+- **Type Safety:** [TypeScript](https://www.typescriptlang.org/) - *Uçtan uca tip güvenliği.*
+
+---
+_Designed & Engineered by Metehan Erkan_
