@@ -9,18 +9,18 @@ import { Locale } from "@/dictionaries";
 
 export const metadata: Metadata = {
     title: {
-        default: "Metehan Erkan | Full Stack Developer",
+        default: "Metehan Erkan | Software Engineer",
         template: "%s | Metehan Erkan"
     },
     description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
-    keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım"],
+    keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile"],
     authors: [{ name: "Metehan Erkan" }],
     creator: "Metehan Erkan",
     openGraph: {
         type: "website",
         locale: "tr_TR",
         url: "https://metehanerkan.vercel.app",
-        title: "Metehan Erkan | Full Stack Developer",
+        title: "Metehan Erkan | Software Engineer",
         description: "Projelerimi ve blog yazılarımı inceleyin.",
         siteName: "Metehan Erkan Portfolyo"
     },

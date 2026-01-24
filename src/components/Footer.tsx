@@ -32,7 +32,7 @@ export default function Footer({ lang, dict }: FooterProps) {
                     {/* MARKA ALANI */}
                     <div className="space-y-4">
                         <h3 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
-                            Metehan.
+                            Metehan.dev
                         </h3>
                         <p className="text-purple-200/60 text-sm leading-relaxed max-w-xs">
                             {dict.brandDesc}
@@ -104,7 +104,7 @@ export default function Footer({ lang, dict }: FooterProps) {
                 {/* ALT TELİF ALANI */}
                 <div className="border-t border-purple-500/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-purple-200/40 text-sm text-center md:text-left">
-                        © {currentYear} Metehan Erkan. {dict.rights}
+                        © {currentYear} Metehan Erkan {dict.rights}
                     </p>
                 </div>
 

@@ -1,5 +1,5 @@
 import { FaReact, FaPython, FaGitAlt, FaNodeJs, FaDocker } from "react-icons/fa";
-import { SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiMongodb, SiFirebase } from "react-icons/si";
+import { SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiMongodb, SiFirebase, SiAndroidstudio, SiKotlin, SiCss3, SiJavascript, SiHtml5 } from "react-icons/si";
 
 export interface Skill {
     name: string;
@@ -10,69 +10,87 @@ export interface Skill {
 
 export const skills: Skill[] = [
     {
-        name: "Node.js",
-        icon: <FaNodeJs />,
-        level: "Temel Seviye",
-        color: "#16a34a" // text-green-600
-    },
-    {
         name: "Docker",
         icon: <FaDocker />,
         level: "Temel Seviye",
-        color: "#3b82f6" // text-blue-500
+        color: "#3b82f6"
     },
     {
         name: "MongoDB",
         icon: <SiMongodb />,
-        level: "Orta Seviye",
-        color: "#4ade80" // text-green-400
+        level: "Temel Seviye",
+        color: "#4ade80"
     },
     {
         name: "Next.js",
         icon: <SiNextdotjs />,
-        level: "İleri Seviye",
-        color: "#ffffff" // text-white
+        level: "Orta Seviye",
+        color: "#ffffff"
     },
     {
         name: "React",
         icon: <FaReact />,
-        level: "İleri Seviye",
-        color: "#60a5fa" // text-blue-400
+        level: "Orta Seviye",
+        color: "#60a5fa"
     },
     {
         name: "TypeScript",
         icon: <SiTypescript />,
         level: "Orta Seviye",
-        color: "#2563eb" // text-blue-600
+        color: "#2563eb"
     },
     {
         name: "Tailwind CSS",
         icon: <SiTailwindcss />,
-        level: "İleri Seviye",
-        color: "#22d3ee" // text-cyan-400
+        level: "Orta Seviye",
+        color: "#22d3ee"
     },
     {
         name: "Python",
         icon: <FaPython />,
         level: "Orta Seviye",
-        color: "#facc15" // text-yellow-400
-    },
-    {
-        name: "PostgreSQL",
-        icon: <SiPostgresql />,
-        level: "Temel Seviye",
-        color: "#93c5fd" // text-blue-300
+        color: "#facc15"
     },
     {
         name: "Git & GitHub",
         icon: <FaGitAlt />,
         level: "İleri Seviye",
-        color: "#ea580c" // text-orange-600
+        color: "#ea580c"
     },
     {
-        name: "Firebase",
-        icon: <SiFirebase />,
+        name: "JavaScript",
+        icon: <SiJavascript />,
         level: "Orta Seviye",
-        color: "#eab308" // text-yellow-500
-    }
+        color: "#f59e0b"
+    },
+    {
+        name: "Node.js",
+        icon: <FaNodeJs />,
+        level: "Temel Seviye",
+        color: "#16a34a"
+    },
+    {
+        name: "HTML5",
+        icon: <SiHtml5 />,
+        level: "İleri Seviye",
+        color: "#ee4213ff"
+    },
+    {
+        name: "CSS3",
+        icon: <SiCss3 />,
+        level: "İleri Seviye",
+        color: "#3b82f6"
+    },
+    {
+        name: "Kotlin",
+        icon: <SiKotlin />,
+        level: "Orta Seviye",
+        color: "#7f52ff"
+    },
+    {
+        name: "Android Studio",
+        icon: <SiAndroidstudio />,
+        level: "Orta Seviye",
+        color: "#3ddc84"
+    },
 ];

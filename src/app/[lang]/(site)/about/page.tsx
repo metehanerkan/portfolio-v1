@@ -33,11 +33,11 @@ export default function AboutPage() {
                         {/* İstatistikler */}
                         <div className="grid grid-cols-3 gap-6 pt-8 border-t border-purple-500/20">
                             <div>
-                                <span className="block text-4xl font-bold text-white drop-shadow-md">10+</span>
+                                <span className="block text-4xl font-bold text-white drop-shadow-md">5+</span>
                                 <span className="text-sm text-purple-200/50 uppercase tracking-wide">Tamamlanan Proje</span>
                             </div>
                             <div>
-                                <span className="block text-4xl font-bold text-white drop-shadow-md">2+</span>
+                                <span className="block text-4xl font-bold text-white drop-shadow-md">1+</span>
                                 <span className="text-sm text-purple-200/50 uppercase tracking-wide">Yıl Deneyim</span>
                             </div>
                             <div>

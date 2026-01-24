@@ -21,9 +21,11 @@ export const dictionaries = {
             desc: "Modern web teknolojileri ile ölçeklenebilir, kullanıcı dostu ve estetik dijital çözümler üretiyorum.",
             typewriter: [
                 'Full Stack Geliştiriciyim.',
-                'React & Next.js Uzmanıyım.',
-                'Modern Web Çözümleri.',
-                'Sorun Çözücüyüm.'
+                'Modern Web Çözümleri Üretiyorum.',
+                'Mobil Uygulama Geliştiriyorum.',
+                'Yenilikçi Çözümler Üretiyorum.',
+                'Yapay Zeka alanında gelişiyorum.'
+
             ],
             latestProjects: "Son Projelerim",
             noProjects: "Henüz proje eklenmedi.",
@@ -36,7 +38,7 @@ export const dictionaries = {
             projects: "Projeler",
             blog: "Blog",
             contact: "İletişim",
-            portal: "Müşteri Portalı"
+            portal: "Müşteri Paneli"
         },
         about: {
             title: "Hakkımda",
@@ -108,10 +110,11 @@ export const dictionaries = {
             iam: "I am Metehan.",
             desc: "I build scalable, user-friendly, and aesthetic digital solutions using modern web technologies.",
             typewriter: [
-                'a Full Stack Developer.',
-                'a React & Next.js Enthusiast.',
-                'building modern web apps.',
-                'a Problem Solver.'
+                "Full Stack Developer.",
+                "Developing Modern Web Solutions.",
+                "Building Mobile Applications.",
+                "Creating Innovative Solutions.",
+                "Growing in the field of AI."
             ],
             latestProjects: "Latest Projects",
             noProjects: "No projects added yet.",
