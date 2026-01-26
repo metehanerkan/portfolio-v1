@@ -4,14 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import {
     FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
     FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt, FaTerminal, FaEnvelopeOpenText,
-    FaHome, FaChevronDown, FaChevronRight
+    FaHome, FaChevronDown, FaChevronRight, FaBell, FaCheckDouble
 } from 'react-icons/fa';
 import {
     addProject, deleteProject, addBlog, deleteBlog, deleteMessage, replyToMessage,
     toggleProjectStatus, toggleProjectFeatured, toggleBlogStatus, toggleBlogFeatured,
-    updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject
+    updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject, toggleMessageReadStatus
 } from './actions';
-import { getSettings, toggleMaintenance } from './settings/actions';
+import { getSettings, toggleMaintenance, updateSettings, uploadCV } from './settings/actions';
 import { createBackup } from '@/actions/backup';
 import LiveLogs from './LiveLogs';
 import SystemHealthWidget from './SystemHealthWidget';
@@ -61,6 +61,29 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const [isSystemOpen, setIsSystemOpen] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+    // --- BİLDİRİM SİSTEMİ ---
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+    useEffect(() => {
+        const count = messages.filter(m => !m.read).length;
+        setUnreadCount(count);
+    }, [messages]);
+
+    const handleMessageClick = async (msg: any) => {
+        setSelectedMessage(msg);
+
+        // Eğer mesaj okunmamışsa, okundu işaretle (Canlı UI + DB)
+        if (!msg.read) {
+            // Optimistic UI Update: Anında okundu göster
+            msg.read = true;
+            setUnreadCount(prev => Math.max(0, prev - 1));
+
+            // Backend Update
+            await toggleMessageReadStatus(msg.id, true);
+        }
+    };
+
     // --- STATE YÖNETİMİ ---
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
     const [replyingTo, setReplyingTo] = useState<any>(null); // Cevap verilecek mesaj
@@ -73,20 +96,56 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const [settingsForm, setSettingsForm] = useState({
         siteTitle: 'Metehan Erkan Portfolio',
         siteDesc: 'Full Stack Developer Portfolyosu',
+        aboutText: '',
+        cvUrl: '',
+        primaryColor: '#3b82f6',
+        contactEmail: '',
+        contactPhone: '',
+        contactAddress: '',
+        socialGithub: 'https://github.com/metehanerkan',
+        socialLinkedin: 'https://linkedin.com/in/metehan-erkan',
+        socialTwitter: '',
+        socialInstagram: '',
+        skills: '[]', // JSON string
+        aboutTitle: 'Kod Yazmak Benim İçin Bir Tutku.',
+        statProjects: '5+',
+        statYears: '1+',
+        statLearnings: '∞',
         maintenanceMode: false,
-        githubUrl: 'https://github.com/metehanerkan',
-        linkedinUrl: 'https://linkedin.com/in/metehan-erkan',
         newPassword: '',
         confirmPassword: ''
     });
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [loadingSettings, setLoadingSettings] = useState(true);
+    const [settingsTab, setSettingsTab] = useState<'profile' | 'site' | 'system'>('profile'); // Ayarlar alt sekmeleri
+
     useEffect(() => {
         async function fetchSettings() {
             try {
-                const data = await getSettings();
+                const data: any = await getSettings();
                 if (data) {
                     setMaintenanceMode(data.maintenanceMode);
+                    setSettingsForm(prev => ({
+                        ...prev,
+                        siteTitle: data.siteTitle || prev.siteTitle,
+                        siteDesc: data.siteDesc || prev.siteDesc,
+                        aboutText: data.aboutText || '',
+                        cvUrl: data.cvUrl || '',
+                        primaryColor: data.primaryColor || prev.primaryColor,
+                        contactEmail: data.contactEmail || '',
+                        contactPhone: data.contactPhone || '',
+                        contactAddress: data.contactAddress || '',
+                        socialGithub: data.socialGithub || '',
+                        socialLinkedin: data.socialLinkedin || '',
+                        socialTwitter: data.socialTwitter || '',
+                        socialInstagram: data.socialInstagram || '',
+                        skills: data.skills || '[]',
+                        aboutTitle: data.aboutTitle || '',
+                        statProjects: data.statProjects || '5+',
+                        statYears: data.statYears || '1+',
+                        statLearnings: data.statLearnings || '∞',
+                        maintenanceMode: data.maintenanceMode
+                    }));
                 }
             } catch (error) {
                 console.error("Ayarlar çekilemedi:", error);
@@ -191,7 +250,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
             case 'stats':
                 return (
                     <div className="space-y-8">
-                        <h2 className="text-2xl font-bold text-white">Genel Bakış</h2>
                         {renderStats()}
                         <SystemHealthWidget />
                         <AnalyticsWidget />
@@ -250,7 +308,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                 return (
                     <div className="space-y-6 animate-fadeIn">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-2xl font-bold text-white">Proje Yönetimi</h2>
+                            {/* Title removed */}
                             <div className="flex bg-gray-900 p-1 rounded-lg border border-gray-800">
                                 <button onClick={() => setSubTab('list')} className={`px-4 py-2 rounded-md text-sm transition ${subTab === 'list' ? 'bg-gray-800 text-white' : 'text-gray-400'}`}>Listele</button>
                                 <button onClick={startNewEntry} className={`px-4 py-2 rounded-md text-sm transition ${subTab === 'form' ? 'bg-blue-600 text-white' : 'text-gray-400'}`}>{editingProject ? 'Düzenleniyor...' : 'Yeni Ekle'}</button>
@@ -291,7 +349,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                 return (
                     <div className="space-y-6 animate-fadeIn">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-2xl font-bold text-white">Blog Yönetimi</h2>
+                            {/* Title removed */}
                             <div className="flex bg-gray-900 p-1 rounded-lg border border-gray-800">
                                 <button onClick={() => setSubTab('list')} className={`px-4 py-2 rounded-md text-sm transition ${subTab === 'list' ? 'bg-gray-800 text-white' : 'text-gray-400'}`}>Listele</button>
                                 <button onClick={startNewEntry} className={`px-4 py-2 rounded-md text-sm transition ${subTab === 'form' ? 'bg-green-600 text-white' : 'text-gray-400'}`}>{editingBlog ? 'Düzenleniyor...' : 'Yeni Ekle'}</button>
@@ -330,7 +388,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
             case 'messages':
                 return (
                     <div className="space-y-6 animate-fadeIn">
-                        <h2 className="text-2xl font-bold text-white">Gelen Mesajlar</h2>
+                        {/* Title removed */}
                         <div className="grid grid-cols-1 gap-4">
                             {messages.length === 0 && <p className="text-center py-10 text-gray-500 bg-gray-900 rounded-2xl">Mesaj yok.</p>}
                             {messages.map((msg) => {
@@ -338,7 +396,10 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                 const parsed = isProjectRequest ? parseProjectDescription(msg.message) : null;
 
                                 return (
-                                    <div key={msg.id} onClick={() => setSelectedMessage(msg)} className={`bg-gray-900 p-6 rounded-2xl border transition relative cursor-pointer group ${isProjectRequest ? 'border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.1)]' : 'border-gray-800 hover:border-gray-700'}`}>
+                                    <div key={msg.id} onClick={() => handleMessageClick(msg)} className={`bg-gray-900 p-6 rounded-2xl border transition relative cursor-pointer group ${isProjectRequest ? 'border-purple-500/50 hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.1)]' : 'border-gray-800 hover:border-gray-700'}`}>
+                                        {!msg.read && (
+                                            <div className="absolute top-4 right-4 bg-blue-600 w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.5)]" title="Okunmadı"></div>
+                                        )}
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
                                                 <h4 className="font-bold text-white text-lg flex items-center gap-2">
@@ -431,7 +492,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
             case 'activeProjects':
                 return (
                     <div className="space-y-6 animate-fadeIn">
-                        <h2 className="text-2xl font-bold text-white">Müşteri Proje Yönetimi</h2>
+                        {/* Title removed */}
                         {clientProjects.length === 0 ? (
                             <div className="text-center py-20 bg-gray-900 rounded-2xl border border-gray-800 border-dashed">
                                 <FaBriefcase className="mx-auto text-4xl text-gray-700 mb-4" /><p className="text-gray-500">Henüz kabul edilmiş aktif bir proje yok.</p>
@@ -514,7 +575,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                 return (
                     <div className="space-y-6 animate-fadeIn">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-2xl font-bold text-white">Sistem Log Terminali</h2>
+                            {/* Title removed */}
                             <p className="text-gray-500 text-sm">Sunucu tarafı loglarını canlı izle.</p>
                         </div>
                         <LiveLogs />
@@ -536,191 +597,230 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
 
             case 'settings':
                 return (
-                    <div className="space-y-8 animate-fadeIn pb-12">
-                        <h2 className="text-3xl font-bold text-white mb-6">Ayarlar & Konfigürasyon</h2>
-
-                        {/* 1. KART: PROFİL VE GÜVENLİK */}
-                        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl">
-                            <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-800">
-                                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg">
-                                    M
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white">Admin Hesabı</h3>
-                                    <p className="text-gray-400 text-sm">Süper Yönetici Yetkileri Aktif</p>
-                                </div>
-                            </div>
-
-                            <form className="space-y-6">
-                                <h4 className="text-lg font-semibold text-white mb-4 border-l-4 border-blue-500 pl-3">Güvenlik Ayarları</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-400">Yeni Şifre</label>
-                                        <input
-                                            type="password"
-                                            name="newPassword"
-                                            value={settingsForm.newPassword}
-                                            onChange={handleSettingChange}
-                                            placeholder="••••••••"
-                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-400">Şifre Tekrar</label>
-                                        <input
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={settingsForm.confirmPassword}
-                                            onChange={handleSettingChange}
-                                            placeholder="••••••••"
-                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex justify-end">
-                                    <button type="button" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition text-sm">
-                                        Şifreyi Güncelle
-                                    </button>
-                                </div>
-                            </form>
+                    <div className="space-y-6 animate-fadeIn pb-12">
+                        {/* ALT SEKMELER */}
+                        <div className="flex border-b border-gray-800 mb-6">
+                            <button onClick={() => setSettingsTab('profile')} className={`px-6 py-3 text-sm font-bold transition border-b-2 ${settingsTab === 'profile' ? 'border-blue-500 text-white' : 'border-transparent text-gray-500 hover:text-white'}`}>Profil & Yetenekler</button>
+                            <button onClick={() => setSettingsTab('site')} className={`px-6 py-3 text-sm font-bold transition border-b-2 ${settingsTab === 'site' ? 'border-purple-500 text-white' : 'border-transparent text-gray-500 hover:text-white'}`}>Site & İletişim</button>
+                            <button onClick={() => setSettingsTab('system')} className={`px-6 py-3 text-sm font-bold transition border-b-2 ${settingsTab === 'system' ? 'border-red-500 text-white' : 'border-transparent text-gray-500 hover:text-white'}`}>Sistem & Güvenlik</button>
                         </div>
 
-                        {/* 2. KART: GENEL SİTE AYARLARI */}
-                        <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl">
-                            <h4 className="text-lg font-semibold text-white mb-6 border-l-4 border-purple-500 pl-3">Genel Site Ayarları</h4>
+                        {/* --- TAB 1: PROFİL & YETENEKLER --- */}
+                        {settingsTab === 'profile' && (
+                            <div className="space-y-8 animate-fadeIn">
+                                {/* HAKKIMDA */}
+                                <div className="bg-gray-900 section-p space-y-4 rounded-2xl border border-gray-800 p-8">
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FaUser className="text-blue-500" /> Hakkımda Yazısı</h3>
+                                    <div><label className="label-text">Sayfa Başlığı (Hakkımda)</label><input name="aboutTitle" value={settingsForm.aboutTitle} onChange={handleSettingChange} className="input-dark mb-4" /></div>
+                                    <MarkdownEditor value={settingsForm.aboutText} onChange={(val) => setSettingsForm(prev => ({ ...prev, aboutText: val }))} label="Kendinizi tanıtın..." />
 
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-400">Site Başlığı (Title)</label>
-                                        <input
-                                            type="text"
-                                            name="siteTitle"
-                                            value={settingsForm.siteTitle}
-                                            onChange={handleSettingChange}
-                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition"
-                                        />
+                                    <div className="grid grid-cols-3 gap-4 mt-4">
+                                        <div><label className="label-text">Tamamlanan Proje</label><input name="statProjects" value={settingsForm.statProjects} onChange={handleSettingChange} className="input-dark text-center font-bold" /></div>
+                                        <div><label className="label-text">Yıl Deneyim</label><input name="statYears" value={settingsForm.statYears} onChange={handleSettingChange} className="input-dark text-center font-bold" /></div>
+                                        <div><label className="label-text">Öğrenme Aşkı</label><input name="statLearnings" value={settingsForm.statLearnings} onChange={handleSettingChange} className="input-dark text-center font-bold" /></div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-400">SEO Açıklaması</label>
-                                        <input
-                                            type="text"
-                                            name="siteDesc"
-                                            value={settingsForm.siteDesc}
-                                            onChange={handleSettingChange}
-                                            className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition"
-                                        />
+                                </div>
+
+                                {/* CV YÖNETİMİ & PREVIEW */}
+                                <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><FaFileContract className="text-blue-500" /> CV Yönetimi</h3>
+
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Sol: Yükleme */}
+                                        <div className="space-y-4">
+                                            <div className="border-2 border-dashed border-gray-700 rounded-2xl p-8 text-center hover:border-blue-500 transition bg-black/30 group">
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf"
+                                                    id="cv-upload"
+                                                    className="hidden"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (!file) return;
+                                                        const formData = new FormData();
+                                                        formData.append('file', file);
+                                                        const loadToast = toast.loading('CV Yükleniyor...');
+                                                        const res = await uploadCV(formData);
+                                                        toast.dismiss(loadToast);
+                                                        if (res.success) {
+                                                            setSettingsForm(prev => ({ ...prev, cvUrl: res.url || '' }));
+                                                            toast.success('CV Başarıyla Güncellendi! 📄');
+                                                        } else {
+                                                            toast.error('Yükleme hatası.');
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor="cv-upload" className="cursor-pointer flex flex-col items-center justify-center gap-4">
+                                                    <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition"><FaUpload /></div>
+                                                    <div>
+                                                        <span className="text-white font-bold block text-lg">Yeni CV Yükle</span>
+                                                        <span className="text-gray-500 text-sm">Sadece PDF formatı (Max 5MB)</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            {settingsForm.cvUrl && (
+                                                <a href={settingsForm.cvUrl} download className="flex items-center justify-center gap-2 w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition">
+                                                    <FaUpload className="rotate-180" /> Mevcut CV'yi İndir
+                                                </a>
+                                            )}
+                                        </div>
+
+                                        {/* Sağ: Önizleme */}
+                                        <div className="bg-gray-950 rounded-2xl border border-gray-800 overflow-hidden h-[500px] relative">
+                                            {settingsForm.cvUrl ? (
+                                                <iframe src={settingsForm.cvUrl} className="w-full h-full border-none" title="CV Önizleme"></iframe>
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center text-gray-600 flex-col gap-2">
+                                                    <FaExclamationTriangle size={32} />
+                                                    <span>CV Yüklü Değil</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-bl-xl shadow-lg">Canlı Önizleme</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* YETENEKLER (SKILLS) - Basit JSON Editörü Şimdilik */}
+                                <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FaLaptopCode className="text-blue-500" /> Yetenekler & Teknolojiler</h3>
+                                    <p className="text-sm text-gray-500 mb-2">Yeteneklerinizi JSON formatında giriniz. Örn: <code className="text-blue-400">[{`{"name":"React", "icon":"FaReact"}`}]</code></p>
+                                    <textarea
+                                        value={settingsForm.skills}
+                                        onChange={(e) => setSettingsForm(prev => ({ ...prev, skills: e.target.value }))}
+                                        className="w-full h-40 bg-black/50 border border-gray-700 rounded-xl p-4 text-green-400 font-mono text-sm focus:border-blue-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* --- TAB 2: SİTE & İLETİŞİM --- */}
+                        {settingsTab === 'site' && (
+                            <div className="space-y-8 animate-fadeIn">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* Genel Site Bilgileri */}
+                                    <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 space-y-4">
+                                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FaHome className="text-purple-500" /> Genel Site Bilgileri</h3>
+                                        <div><label className="label-text">Site Başlığı (Title)</label><input name="siteTitle" value={settingsForm.siteTitle} onChange={handleSettingChange} className="input-dark" /></div>
+                                        <div><label className="label-text">SEO Açıklaması</label><textarea name="siteDesc" value={settingsForm.siteDesc} onChange={(e) => setSettingsForm(prev => ({ ...prev, siteDesc: e.target.value }))} className="input-dark h-24 resize-none" /></div>
+                                        <div><label className="label-text">Ana Renk (Hex Kodu)</label><div className="flex gap-2"><input type="color" name="primaryColor" value={settingsForm.primaryColor} onChange={handleSettingChange} className="h-10 w-10 rounded overflow-hidden cursor-pointer border-none bg-transparent" /><input name="primaryColor" value={settingsForm.primaryColor} onChange={handleSettingChange} className="input-dark flex-1" /></div></div>
+                                    </div>
+
+                                    {/* İletişim Bilgileri */}
+                                    <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 space-y-4">
+                                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FaEnvelope className="text-purple-500" /> İletişim Bilgileri</h3>
+                                        <div><label className="label-text">E-posta</label><input name="contactEmail" value={settingsForm.contactEmail} onChange={handleSettingChange} className="input-dark" placeholder="ornek@email.com" /></div>
+                                        <div><label className="label-text">Telefon</label><input name="contactPhone" value={settingsForm.contactPhone} onChange={handleSettingChange} className="input-dark" placeholder="+90 555 ..." /></div>
+                                        <div><label className="label-text">Adres / Konum</label><input name="contactAddress" value={settingsForm.contactAddress} onChange={handleSettingChange} className="input-dark" placeholder="İstanbul, Türkiye" /></div>
                                     </div>
                                 </div>
 
                                 {/* Sosyal Medya */}
-                                <div className="pt-4 border-t border-gray-800">
-                                    <label className="text-sm font-medium text-gray-400 mb-4 block">Sosyal Medya Bağlantıları</label>
+                                <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><FaLink className="text-purple-500" /> Sosyal Medya Hesapları</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="flex items-center gap-3">
-                                            <span className="bg-gray-800 p-3 rounded-lg text-white"><i className="fab fa-github"></i> GH</span>
-                                            <input
-                                                type="text"
-                                                name="githubUrl"
-                                                value={settingsForm.githubUrl}
-                                                onChange={handleSettingChange}
-                                                className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition"
-                                            />
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="bg-gray-800 p-3 rounded-lg text-white"><i className="fab fa-linkedin"></i> LI</span>
-                                            <input
-                                                type="text"
-                                                name="linkedinUrl"
-                                                value={settingsForm.linkedinUrl}
-                                                onChange={handleSettingChange}
-                                                className="w-full bg-black/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition"
-                                            />
-                                        </div>
+                                        <div><label className="label-text">GitHub URL</label><input name="socialGithub" value={settingsForm.socialGithub} onChange={handleSettingChange} className="input-dark" /></div>
+                                        <div><label className="label-text">LinkedIn URL</label><input name="socialLinkedin" value={settingsForm.socialLinkedin} onChange={handleSettingChange} className="input-dark" /></div>
+                                        <div><label className="label-text">Twitter / X URL</label><input name="socialTwitter" value={settingsForm.socialTwitter} onChange={handleSettingChange} className="input-dark" /></div>
+                                        <div><label className="label-text">Instagram URL</label><input name="socialInstagram" value={settingsForm.socialInstagram} onChange={handleSettingChange} className="input-dark" /></div>
                                     </div>
                                 </div>
+                            </div>
+                        )}
 
-                                {/* Bakım Modu Toggle */}
-                                <div className="space-y-8 animate-fadeIn pb-12">
-                                    <h2 className="text-3xl font-bold text-white mb-6">Sistem Ayarları</h2>
-
-                                    {/* VERİ YÖNETİMİ & YEDEKLEME */}
-                                    <div className="bg-gray-900 border border-gray-800 p-8 rounded-2xl mb-8 flex items-center justify-between">
-                                        <div>
-                                            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                                                <FaSave className="text-blue-500" /> Veritabanı Yedeği
-                                            </h3>
-                                            <p className="text-gray-400 text-sm">
-                                                Tüm projeler, bloglar ve ayarlar dahil tüm veriyi JSON olarak indir.
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={async () => {
-                                                const loadingToast = toast.loading("Yedek oluşturuluyor...");
-                                                const result = await createBackup();
-                                                toast.dismiss(loadingToast);
-
-                                                if (result.success && result.data) {
-                                                    const blob = new Blob([result.data], { type: 'application/json' });
-                                                    const url = URL.createObjectURL(blob);
-                                                    const a = document.createElement('a');
-                                                    a.href = url;
-                                                    a.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
-                                                    document.body.appendChild(a);
-                                                    a.click();
-                                                    document.body.removeChild(a);
-                                                    URL.revokeObjectURL(url);
-                                                    toast.success("Yedek indirildi! 📦");
-                                                } else {
-                                                    toast.error("Yedekleme başarısız.");
-                                                }
-                                            }}
-                                            type="button"
-                                            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg shadow-blue-900/20 flex items-center gap-2"
-                                        >
-                                            <FaUpload className="rotate-180" /> Yedeği İndir
-                                        </button>
+                        {/* --- TAB 3: SİSTEM & GÜVENLİK --- */}
+                        {settingsTab === 'system' && (
+                            <div className="space-y-8 animate-fadeIn">
+                                {/* GÜVENLİK (ŞİFRE) */}
+                                <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><FaSave className="text-red-500" /> Şifre Değiştir</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div><label className="label-text">Yeni Şifre</label><input type="password" name="newPassword" value={settingsForm.newPassword} onChange={handleSettingChange} className="input-dark" /></div>
+                                        <div><label className="label-text">Şifre Tekrar</label><input type="password" name="confirmPassword" value={settingsForm.confirmPassword} onChange={handleSettingChange} className="input-dark" /></div>
                                     </div>
+                                    <div className="mt-4 flex justify-end"><button className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold transition">Şifreyi Güncelle</button></div>
+                                </div>
 
-                                    {/* BAKIM MODU KARTI */}
-                                    <div className={`p-8 rounded-2xl border transition-all duration-500 ${maintenanceMode ? 'bg-purple-900/20 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.2)]' : 'bg-gray-900 border-gray-800'}`}>
-                                        <div className="flex items-center justify-between">
+                                {/* BAKIM & YEDEK */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* Bakım Modu */}
+                                    <div className={`p-8 rounded-2xl border transition-all duration-500 ${maintenanceMode ? 'bg-red-900/20 border-red-500/50' : 'bg-gray-900 border-gray-800'}`}>
+                                        <div className="flex justify-between items-center">
                                             <div>
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <h3 className="text-xl font-bold text-white">Bakım Modu</h3>
-                                                    {maintenanceMode && (
-                                                        <span className="px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full animate-pulse">
-                                                            AKTİF
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <p className="text-gray-400 max-w-md">
-                                                    Aktif edildiğinde, <strong>Admin Paneli hariç</strong> tüm site ziyaretçilere kapatılır ve "Bakımdayız" sayfası gösterilir.
-                                                </p>
+                                                <h3 className="text-xl font-bold text-white mb-2">Bakım Modu</h3>
+                                                <p className="text-xs text-gray-400">Siteyi ziyaretçilere kapat.</p>
                                             </div>
-
-                                            {/* TOGGLE SWITCH */}
                                             <label className="relative inline-flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    className="sr-only peer"
-                                                    checked={maintenanceMode}
-                                                    onChange={handleMaintenanceToggle}
-                                                    disabled={loadingSettings}
-                                                />
-                                                <div className="w-16 h-8 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600 shadow-inner"></div>
+                                                <input type="checkbox" checked={maintenanceMode} onChange={handleMaintenanceToggle} className="sr-only peer" />
+                                                <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600"></div>
                                             </label>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="flex justify-end pt-4">
-                                    <button type="button" className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold transition shadow-lg shadow-green-900/20">
-                                        Ayarları Kaydet
-                                    </button>
+                                    {/* Yedekleme */}
+                                    <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 flex flex-col justify-center">
+                                        <h3 className="text-xl font-bold text-white mb-2">Veri Yedeği</h3>
+                                        <button onClick={async () => {
+                                            const load = toast.loading('Yedekleniyor...');
+                                            const res = await createBackup();
+                                            toast.dismiss(load);
+                                            if (res.success && res.data) {
+                                                const blob = new Blob([res.data], { type: 'application/json' });
+                                                const url = URL.createObjectURL(blob);
+                                                const a = document.createElement('a'); a.href = url; a.download = 'backup.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                                                toast.success('Yedek İndirildi!');
+                                            } else { toast.error('Yedekleme Hatası'); }
+                                        }} className="w-full py-3 bg-blue-600/10 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-500/20 rounded-xl font-bold transition">
+                                            JSON Olarak İndir
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                        )}
+
+                        {/* KAYDET BUTONU (STİCKY) */}
+                        <div className="fixed bottom-6 right-6 z-50">
+                            <button
+                                onClick={async () => {
+                                    const formData = new FormData();
+                                    // Tüm form verilerini ekle
+                                    Object.entries(settingsForm).forEach(([key, value]) => {
+                                        // Şifre alanlarını boşsa gönderme
+                                        if ((key === 'newPassword' || key === 'confirmPassword') && !value) return;
+
+                                        // Boolean değerleri string'e çevir
+                                        if (typeof value === 'boolean') {
+                                            formData.append(key, String(value));
+                                        } else {
+                                            formData.append(key, String(value || ''));
+                                        }
+                                    });
+
+                                    // Maintenance Mode'u state'den ayrıca ekle (garanti olsun)
+                                    formData.set('maintenanceMode', String(maintenanceMode));
+
+                                    const load = toast.loading('Ayarlar kaydediliyor...');
+                                    try {
+                                        await updateSettings(formData);
+                                        toast.dismiss(load);
+                                        toast.success('Ayarlar kaydedildi, sayfa yenileniyor... 🔄');
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1500);
+                                    } catch (error) {
+                                        toast.dismiss(load);
+                                        toast.error('Kaydetme başarısız oldu.');
+                                        console.error(error);
+                                    }
+                                }}
+                                className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-2xl shadow-green-600/40 flex items-center gap-3 transition transform hover:scale-105"
+                            >
+                                <FaSave className="text-xl" /> Değişiklikleri Kaydet
+                            </button>
                         </div>
+
+                        <style jsx>{`
+                            .label-text { font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; display: block; margin-bottom: 0.5rem; }
+                        `}</style>
                     </div>
                 );
         }
@@ -729,14 +829,17 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     return (
         <div className="flex min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
             <aside className={`bg-gray-950 border-r border-gray-900 fixed h-full flex flex-col z-20 top-0 left-0 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-16'}`}>
-                <div className={`border-b border-gray-900 flex items-center justify-between ${isSidebarOpen ? 'p-6' : 'p-4 justify-center'}`}>
+                <div className={`h-20 border-b border-gray-900 flex items-center ${isSidebarOpen ? 'justify-between px-6' : 'justify-center'}`}>
                     {isSidebarOpen ? (
                         <>
-                            <div><h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">Admin Paneli</h1><p className="text-[10px] text-gray-500 uppercase tracking-widest">Kontrol Merkezi</p></div>
-                            <button onClick={() => setIsSidebarOpen(false)} className="text-gray-500 hover:text-white transition"><FaChevronRight className="rotate-180" /></button>
+                            <div><h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-tight">Metehan Erkan</h1><p className="text-[10px] text-gray-500 uppercase tracking-widest">Admin Paneli</p></div>
+
+                            {/* BİLDİRİM ZİLİ BURADAN KALDIRILDI - HEADER'A TAŞINDI */}
+
+                            <button onClick={() => setIsSidebarOpen(false)} className="text-gray-500 hover:text-white transition ml-4"><FaChevronRight className="rotate-180" /></button>
                         </>
                     ) : (
-                        <button onClick={() => setIsSidebarOpen(true)} className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg text-sm hover:scale-105 transition">A</button>
+                        <button onClick={() => setIsSidebarOpen(true)} className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg text-sm hover:scale-105 transition">M</button>
                     )}
                 </div>
                 <nav className={`flex-1 p-2 space-y-1 ${!isSidebarOpen && 'flex flex-col items-center'}`}>
@@ -800,22 +903,90 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     )}
                 </nav>
                 <div className={`p-4 border-t border-gray-900 space-y-2 ${!isSidebarOpen ? 'flex flex-col items-center px-2' : ''}`}>
-                    <Link href="/" target='_blank' className={`flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-900 rounded-xl transition text-sm ${!isSidebarOpen ? 'justify-center px-0 w-full' : ''}`}>
-                        <FaEye size={isSidebarOpen ? 16 : 20} title="Siteyi Görüntüle" />
-                        {isSidebarOpen && <span>Siteyi Görüntüle</span>}
-                    </Link>
-                    <form action={logout} className={!isSidebarOpen ? 'w-full' : ''}>
-                        <button type="submit" className={`w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl transition text-sm ${!isSidebarOpen ? 'justify-center px-0' : ''}`}>
-                            <FaSignOutAlt size={isSidebarOpen ? 16 : 20} title="Güvenli Çıkış" />
-                            {isSidebarOpen && <span>Güvenli Çıkış</span>}
-                        </button>
-                    </form>
+                    {/* BUTTONLAR HEADER'A TAŞINDI */}
                 </div>
             </aside>
 
-            <main className={`flex-1 p-10 bg-black min-h-screen relative transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
+            <main className={`flex-1 bg-black min-h-screen relative transition-all duration-300 flex flex-col ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
 
-                <div className="max-w-6xl mx-auto pt-8">{renderContent()}</div>
+                {/* --- HEADER --- */}
+                <header className="h-20 border-b border-gray-900 bg-black/50 backdrop-blur-xl sticky top-0 z-40 px-10 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold text-white capitalize">
+                            {
+                                activeTab === 'stats' ? 'Genel Bakış' :
+                                    activeTab === 'projects' ? 'Proje Yönetimi' :
+                                        activeTab === 'blogs' ? 'Blog Yönetimi' :
+                                            activeTab === 'messages' ? 'Gelen Mesajlar' :
+                                                activeTab === 'activeProjects' ? 'Müşteri İşleri' :
+                                                    activeTab === 'logs' ? 'Sistem Logları' :
+                                                        activeTab === 'analytics' ? 'Detaylı Analiz' :
+                                                            activeTab === 'newsletter' ? 'E-Bülten' :
+                                                                activeTab === 'settings' ? 'Ayarlar' : activeTab
+                            }
+                        </h2>
+                        <p className="text-xs text-gray-500">Hoşgeldin, Admin</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Link href="/" target='_blank' className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:border-gray-700 transition group">
+                            <FaExternalLinkAlt className="group-hover:scale-110 transition" /> Siteyi Görüntüle
+                        </Link>
+
+                        {/* BİLDİRİM DROPDOWN */}
+                        <div className="relative">
+                            <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="w-10 h-10 bg-gray-900 border border-gray-800 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:border-gray-700 transition relative">
+                                <FaBell size={18} />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full animate-bounce shadow-lg shadow-red-500/50">
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            <AnimatePresence>
+                                {isNotificationsOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)}></div>
+                                        <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute right-0 top-12 w-80 bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                                            <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-950">
+                                                <span className="font-bold text-white text-sm">Bildirimler</span>
+                                                {unreadCount > 0 && <span className="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full border border-red-500/20">{unreadCount} Yeni</span>}
+                                            </div>
+                                            <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                                                {messages.filter(m => !m.read).length === 0 ? (
+                                                    <div className="p-8 text-center text-gray-500 text-xs">Okunmamış bildirim yok. 🎉</div>
+                                                ) : (
+                                                    messages.filter(m => !m.read).slice(0, 5).map(msg => (
+                                                        <div key={msg.id} onClick={() => { handleMessageClick(msg); setIsNotificationsOpen(false); }} className="p-4 border-b border-gray-800 hover:bg-gray-800/50 cursor-pointer transition flex items-start gap-3 group">
+                                                            <div className="w-2 h-2 mt-2 bg-blue-500 rounded-full flex-shrink-0 group-hover:scale-150 transition"></div>
+                                                            <div>
+                                                                <h5 className="text-white text-xs font-bold truncate w-56">{msg.subject}</h5>
+                                                                <p className="text-[10px] text-gray-400 truncate w-56">{msg.name}</p>
+                                                                <span className="text-[9px] text-gray-600 mt-1 block">{new Date(msg.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                            <button onClick={() => { setActiveTab('messages'); setSubTab('list'); setIsNotificationsOpen(false); }} className="w-full py-3 text-xs font-bold text-center text-gray-400 hover:text-white hover:bg-gray-800 transition border-t border-gray-800 bg-gray-950">
+                                                Tüm Mesajları Gör
+                                            </button>
+                                        </motion.div>
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        <form action={logout}>
+                            <button type="submit" className="w-10 h-10 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition" title="Çıkış Yap">
+                                <FaSignOutAlt size={16} />
+                            </button>
+                        </form>
+                    </div>
+                </header>
+
+                <div className="max-w-6xl mx-auto pt-8 px-10 w-full">{renderContent()}</div>
 
                 {/* MODAL 1: PROJE KABUL & BAŞLATMA */}
                 <AnimatePresence>

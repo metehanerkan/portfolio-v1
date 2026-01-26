@@ -1,6 +1,37 @@
-import { skills } from "@/data/skills";
+import { getPublicSettings } from "@/app/admin/settings/actions";
+import { skills as defaultSkills } from "@/data/skills";
+import ReactMarkdown from 'react-markdown';
+import { FaReact, FaPython, FaGitAlt, FaNodeJs, FaDocker, FaGithub, FaLinkedin, FaEnvelope, FaLaptopCode, FaDatabase, FaMobileAlt, FaCode } from "react-icons/fa";
+import { SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiMongodb, SiFirebase, SiAndroidstudio, SiKotlin, SiCss3, SiJavascript, SiHtml5 } from "react-icons/si";
 
-export default function AboutPage() {
+// İkon Haritası (String -> Component)
+const iconMap: any = {
+    FaReact: <FaReact />, FaPython: <FaPython />, FaGitAlt: <FaGitAlt />, FaNodeJs: <FaNodeJs />, FaDocker: <FaDocker />,
+    SiNextdotjs: <SiNextdotjs />, SiTailwindcss: <SiTailwindcss />, SiTypescript: <SiTypescript />, SiMongodb: <SiMongodb />,
+    SiFirebase: <SiFirebase />, SiAndroidstudio: <SiAndroidstudio />, SiKotlin: <SiKotlin />, SiCss3: <SiCss3 />,
+    SiJavascript: <SiJavascript />, SiHtml5: <SiHtml5 />, FaGithub: <FaGithub />, FaDatabase: <FaDatabase />,
+    FaMobileAlt: <FaMobileAlt />, FaCode: <FaCode />
+};
+
+export default async function AboutPage() {
+    const settings: any = await getPublicSettings();
+
+    // Veritabanından gelen yetenekleri parse et veya varsayılanı kullan
+    let displaySkills = defaultSkills;
+    if (settings?.skills) {
+        try {
+            const parsed = JSON.parse(settings.skills);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                displaySkills = parsed.map((s: any) => ({
+                    ...s,
+                    icon: iconMap[s.icon] || <FaCode /> // İkonu eşleştir veya varsayılan koy
+                }));
+            }
+        } catch (e) {
+            console.error("Skills parse error:", e);
+        }
+    }
+
     return (
         <main className="min-h-screen bg-[#030014] text-white pt-32 px-6 pb-20 relative overflow-hidden">
 
@@ -18,31 +49,44 @@ export default function AboutPage() {
                     {/* Yazı Alanı */}
                     <div className="space-y-8">
                         <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent leading-tight drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-                            Kod Yazmak Benim İçin Bir Tutku.
+                            {settings?.aboutTitle || "Kod Yazmak Benim İçin Bir Tutku."}
                         </h1>
 
-                        <div className="space-y-6 text-purple-100/70 text-lg leading-relaxed">
-                            <p>
-                                Merhaba! Ben <span className="text-white font-medium">Metehan</span>. Teknolojiyle tanıştığım ilk günden beri, karmaşık problemleri basit ve estetik çözümlere dönüştürmeyi seviyorum.
-                            </p>
-                            <p>
-                                Full Stack geliştirme yolculuğumda, sadece kod yazmayı değil, aynı zamanda ölçeklenebilir mimariler kurmayı ve kullanıcı deneyimini (UX) en üst düzeye çıkarmayı hedefliyorum. Sürekli öğrenme modundayım; bugün React ekosistemini keşfederken, yarın Yapay Zeka entegrasyonlarıyla uğraşıyorum.
-                            </p>
+                        <div className="prose prose-invert prose-lg text-purple-100/70 leading-relaxed">
+                            {/* Markdown içeriği varsa render et, yoksa varsayılan metni göster */}
+                            {settings?.aboutText ? (
+                                <ReactMarkdown>{settings.aboutText}</ReactMarkdown>
+                            ) : (
+                                <>
+                                    <p>Merhaba! Ben <span className="text-white font-medium">Metehan</span>. Teknolojiyle tanıştığım ilk günden beri, karmaşık problemleri basit ve estetik çözümlere dönüştürmeyi seviyorum.</p>
+                                    <p>Full Stack geliştirme yolculuğumda, sadece kod yazmayı değil, aynı zamanda ölçeklenebilir mimariler kurmayı hedefliyorum.</p>
+                                </>
+                            )}
                         </div>
+
+                        {/* CV İndirme Butonu */}
+                        {settings?.cvUrl && (
+                            <a href={settings.cvUrl} download className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition shadow-lg shadow-purple-900/20">
+                                <FaReact className="animate-spin" /> CV İndir
+                            </a>
+                        )}
 
                         {/* İstatistikler */}
                         <div className="grid grid-cols-3 gap-6 pt-8 border-t border-purple-500/20">
                             <div>
-                                <span className="block text-4xl font-bold text-white drop-shadow-md">5+</span>
                                 <span className="text-sm text-purple-200/50 uppercase tracking-wide">Tamamlanan Proje</span>
+                                <span className="block text-4xl font-bold text-white drop-shadow-md">{settings?.statProjects || '5+'}</span>
+
                             </div>
                             <div>
-                                <span className="block text-4xl font-bold text-white drop-shadow-md">1+</span>
                                 <span className="text-sm text-purple-200/50 uppercase tracking-wide">Yıl Deneyim</span>
+                                <span className="block text-4xl font-bold text-white drop-shadow-md">{settings?.statYears || '1+'}</span>
+
                             </div>
                             <div>
-                                <span className="block text-4xl font-bold text-white drop-shadow-md">∞</span>
                                 <span className="text-sm text-purple-200/50 uppercase tracking-wide">Öğrenme Aşkı</span>
+                                <span className="block text-4xl font-bold text-white drop-shadow-md">{settings?.statLearnings || '∞'}</span>
+
                             </div>
                         </div>
                     </div>
@@ -123,7 +167,7 @@ export default function AboutPage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                        {skills.map((skill, index) => (
+                        {displaySkills.map((skill: any, index: number) => (
                             <div
                                 key={index}
                                 className="group bg-white/5 border border-white/10 p-8 rounded-2xl flex flex-col items-center gap-6 hover:bg-white/10 hover:border-purple-500/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(168,85,247,0.3)] backdrop-blur-sm"

@@ -179,6 +179,19 @@ export async function deleteMessage(formData: FormData) {
     revalidatePath('/admin');
 }
 
+export async function toggleMessageReadStatus(id: string, isRead: boolean) {
+    try {
+        await db.contactMessage.update({
+            where: { id },
+            data: { read: isRead }
+        });
+        revalidatePath('/admin');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: 'Mesaj durumu güncellenemedi.' };
+    }
+}
+
 export async function replyToMessage(formData: FormData) {
     const email = formData.get('email') as string;
     const name = formData.get('name') as string;

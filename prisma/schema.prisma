@@ -103,6 +103,35 @@ model ProjectRequest {
 model SiteSettings {
   id              String  @id @default(uuid())
   maintenanceMode Boolean @default(false) // Varsayılan: Kapalı
+  
+  // Genel Ayarlar
+  siteTitle       String? @default("Metehan Erkan Portfolio")
+  siteDesc        String? @default("Full Stack Developer Portfolyosu")
+  
+  // Profil
+  aboutTitle      String? @default("Kod Yazmak Benim İçin Bir Tutku.") // Hakkımda sayfasındaki büyük başlık
+  aboutText       String? @db.Text // Hakkımda yazısı (Markdown)
+  cvUrl           String? // CV PDF dosya yolu
+  
+  // İstatistikler (Hakkımda Sayfası)
+  statProjects    String? @default("5+")
+  statYears       String? @default("1+")
+  statLearnings   String? @default("∞")
+  
+  // Görünüm & Yetenekler
+  primaryColor    String? @default("#3b82f6") // Varsayılan Mavi
+  skills          String? @db.Text // JSON string olarak tutacağız: [{name: 'React', icon: 'FaReact'}, ...]
+  
+  // İletişim
+  contactEmail    String?
+  contactPhone    String?
+  contactAddress  String?
+  
+  // Sosyal Medya
+  socialGithub    String?
+  socialLinkedin  String?
+  socialTwitter   String?
+  socialInstagram String?
 }
 
 model SystemLog {

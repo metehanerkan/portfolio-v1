@@ -8,8 +8,11 @@ interface FooterProps {
     dict: Dictionary['footer'] & { nav: Dictionary['nav'] }; // footer + nav (for links)
 }
 
-export default function Footer({ lang, dict }: FooterProps) {
+import { getPublicSettings } from '@/app/admin/settings/actions';
+
+export default async function Footer({ lang, dict }: FooterProps) {
     const currentYear = new Date().getFullYear();
+    const settings = await getPublicSettings();
 
     return (
         // ✨ GÜNCELLEME: Arka plan #030014 ve üstte mor ışık çizgisi
@@ -35,7 +38,7 @@ export default function Footer({ lang, dict }: FooterProps) {
                             Metehan.dev
                         </h3>
                         <p className="text-purple-200/60 text-sm leading-relaxed max-w-xs">
-                            {dict.brandDesc}
+                            {settings?.siteDesc || dict.brandDesc}
                         </p>
                     </div>
 
@@ -74,23 +77,23 @@ export default function Footer({ lang, dict }: FooterProps) {
                         </p>
 
                         <a
-                            href="mailto:metehanerkan08@gmail.com"
+                            href={`mailto:${settings?.contactEmail || 'metehanerkan08@gmail.com'}`}
                             className="inline-flex items-center gap-3 text-purple-300 hover:text-white transition-colors duration-300 bg-white/5 border border-white/10 px-4 py-3 rounded-lg hover:bg-white/10 hover:border-purple-500/50 group"
                         >
                             <FaEnvelope className="group-hover:scale-110 transition-transform duration-300" />
-                            <span className="text-sm">metehanerkan08@gmail.com</span>
+                            <span className="text-sm">{settings?.contactEmail || 'metehanerkan08@gmail.com'}</span>
                         </a>
 
                         <div className="flex gap-4 pt-2">
                             <a
-                                href="https://github.com/metehanerkan"
+                                href={settings?.socialGithub || "https://github.com/metehanerkan"}
                                 target="_blank"
                                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-purple-500/50 transition-all duration-300 hover:scale-110"
                             >
                                 <FaGithub size={20} />
                             </a>
                             <a
-                                href="https://linkedin.com/in/metehan-erkan-b9a52a1b8/"
+                                href={settings?.socialLinkedin || "https://linkedin.com/in/metehan-erkan-b9a52a1b8/"}
                                 target="_blank"
                                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-[#0077b5] hover:bg-white/10 hover:border-[#0077b5]/50 transition-all duration-300 hover:scale-110"
                             >

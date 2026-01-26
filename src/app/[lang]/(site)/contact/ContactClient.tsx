@@ -5,7 +5,7 @@ import { sendMessage } from './actions';
 import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { Dictionary } from '@/dictionaries';
 
-export default function ContactClient({ dict }: { dict: Dictionary['contact'] }) {
+export default function ContactClient({ dict, settings }: { dict: Dictionary['contact'], settings?: any }) {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
@@ -55,7 +55,9 @@ export default function ContactClient({ dict }: { dict: Dictionary['contact'] })
                             </div>
                             <div>
                                 <p className="text-sm text-purple-200/50 uppercase tracking-wide font-semibold mb-1">{dict.emailLabel}</p>
-                                <a href="mailto:metehanerkan08@gmail.com" className="font-medium text-white hover:text-purple-300 transition-colors text-lg">metehanerkan08@gmail.com</a>
+                                <a href={`mailto:${settings?.contactEmail || "metehanerkan08@gmail.com"}`} className="font-medium text-white hover:text-purple-300 transition-colors text-lg">
+                                    {settings?.contactEmail || "metehanerkan08@gmail.com"}
+                                </a>
                             </div>
                         </div>
 
@@ -66,7 +68,7 @@ export default function ContactClient({ dict }: { dict: Dictionary['contact'] })
                             </div>
                             <div>
                                 <p className="text-sm text-purple-200/50 uppercase tracking-wide font-semibold mb-1">{dict.locationLabel}</p>
-                                <p className="font-medium text-white text-lg">{dict.locationValue}</p>
+                                <p className="font-medium text-white text-lg">{settings?.contactAddress || dict.locationValue}</p>
                             </div>
                         </div>
                     </div>
@@ -75,8 +77,8 @@ export default function ContactClient({ dict }: { dict: Dictionary['contact'] })
                     <div className="pt-8 border-t border-white/10">
                         <p className="text-sm text-purple-200/50 mb-4 font-semibold uppercase tracking-wide">{dict.socialLabel}</p>
                         <div className="flex gap-4">
-                            <a href="https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/" target="_blank" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-200/70 border border-white/10 hover:bg-[#0077b5] hover:border-[#0077b5] hover:text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaLinkedin size={24} /></a>
-                            <a href="https://github.com/metehanerkan" target="_blank" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-200/70 border border-white/10 hover:bg-white hover:border-white hover:text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaGithub size={24} /></a>
+                            <a href={settings?.socialLinkedin || "https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/"} target="_blank" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-200/70 border border-white/10 hover:bg-[#0077b5] hover:border-[#0077b5] hover:text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaLinkedin size={24} /></a>
+                            <a href={settings?.socialGithub || "https://github.com/metehanerkan"} target="_blank" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-200/70 border border-white/10 hover:bg-white hover:border-white hover:text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaGithub size={24} /></a>
                         </div>
                     </div>
                 </div>
