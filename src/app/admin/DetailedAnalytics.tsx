@@ -137,36 +137,43 @@ export default function DetailedAnalytics() {
 
                     <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
                         <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaChrome /> Tarayıcı & Cihaz Dağılımı</h4>
-                        <div className="grid grid-cols-2 gap-4 h-[300px]">
+                        <div className="grid grid-cols-2 gap-4 h-[400px]">
                             <div className="h-full flex flex-col items-center">
-                                <span className="text-xs text-gray-500 mb-2">Tarayıcılar</span>
+                                <span className="text-sm text-gray-500 mb-2">Tarayıcılar</span>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={stats.browsers} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                                        <Pie data={stats.browsers} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                                             {stats.browsers.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                         </Pie>
                                         <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', fontSize: '12px', color: '#fff' }} itemStyle={{ color: '#fff' }} />
+                                        <Legend
+                                            layout="horizontal"
+                                            verticalAlign="bottom"
+                                            align="center"
+                                            height={60}
+                                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                                        />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
                             <div className="h-full flex flex-col items-center">
-                                <span className="text-xs text-gray-500 mb-2">Cihazlar</span>
+                                <span className="text-sm text-gray-500 mb-2">Cihazlar</span>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={stats.devices} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                                        <Pie data={stats.devices} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                                             {stats.devices.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />)}
                                         </Pie>
                                         <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', fontSize: '12px', color: '#fff' }} itemStyle={{ color: '#fff' }} />
+                                        <Legend
+                                            layout="horizontal"
+                                            verticalAlign="bottom"
+                                            align="center"
+                                            height={60}
+                                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                                        />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                        </div>
-                        <div className="mt-4 flex flex-wrap justify-center gap-2">
-                            {stats.browsers.slice(0, 3).map((b: any, i: number) => (
-                                <div key={i} className="flex items-center gap-1 text-[10px] text-gray-400">
-                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i] }}></span> {b.name}
-                                </div>
-                            ))}
                         </div>
                     </div>
                 </div>
