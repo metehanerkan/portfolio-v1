@@ -7,24 +7,38 @@ import { Locale } from "@/dictionaries";
 
 // const inter = Inter({ subsets: ["latin"] }); // Moved to RootLayout
 
-export const metadata: Metadata = {
-    title: {
-        default: "Metehan Erkan | Software Engineer",
-        template: "%s | Metehan Erkan"
-    },
-    description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
-    keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile"],
-    authors: [{ name: "Metehan Erkan" }],
-    creator: "Metehan Erkan",
-    openGraph: {
-        type: "website",
-        locale: "tr_TR",
-        url: "https://metehanerkan.vercel.app",
-        title: "Metehan Erkan | Software Engineer",
-        description: "Projelerimi ve blog yazılarımı inceleyin.",
-        siteName: "Metehan Erkan Portfolyo"
-    },
-};
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
+    const { lang } = await params;
+    const baseUrl = 'https://metehanerkan.vercel.app';
+
+    return {
+        title: {
+            default: "Metehan Erkan | Software Engineer",
+            template: "%s | Metehan Erkan"
+        },
+        description: lang === 'tr'
+            ? "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici."
+            : "Full Stack Software Developer building scalable applications with modern web technologies, Next.js, and React.",
+        keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile"],
+        authors: [{ name: "Metehan Erkan" }],
+        creator: "Metehan Erkan",
+        openGraph: {
+            type: "website",
+            locale: lang === 'tr' ? 'tr_TR' : 'en_US',
+            url: `${baseUrl}/${lang}`,
+            title: "Metehan Erkan | Software Engineer",
+            description: lang === 'tr' ? "Projelerimi ve blog yazılarımı inceleyin." : "Check out my projects and blog posts.",
+            siteName: "Metehan Erkan Portfolio"
+        },
+        alternates: {
+            canonical: `${baseUrl}/${lang}`,
+            languages: {
+                'tr': `${baseUrl}/tr`,
+                'en': `${baseUrl}/en`,
+            },
+        },
+    };
+}
 
 export default async function RootLayout({
     children,
