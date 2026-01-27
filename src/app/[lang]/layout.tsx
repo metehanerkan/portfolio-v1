@@ -11,14 +11,18 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
     const { lang } = await params;
     const baseUrl = 'https://metehanerkan.vercel.app';
 
+    const settings = await db.siteSettings.findFirst();
+    const siteTitle = settings?.siteTitle || "Metehan Erkan | Software Engineer";
+    const siteDesc = settings?.siteDesc || (lang === 'tr'
+        ? "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici."
+        : "Full Stack Software Developer building scalable applications with modern web technologies, Next.js, and React.");
+
     return {
         title: {
-            default: "Metehan Erkan | Software Engineer",
-            template: "%s | Metehan Erkan"
+            default: siteTitle,
+            template: `%s | ${siteTitle}`
         },
-        description: lang === 'tr'
-            ? "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici."
-            : "Full Stack Software Developer building scalable applications with modern web technologies, Next.js, and React.",
+        description: siteDesc,
         keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile"],
         authors: [{ name: "Metehan Erkan" }],
         creator: "Metehan Erkan",
@@ -26,9 +30,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Loc
             type: "website",
             locale: lang === 'tr' ? 'tr_TR' : 'en_US',
             url: `${baseUrl}/${lang}`,
-            title: "Metehan Erkan | Software Engineer",
-            description: lang === 'tr' ? "Projelerimi ve blog yazılarımı inceleyin." : "Check out my projects and blog posts.",
-            siteName: "Metehan Erkan Portfolio"
+            title: siteTitle,
+            description: siteDesc,
+            siteName: siteTitle
         },
         alternates: {
             canonical: `${baseUrl}/${lang}`,

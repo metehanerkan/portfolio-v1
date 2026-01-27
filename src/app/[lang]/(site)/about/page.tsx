@@ -1,4 +1,5 @@
 import { getPublicSettings } from "@/app/admin/settings/actions";
+import CvViewer from "@/components/CvViewer";
 import { skills as defaultSkills } from "@/data/skills";
 import ReactMarkdown from 'react-markdown';
 import { FaReact, FaPython, FaGitAlt, FaNodeJs, FaDocker, FaGithub, FaLinkedin, FaEnvelope, FaLaptopCode, FaDatabase, FaMobileAlt, FaCode } from "react-icons/fa";
@@ -65,10 +66,9 @@ export default async function AboutPage() {
                         </div>
 
                         {/* CV İndirme Butonu */}
+                        {/* CV İncele & İndir */}
                         {settings?.cvUrl && (
-                            <a href={settings.cvUrl} download className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition shadow-lg shadow-purple-900/20">
-                                <FaReact className="animate-spin" /> CV İndir
-                            </a>
+                            <CvViewer cvUrl={settings.cvUrl} />
                         )}
 
                         {/* İstatistikler */}

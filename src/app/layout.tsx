@@ -10,10 +10,7 @@ import AnalyticsListener from "@/components/AnalyticsListener";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-    title: {
-        default: "Metehan Erkan | Software Engineer",
-        template: "%s | Metehan Erkan"
-    },
+    title: "Metehan Erkan | Software Engineer",
     description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
     keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile", "Next.js", "React", "Web Tasarım", "Yazılım"],
     authors: [{ name: "Metehan Erkan" }],

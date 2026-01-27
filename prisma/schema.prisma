@@ -107,6 +107,7 @@ model SiteSettings {
   // Genel Ayarlar
   siteTitle       String? @default("Metehan Erkan Portfolio")
   siteDesc        String? @default("Full Stack Developer Portfolyosu")
+  footerText      String? @default("Modern web teknolojileri ile ölçeklenebilir çözümler.")
   
   // Profil
   aboutTitle      String? @default("Kod Yazmak Benim İçin Bir Tutku.") // Hakkımda sayfasındaki büyük başlık

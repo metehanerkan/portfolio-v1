@@ -24,6 +24,7 @@ import { logout } from '@/app/admin/login/actions';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateRequestStatus } from '@/app/admin/actions';
+import { UploadButton } from "@/lib/uploadthing";
 import { toast } from 'react-hot-toast';
 import { features } from 'process';
 import { FaReply } from 'react-icons/fa';
@@ -111,13 +112,14 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
         statProjects: '5+',
         statYears: '1+',
         statLearnings: '∞',
+        footerText: 'Modern web teknolojileri ile ölçeklenebilir çözümler.',
         maintenanceMode: false,
         newPassword: '',
         confirmPassword: ''
     });
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [loadingSettings, setLoadingSettings] = useState(true);
-    const [settingsTab, setSettingsTab] = useState<'profile' | 'site' | 'system'>('profile'); // Ayarlar alt sekmeleri
+    const [settingsTab, setSettingsTab] = useState<'site' | 'profile' | 'system'>('site'); // Ayarlar alt sekmeleri
 
     useEffect(() => {
         async function fetchSettings() {
@@ -127,11 +129,11 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                     setMaintenanceMode(data.maintenanceMode);
                     setSettingsForm(prev => ({
                         ...prev,
-                        siteTitle: data.siteTitle || prev.siteTitle,
-                        siteDesc: data.siteDesc || prev.siteDesc,
+                        siteTitle: data.siteTitle || '',
+                        siteDesc: data.siteDesc || '',
                         aboutText: data.aboutText || '',
                         cvUrl: data.cvUrl || '',
-                        primaryColor: data.primaryColor || prev.primaryColor,
+                        primaryColor: data.primaryColor || '#3b82f6',
                         contactEmail: data.contactEmail || '',
                         contactPhone: data.contactPhone || '',
                         contactAddress: data.contactAddress || '',
@@ -144,6 +146,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                         statProjects: data.statProjects || '5+',
                         statYears: data.statYears || '1+',
                         statLearnings: data.statLearnings || '∞',
+                        footerText: data.footerText || '',
                         maintenanceMode: data.maintenanceMode
                     }));
                 }
@@ -162,8 +165,9 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
         await toggleMaintenance(oldState); // Veritabanını güncelle
     };
 
-    const handleSettingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
+    const handleSettingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
         setSettingsForm(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
@@ -628,35 +632,26 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                         {/* Sol: Yükleme */}
                                         <div className="space-y-4">
-                                            <div className="border-2 border-dashed border-gray-700 rounded-2xl p-8 text-center hover:border-blue-500 transition bg-black/30 group">
-                                                <input
-                                                    type="file"
-                                                    accept=".pdf"
-                                                    id="cv-upload"
-                                                    className="hidden"
-                                                    onChange={async (e) => {
-                                                        const file = e.target.files?.[0];
-                                                        if (!file) return;
-                                                        const formData = new FormData();
-                                                        formData.append('file', file);
-                                                        const loadToast = toast.loading('CV Yükleniyor...');
-                                                        const res = await uploadCV(formData);
-                                                        toast.dismiss(loadToast);
-                                                        if (res.success) {
-                                                            setSettingsForm(prev => ({ ...prev, cvUrl: res.url || '' }));
-                                                            toast.success('CV Başarıyla Güncellendi! 📄');
-                                                        } else {
-                                                            toast.error('Yükleme hatası.');
-                                                        }
+                                            <div className="border-2 border-dashed border-gray-700 rounded-2xl p-8 text-center hover:border-blue-500 transition bg-black/30 group flex flex-col items-center justify-center gap-4">
+                                                <UploadButton
+                                                    endpoint="clientAttachment"
+                                                    onClientUploadComplete={(res) => {
+                                                        const url = res[0].url;
+                                                        setSettingsForm(prev => ({ ...prev, cvUrl: url }));
+                                                        toast.success('CV Yüklendi! Kaydet butonuna basmayı unutmayın.');
+                                                    }}
+                                                    onUploadError={(error: Error) => {
+                                                        toast.error(`Hata: ${error.message}`);
+                                                    }}
+                                                    appearance={{
+                                                        button: "bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition text-base w-full",
+                                                        allowedContent: "text-gray-400 text-sm mt-2"
+                                                    }}
+                                                    content={{
+                                                        button: "CV Dosyası Seç (PDF)",
+                                                        allowedContent: "Maksimum 4MB, PDF"
                                                     }}
                                                 />
-                                                <label htmlFor="cv-upload" className="cursor-pointer flex flex-col items-center justify-center gap-4">
-                                                    <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition"><FaUpload /></div>
-                                                    <div>
-                                                        <span className="text-white font-bold block text-lg">Yeni CV Yükle</span>
-                                                        <span className="text-gray-500 text-sm">Sadece PDF formatı (Max 5MB)</span>
-                                                    </div>
-                                                </label>
                                             </div>
                                             {settingsForm.cvUrl && (
                                                 <a href={settingsForm.cvUrl} download className="flex items-center justify-center gap-2 w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition">
@@ -701,7 +696,8 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                     <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 space-y-4">
                                         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FaHome className="text-purple-500" /> Genel Site Bilgileri</h3>
                                         <div><label className="label-text">Site Başlığı (Title)</label><input name="siteTitle" value={settingsForm.siteTitle} onChange={handleSettingChange} className="input-dark" /></div>
-                                        <div><label className="label-text">SEO Açıklaması</label><textarea name="siteDesc" value={settingsForm.siteDesc} onChange={(e) => setSettingsForm(prev => ({ ...prev, siteDesc: e.target.value }))} className="input-dark h-24 resize-none" /></div>
+                                        <div><label className="label-text">SEO Açıklaması</label><textarea name="siteDesc" value={settingsForm.siteDesc} onChange={handleSettingChange} className="input-dark h-24 resize-none" /></div>
+                                        <div><label className="label-text">Footer Açıklaması (Metehan.dev altı)</label><textarea name="footerText" value={settingsForm.footerText} onChange={handleSettingChange} className="input-dark h-24 resize-none" /></div>
                                         <div><label className="label-text">Ana Renk (Hex Kodu)</label><div className="flex gap-2"><input type="color" name="primaryColor" value={settingsForm.primaryColor} onChange={handleSettingChange} className="h-10 w-10 rounded overflow-hidden cursor-pointer border-none bg-transparent" /><input name="primaryColor" value={settingsForm.primaryColor} onChange={handleSettingChange} className="input-dark flex-1" /></div></div>
                                     </div>
 

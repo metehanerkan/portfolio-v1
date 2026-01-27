@@ -76,7 +76,9 @@ export async function getSettings() {
                 // @ts-ignore
                 statYears: settings.statYears || "1+",
                 // @ts-ignore
-                statLearnings: settings.statLearnings || "∞"
+                statLearnings: settings.statLearnings || "∞",
+                // @ts-ignore
+                footerText: settings.footerText || "Modern web teknolojileri ile ölçeklenebilir çözümler."
             }
         });
     }
@@ -110,6 +112,8 @@ export async function updateSettings(formData: FormData) {
         statYears: formData.get('statYears') as string,
         // @ts-ignore
         statLearnings: formData.get('statLearnings') as string,
+        // @ts-ignore
+        footerText: formData.get('footerText') as string,
 
         primaryColor: formData.get('primaryColor') as string,
         contactEmail: formData.get('contactEmail') as string,
@@ -120,6 +124,7 @@ export async function updateSettings(formData: FormData) {
         socialTwitter: formData.get('socialTwitter') as string,
         socialInstagram: formData.get('socialInstagram') as string,
         skills: formData.get('skills') as string, // JSON string olarak gelecek
+        cvUrl: formData.get('cvUrl') as string,
     };
 
     // Maintenance Mode kontrolü (String "true"/"false" gelebilir)

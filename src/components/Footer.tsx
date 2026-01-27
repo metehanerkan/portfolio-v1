@@ -38,7 +38,7 @@ export default async function Footer({ lang, dict }: FooterProps) {
                             Metehan.dev
                         </h3>
                         <p className="text-purple-200/60 text-sm leading-relaxed max-w-xs">
-                            {settings?.siteDesc || dict.brandDesc}
+                            {settings?.footerText || dict.brandDesc}
                         </p>
                     </div>
 
