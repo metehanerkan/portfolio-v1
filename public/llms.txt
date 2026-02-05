@@ -1,0 +1,16 @@
+# Metehan Erkan | Software Engineer
+
+> Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.
+
+## Hakkımda
+Ben Metehan Erkan, web geliştirme konusunda uzmanlaşmış bir Yazılım Mühendisiyim. Kullanıcı dostu, hızlı ve modern web uygulamaları oluşturuyorum.
+
+## Site Haritası & Önemli Bağlantılar
+
+*   [Projeler](https://metehanerkan.vercel.app/tr/projects) - Geliştirdiğim seçilmiş projeler.
+*   [Blog](https://metehanerkan.vercel.app/tr/blog) - Yazılım ve teknoloji üzerine yazdığım makaleler.
+*   [İletişim](https://metehanerkan.vercel.app/tr/contact) - Benimle iletişime geçmek için.
+*   [CV](https://metehanerkan.vercel.app/cv.pdf) - Özgeçmişim.
+
+## Notlar
+Bu site Next.js 14, React, Tailwind CSS ve Prisma kullanılarak oluşturulmuştur.

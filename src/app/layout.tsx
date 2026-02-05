@@ -40,6 +40,29 @@ export default function RootLayout({
                 </Script>
             </head>
             <body className={`${inter.className} bg-[#030014]`}>
+                <Script id="json-ld" type="application/ld+json" dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@graph": [
+                            {
+                                "@type": "Person",
+                                "name": "Metehan Erkan",
+                                "url": "https://metehanerkan.vercel.app",
+                                "jobTitle": "Software Engineer",
+                                "sameAs": [
+                                    "https://github.com/metehanerkan",
+                                    "https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/"
+                                ]
+                            },
+                            {
+                                "@type": "WebSite",
+                                "name": "Metehan Erkan Portfolio",
+                                "url": "https://metehanerkan.vercel.app",
+                                "description": "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici."
+                            }
+                        ]
+                    })
+                }} />
                 {/* Google Tag Manager (noscript) - BODY */}
                 <noscript>
                     <iframe
