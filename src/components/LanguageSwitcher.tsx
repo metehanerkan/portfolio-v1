@@ -26,23 +26,23 @@ export default function LanguageSwitcher({ currentLang }: { currentLang: Locale 
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-purple-200 hover:text-white hover:bg-white/10 transition-all font-medium text-sm"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-purple-200 hover:text-purple-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all font-medium text-sm"
             >
                 <FaGlobe />
                 <span className="uppercase">{currentLang}</span>
             </button>
 
             {isOpen && (
-                <div className="absolute top-full right-0 mt-2 w-24 bg-[#030014] border border-purple-500/30 rounded-xl shadow-xl overflow-hidden animate-fadeIn">
+                <div className="absolute top-full right-0 mt-2 w-24 bg-white dark:bg-[#030014] border border-gray-200 dark:border-purple-500/30 rounded-xl shadow-xl overflow-hidden animate-fadeIn">
                     <button
                         onClick={() => switchLanguage('tr')}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-purple-600/30 transition-colors ${currentLang === 'tr' ? 'text-purple-400 font-bold' : 'text-gray-300'}`}
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-purple-600/30 transition-colors ${currentLang === 'tr' ? 'text-purple-600 dark:text-purple-400 font-bold' : 'text-gray-600 dark:text-gray-300'}`}
                     >
                         Türkçe
                     </button>
                     <button
                         onClick={() => switchLanguage('en')}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-purple-600/30 transition-colors ${currentLang === 'en' ? 'text-purple-400 font-bold' : 'text-gray-300'}`}
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-purple-600/30 transition-colors ${currentLang === 'en' ? 'text-purple-600 dark:text-purple-400 font-bold' : 'text-gray-600 dark:text-gray-300'}`}
                     >
                         English
                     </button>

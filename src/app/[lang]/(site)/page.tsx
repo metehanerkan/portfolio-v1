@@ -25,10 +25,10 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
   });
 
   return (
-    <main className="min-h-screen w-full relative bg-[#030014]">
+    <main className="min-h-screen w-full relative bg-white dark:bg-[#030014] transition-colors duration-300">
 
       {/* --- SABİT ARKA PLAN KATMANI (HAFİFLETİLMİŞ IŞIK EFEKTLERİ) --- */}
-      <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
+      <div className="fixed inset-0 w-full h-full z-0 pointer-events-none hidden dark:block">
 
         {/* 1. Tepe Işığı (Siyah bandı önleyen - Hafifletildi) */}
         {/* opacity-80 -> opacity-50, from-purple-900/50 -> from-purple-900/30 */}
@@ -43,6 +43,10 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
         <div className="absolute top-[5%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-purple-800/10 rounded-full blur-[120px] mix-blend-screen" />
       </div>
 
+      {/* --- LIGHT MODE BACKGROUND (Optional: Subtle gradient for light mode) --- */}
+      <div className="fixed inset-0 w-full h-full z-0 pointer-events-none block dark:hidden bg-gradient-to-b from-purple-50/50 to-white"></div>
+
+
       {/* --- İÇERİK ALANI --- */}
       <div className="relative z-10 flex flex-col items-center w-full">
 
@@ -54,9 +58,9 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
 
 
             {/* Başlık */}
-            <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-tight ">
+            <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-6 leading-tight ">
               {dict.home.hello}<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-purple-300">{dict.home.iam}</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-purple-600 to-purple-400 dark:from-white dark:to-purple-300">{dict.home.iam}</span>
             </h1>
 
             {/* Typewriter */}
@@ -65,7 +69,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
             </div>
 
             {/* Açıklama */}
-            <p className="text-purple-100/70 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed drop-shadow-sm">
+            <p className="text-gray-600 dark:text-purple-100/70 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed drop-shadow-sm">
               {dict.home.desc}
             </p>
 
@@ -73,22 +77,22 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href={`/${lang}/projects`}
-                className="px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition transform hover:scale-105 flex items-center gap-2 shadow-sm"
+                className="px-8 py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-full font-bold hover:bg-gray-700 dark:hover:bg-gray-200 transition transform hover:scale-105 flex items-center gap-2 shadow-sm"
               >
                 {dict.common.viewProjects} <FaArrowRight />
               </Link>
               <Link
                 href={`/${lang}/contact`}
-                className="px-8 py-4 bg-purple-600/5 border border-purple-500/30 text-white rounded-full font-bold hover:bg-purple-600/10 transition backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                className="px-8 py-4 bg-purple-100/50 border border-purple-500/30 text-purple-900 dark:text-white dark:bg-purple-600/5 rounded-full font-bold hover:bg-purple-200/50 dark:hover:bg-purple-600/10 transition backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.2)]"
               >
                 {dict.common.contactMe}
               </Link>
             </div>
 
             {/* Sosyal İkonlar */}
-            <div className="mt-12 flex gap-6 text-purple-200/50">
-              <a href="https://github.com/metehanerkan" target="_blank" className="hover:text-white hover:scale-110 transition duration-300"><FaGithub size={28} /></a>
-              <a href="https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/" target="_blank" className="hover:text-blue-400 hover:scale-110 transition duration-300"><FaLinkedin size={28} /></a>
+            <div className="mt-12 flex gap-6 text-gray-500 dark:text-purple-200/50">
+              <a href="https://github.com/metehanerkan" target="_blank" className="hover:text-black dark:hover:text-white hover:scale-110 transition duration-300"><FaGithub size={28} /></a>
+              <a href="https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/" target="_blank" className="hover:text-blue-600 dark:hover:text-blue-400 hover:scale-110 transition duration-300"><FaLinkedin size={28} /></a>
             </div>
           </div>
         </section>
@@ -98,7 +102,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
           {/* Bölüm ayırıcı çizgi de hafifletildi */}
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-purple-300 to-white bg-clip-text text-transparent drop-shadow-lg text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-300 dark:to-white bg-clip-text text-transparent drop-shadow-lg text-center md:text-left">
               {dict.home.latestProjects}
             </h2>
             {featuredProjects.length > 0 ? (
@@ -116,7 +120,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
         {/* --- BLOG YAZILARI --- */}
         <section className="py-24 px-6 w-full relative z-20 pb-40">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-purple-300 to-white bg-clip-text text-transparent drop-shadow-lg text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-300 dark:to-white bg-clip-text text-transparent drop-shadow-lg text-center md:text-left">
               {dict.home.latestBlogs}
             </h2>
             {recentBlogs.length > 0 ? (

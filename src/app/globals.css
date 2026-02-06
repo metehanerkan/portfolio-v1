@@ -3,36 +3,53 @@
 @tailwind utilities;
 
 :root {
+  --background: #ffffff;
+  --foreground: #030014;
+}
+
+.dark {
   --background: #030014;
   --foreground: #ffffff;
 }
 
 body {
-  background-color: #030014;
-  /* Düz Derin Mor/Siyah */
-  color: #ffffff;
+  background-color: var(--background);
+  color: var(--foreground);
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar (Aynen kalabilir) */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
   background: #030014;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2e1065;
+  background: #a855f7;
   border-radius: 5px;
+  border: 2px solid #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2e1065;
   border: 2px solid #030014;
 }
 
 ::-webkit-scrollbar-thumb:hover {
+  background: #7e22ce;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #581c87;
 }
 

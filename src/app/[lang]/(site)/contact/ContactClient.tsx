@@ -24,13 +24,13 @@ export default function ContactClient({ dict, settings }: { dict: Dictionary['co
     }
 
     return (
-        <main className="min-h-screen bg-[#030014] text-white pt-32 px-6 pb-20 relative overflow-hidden">
+        <main className="min-h-screen bg-white dark:bg-[#030014] text-gray-900 dark:text-white pt-32 px-6 pb-20 relative overflow-hidden transition-colors duration-300">
 
             {/* --- ARKA PLAN IŞIK EFEKTLERİ --- */}
             <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
-                <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-purple-900/20 via-[#1a0b2e]/40 to-transparent blur-[80px] opacity-90" />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[128px]"></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[128px]"></div>
+                <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-purple-500/10 dark:from-purple-900/20 via-transparent dark:via-[#1a0b2e]/40 to-transparent blur-[80px] opacity-90" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/10 dark:bg-purple-900/20 rounded-full blur-[128px]"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 dark:bg-indigo-900/20 rounded-full blur-[128px]"></div>
             </div>
 
             {/* --- İÇERİK ALANI --- */}
@@ -39,88 +39,88 @@ export default function ContactClient({ dict, settings }: { dict: Dictionary['co
                 {/* SOL TARAF */}
                 <div className="space-y-10">
                     <div>
-                        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent mb-6 drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+                        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700 dark:from-white dark:via-purple-200 dark:to-purple-400 bg-clip-text text-transparent mb-6 drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
                             {dict.title}
                         </h1>
-                        <p className="text-purple-200/60 text-lg leading-relaxed">
+                        <p className="text-gray-600 dark:text-purple-200/60 text-lg leading-relaxed">
                             {dict.desc}
                         </p>
                     </div>
 
                     <div className="space-y-8">
                         {/* E-POSTA KUTUSU */}
-                        <div className="flex items-center gap-6 group">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-purple-500/50 group-hover:bg-purple-500/10 transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.2)] group-hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
-                                <FaEnvelope className="text-2xl text-purple-400 group-hover:scale-110 transition-transform duration-300" />
+                        <div className="flex items-center gap-6 group p-4 rounded-2xl transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-purple-500/10 dark:hover:bg-white/5 border border-transparent hover:border-purple-100 dark:hover:border-white/5">
+                            <div className="w-14 h-14 bg-white dark:bg-white/5 rounded-2xl flex items-center justify-center border border-purple-100 dark:border-white/10 group-hover:border-purple-500/50 group-hover:bg-purple-500/10 transition-all duration-300 shadow-md shadow-purple-500/5 dark:shadow-[0_0_20px_rgba(0,0,0,0.2)] group-hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+                                <FaEnvelope className="text-2xl text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
                             </div>
                             <div>
-                                <p className="text-sm text-purple-200/50 uppercase tracking-wide font-semibold mb-1">{dict.emailLabel}</p>
-                                <a href={`mailto:${settings?.contactEmail || "metehanerkan08@gmail.com"}`} className="font-medium text-white hover:text-purple-300 transition-colors text-lg">
+                                <p className="text-sm text-gray-500 dark:text-purple-200/50 uppercase tracking-wide font-semibold mb-1">{dict.emailLabel}</p>
+                                <a href={`mailto:${settings?.contactEmail || "metehanerkan08@gmail.com"}`} className="font-medium text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-300 transition-colors text-lg">
                                     {settings?.contactEmail || "metehanerkan08@gmail.com"}
                                 </a>
                             </div>
                         </div>
 
                         {/* KONUM KUTUSU */}
-                        <div className="flex items-center gap-6 group">
-                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.2)] group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-                                <FaMapMarkerAlt className="text-2xl text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
+                        <div className="flex items-center gap-6 group p-4 rounded-2xl transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-indigo-500/10 dark:hover:bg-white/5 border border-transparent hover:border-indigo-100 dark:hover:border-white/5">
+                            <div className="w-14 h-14 bg-white dark:bg-white/5 rounded-2xl flex items-center justify-center border border-indigo-100 dark:border-white/10 group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all duration-300 shadow-md shadow-indigo-500/5 dark:shadow-[0_0_20px_rgba(0,0,0,0.2)] group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                                <FaMapMarkerAlt className="text-2xl text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
                             </div>
                             <div>
-                                <p className="text-sm text-purple-200/50 uppercase tracking-wide font-semibold mb-1">{dict.locationLabel}</p>
-                                <p className="font-medium text-white text-lg">{settings?.contactAddress || dict.locationValue}</p>
+                                <p className="text-sm text-gray-500 dark:text-purple-200/50 uppercase tracking-wide font-semibold mb-1">{dict.locationLabel}</p>
+                                <p className="font-medium text-gray-900 dark:text-white text-lg">{settings?.contactAddress || dict.locationValue}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Sosyal Medya */}
-                    <div className="pt-8 border-t border-white/10">
-                        <p className="text-sm text-purple-200/50 mb-4 font-semibold uppercase tracking-wide">{dict.socialLabel}</p>
+                    <div className="pt-8 border-t border-gray-200 dark:border-white/10">
+                        <p className="text-sm text-gray-500 dark:text-purple-200/50 mb-4 font-semibold uppercase tracking-wide">{dict.socialLabel}</p>
                         <div className="flex gap-4">
-                            <a href={settings?.socialLinkedin || "https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/"} target="_blank" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-200/70 border border-white/10 hover:bg-[#0077b5] hover:border-[#0077b5] hover:text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaLinkedin size={24} /></a>
-                            <a href={settings?.socialGithub || "https://github.com/metehanerkan"} target="_blank" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-200/70 border border-white/10 hover:bg-white hover:border-white hover:text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaGithub size={24} /></a>
+                            <a href={settings?.socialLinkedin || "https://www.linkedin.com/in/metehan-erkan-b9a52a1b8/"} target="_blank" className="w-12 h-12 bg-gray-100 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-600 dark:text-purple-200/70 border border-gray-200 dark:border-white/10 hover:bg-[#0077b5] hover:border-[#0077b5] hover:text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaLinkedin size={24} /></a>
+                            <a href={settings?.socialGithub || "https://github.com/metehanerkan"} target="_blank" className="w-12 h-12 bg-gray-100 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-600 dark:text-purple-200/70 border border-gray-200 dark:border-white/10 hover:bg-black hover:border-black hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"><FaGithub size={24} /></a>
                         </div>
                     </div>
                 </div>
 
                 {/* SAĞ TARAF: Form (Glassmorphism) */}
-                <div className="bg-[#0a0a0a]/40 backdrop-blur-xl p-8 md:p-10 rounded-3xl border border-white/10 shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                <div className="bg-white dark:bg-[#0a0a0a]/40 backdrop-blur-xl p-8 md:p-10 rounded-3xl border border-purple-200/50 dark:border-white/10 shadow-[0_20px_50px_-10px_rgba(168,85,247,0.15)] dark:shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group hover:shadow-[0_25px_60px_-10px_rgba(168,85,247,0.25)] transition-all duration-500">
 
                     {/* Form Üstü Işıltı */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-600 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                     {success ? (
                         <div className="h-[450px] flex flex-col items-center justify-center text-center animate-fadeIn">
                             <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mb-6 border border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                                <FaPaperPlane className="text-5xl text-green-400" />
+                                <FaPaperPlane className="text-5xl text-green-600 dark:text-green-400" />
                             </div>
-                            <h3 className="text-3xl font-bold text-white mb-3">{dict.successTitle}</h3>
-                            <p className="text-purple-200/60 text-lg">{dict.successDesc}</p>
-                            <button onClick={() => setSuccess(false)} className="mt-8 px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 text-sm text-purple-300 transition-colors">{dict.newMessageBtn}</button>
+                            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">{dict.successTitle}</h3>
+                            <p className="text-gray-600 dark:text-purple-200/60 text-lg">{dict.successDesc}</p>
+                            <button onClick={() => setSuccess(false)} className="mt-8 px-6 py-2 rounded-full border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 text-sm text-purple-600 dark:text-purple-300 transition-colors">{dict.newMessageBtn}</button>
                         </div>
                     ) : (
                         <form id="contact-form" action={handleSubmit} className="space-y-6">
-                            <h3 className="text-2xl font-bold text-white mb-8 border-b border-white/5 pb-4">{dict.formTitle}</h3>
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-white/5 pb-4">{dict.formTitle}</h3>
                             <input type="text" name="website" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
 
                             <div className="space-y-2 group/input">
-                                <label className="text-xs font-bold text-purple-200/50 uppercase tracking-wider ml-1 group-focus-within/input:text-purple-400 transition-colors">{dict.nameLabel}</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-purple-200/50 uppercase tracking-wider ml-1 group-focus-within/input:text-purple-600 dark:group-focus-within/input:text-purple-400 transition-colors">{dict.nameLabel}</label>
                                 <input name="name" type="text" placeholder={dict.namePlaceholder} required
-                                    className="w-full bg-[#030014]/50 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-purple-200/20 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 outline-none transition-all duration-300 hover:border-white/20"
+                                    className="w-full bg-white dark:bg-[#030014]/50 border border-gray-300 dark:border-white/10 rounded-xl px-4 py-4 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-purple-200/20 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all duration-300 hover:border-gray-400 dark:hover:border-white/20"
                                 />
                             </div>
 
                             <div className="space-y-2 group/input">
-                                <label className="text-xs font-bold text-purple-200/50 uppercase tracking-wider ml-1 group-focus-within/input:text-purple-400 transition-colors">{dict.emailInputLabel}</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-purple-200/50 uppercase tracking-wider ml-1 group-focus-within/input:text-purple-600 dark:group-focus-within/input:text-purple-400 transition-colors">{dict.emailInputLabel}</label>
                                 <input name="email" type="email" placeholder={dict.emailPlaceholder} required
-                                    className="w-full bg-[#030014]/50 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-purple-200/20 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 outline-none transition-all duration-300 hover:border-white/20"
+                                    className="w-full bg-white dark:bg-[#030014]/50 border border-gray-300 dark:border-white/10 rounded-xl px-4 py-4 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-purple-200/20 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all duration-300 hover:border-gray-400 dark:hover:border-white/20"
                                 />
                             </div>
 
                             <div className="space-y-2 group/input">
-                                <label className="text-xs font-bold text-purple-200/50 uppercase tracking-wider ml-1 group-focus-within/input:text-purple-400 transition-colors">{dict.messageLabel}</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-purple-200/50 uppercase tracking-wider ml-1 group-focus-within/input:text-purple-600 dark:group-focus-within/input:text-purple-400 transition-colors">{dict.messageLabel}</label>
                                 <textarea name="message" rows={5} placeholder={dict.messagePlaceholder} required
-                                    className="w-full bg-[#030014]/50 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-purple-200/20 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 outline-none transition-all duration-300 resize-none hover:border-white/20"
+                                    className="w-full bg-white dark:bg-[#030014]/50 border border-gray-300 dark:border-white/10 rounded-xl px-4 py-4 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-purple-200/20 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all duration-300 resize-none hover:border-gray-400 dark:hover:border-white/20"
                                 ></textarea>
                             </div>
 

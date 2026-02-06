@@ -32,6 +32,7 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
         <main className="max-w-7xl mx-auto px-6 py-12 relative z-10">
 
             {/* Arka Plan Işık Efekti (Sayfa Özel) */}
+            {/* Arka Plan Işık Efekti (Sayfa Özel) */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-purple-600/10 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
 
             {/* ✨ DÜZELTME: Buradaki 'text-center' kaldırıldı. Artık sadece wrapper görevi görüyor. */}
@@ -39,10 +40,10 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
 
                 {/* BAŞLIK ALANI (Burayı ortaladık) */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-purple-400 mb-6 pb-2 drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+                    <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700 dark:from-white dark:via-purple-200 dark:to-purple-400 mb-6 pb-2 drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
                         {dict.title}
                     </h1>
-                    <p className="text-purple-200/60 text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-gray-600 dark:text-purple-200/60 text-lg max-w-2xl mx-auto leading-relaxed">
                         {dict.desc}
                     </p>
                 </div>
@@ -71,7 +72,7 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
                                 className={`px-6 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-sm
                                 ${activeCategory === category
                                         ? 'bg-purple-600 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] scale-105'
-                                        : 'bg-[#0a0a0a]/40 border-white/10 text-purple-200/50 hover:border-purple-500/50 hover:text-white hover:bg-purple-500/10'
+                                        : 'bg-white/50 dark:bg-[#0a0a0a]/40 border-gray-200 dark:border-white/10 text-gray-600 dark:text-purple-200/50 hover:border-purple-500/50 hover:text-purple-700 dark:hover:text-white hover:bg-purple-500/10'
                                     }
                                 `}
                             >
@@ -84,11 +85,11 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
                 {/* BLOG LİSTESİ */}
                 {/* Burası artık parent'tan text-center almıyor, kartlar kendi içinde (sola) hizalanacak. */}
                 {filteredPosts.length === 0 ? (
-                    <div className="text-center py-24 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                        <p className="text-purple-200/70 text-xl font-medium">
+                    <div className="text-center py-24 bg-white/50 dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                        <p className="text-gray-600 dark:text-purple-200/70 text-xl font-medium">
                             "{activeCategory}" kategorisinde henüz bir yazı yok.
                         </p>
-                        <p className="text-sm text-purple-200/40 mt-3">Takipte kal! 🚀</p>
+                        <p className="text-sm text-gray-400 dark:text-purple-200/40 mt-3">Takipte kal! 🚀</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

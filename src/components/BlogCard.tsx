@@ -31,11 +31,11 @@ export default function BlogCard({ post, dict, lang = 'tr' }: BlogCardProps) {
 
     return (
         <Link href={`/blog/${post.id}`} className="group block h-full">
-            <div className="group relative bg-[#0a0a0a]/40 border border-white/10 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] hover:-translate-y-1 flex flex-col h-full backdrop-blur-md">
+            <div className="group relative bg-white/50 dark:bg-[#0a0a0a]/40 border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] hover:-translate-y-1 flex flex-col h-full backdrop-blur-md">
 
                 {/* RESİM ALANI */}
-                <div className="relative h-56 overflow-hidden w-full bg-[#030014]">
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-60 z-10"></div>
+                <div className="relative h-56 overflow-hidden w-full bg-gray-100 dark:bg-[#030014]">
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/10 dark:from-[#0a0a0a] via-transparent to-transparent opacity-60 z-10"></div>
 
                     {post.imageUrl && post.imageUrl.length > 5 ? (
                         <img
@@ -44,7 +44,7 @@ export default function BlogCard({ post, dict, lang = 'tr' }: BlogCardProps) {
                             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                         />
                     ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-purple-200/30 group-hover:text-purple-200/50 transition-colors">
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-purple-200/30 group-hover:text-purple-500 dark:group-hover:text-purple-200/50 transition-colors">
                             <FaImage size={32} className="mb-2 opacity-50" />
                             <span className="text-xs font-medium">{t.noImage}</span>
                         </div>
@@ -71,25 +71,25 @@ export default function BlogCard({ post, dict, lang = 'tr' }: BlogCardProps) {
                 <div className="p-6 flex flex-col flex-grow relative z-20">
 
                     {/* Meta Bilgiler */}
-                    <div className="flex items-center gap-2 text-xs text-purple-200/50 mb-3 font-medium">
-                        <FaClock className="text-purple-400" />
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-purple-200/50 mb-3 font-medium">
+                        <FaClock className="text-purple-600 dark:text-purple-400" />
                         <span>{post.readTime} {t.readTime}</span>
-                        <span className="w-1 h-1 bg-purple-500/30 rounded-full"></span>
+                        <span className="w-1 h-1 bg-gray-300 dark:bg-purple-500/30 rounded-full"></span>
                         <span>{new Date(post.createdAt).toLocaleDateString(dateLocale)}</span>
                     </div>
 
                     {/* Başlık */}
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors line-clamp-2 leading-tight">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors line-clamp-2 leading-tight">
                         {post.title}
                     </h3>
 
                     {/* Özet */}
-                    <p className="text-purple-100/60 text-sm line-clamp-3 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-purple-100/60 text-sm line-clamp-3 mb-6 flex-grow leading-relaxed">
                         {post.excerpt}
                     </p>
 
                     {/* Alt Kısım: Buton */}
-                    <div className="flex items-center text-purple-400 text-sm font-semibold group-hover:translate-x-1 transition-transform mt-auto group-hover:text-purple-300">
+                    <div className="flex items-center text-purple-600 dark:text-purple-400 text-sm font-semibold group-hover:translate-x-1 transition-transform mt-auto group-hover:text-purple-500 dark:group-hover:text-purple-300">
                         {t.readMore} <FaArrowRight className="ml-2 text-xs" />
                     </div>
                 </div>

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { FaLock } from 'react-icons/fa';
 import { Locale, Dictionary } from '@/dictionaries';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 interface NavbarProps {
     lang: Locale;
@@ -35,14 +36,14 @@ export default function Navbar({ lang, dict }: NavbarProps) {
 
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out border-b ${scrolled || isOpen
-            ? 'h-20 bg-[#030014]/70 backdrop-blur-md border-purple-500/20 shadow-[0_4px_30px_-10px_rgba(88,28,135,0.3)]' // SCROLLED: Daha şeffaf ve buzlu
-            : 'h-24 bg-gradient-to-b from-black/60 to-transparent border-transparent' // TOP: Hafif gölgeli
+            ? 'h-20 bg-white/70 dark:bg-[#030014]/70 backdrop-blur-md border-purple-500/20 shadow-[0_4px_30px_-10px_rgba(88,28,135,0.3)] text-black dark:text-white' // SCROLLED
+            : 'h-24 bg-gradient-to-b from-gray-200/60 dark:from-black/60 to-transparent border-transparent' // TOP
             }`}>
             <div className="max-w-7xl mx-auto px-6 h-full">
                 <div className="flex items-center justify-between h-full transition-all duration-300">
 
                     {/* LOGO */}
-                    <Link href={`/${lang}`} className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition]">
+                    <Link href={`/${lang}`} className="text-2xl font-bold bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700 dark:from-white dark:via-purple-200 dark:to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition]">
                         Metehan.dev
                     </Link>
 
@@ -57,7 +58,7 @@ export default function Navbar({ lang, dict }: NavbarProps) {
                                         key={link.name}
                                         href={link.href}
                                         className={`px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg relative group flex flex-col items-center justify-center
-                                            ${isActive ? 'text-white' : 'text-purple-100/70 hover:text-white'}
+                                            ${isActive ? 'text-purple-600 dark:text-white' : 'text-gray-600 dark:text-purple-100/70 hover:text-purple-500 dark:hover:text-white'}
                                         `}
                                     >
                                         <span className="relative z-10 drop-shadow-sm">{link.name}</span>
@@ -72,13 +73,14 @@ export default function Navbar({ lang, dict }: NavbarProps) {
                         </div>
 
                         <LanguageSwitcher currentLang={lang} />
+                        <ThemeToggle />
 
                         {/* BUTON */}
                         <Link
                             href="/portal"
-                            className="flex items-center gap-2 bg-white/10 border border-purple-500/30 hover:border-purple-400 hover:bg-purple-600/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group backdrop-blur-md"
+                            className="flex items-center gap-2 bg-purple-500/10 dark:bg-white/10 border border-purple-500/20 dark:border-purple-500/30 hover:border-purple-400 hover:bg-purple-600/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] text-purple-700 dark:text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group backdrop-blur-md"
                         >
-                            <FaLock size={12} className="text-purple-300 group-hover:text-white transition-colors" />
+                            <FaLock size={12} className="text-purple-500 dark:text-purple-300 group-hover:text-purple-700 dark:group-hover:text-white transition-colors" />
                             {dict.portal}
                         </Link>
                     </div>
@@ -86,6 +88,7 @@ export default function Navbar({ lang, dict }: NavbarProps) {
                     {/* MOBİL VE DİL */}
                     <div className="flex items-center gap-4 md:hidden">
                         <LanguageSwitcher currentLang={lang} />
+                        <ThemeToggle />
 
                         {/* MOBİL BUTON */}
                         <button
@@ -107,12 +110,12 @@ export default function Navbar({ lang, dict }: NavbarProps) {
 
                 {/* MOBİL MENÜ İÇERİK */}
                 {isOpen && (
-                    <div className="md:hidden py-4 border-t border-purple-500/20 bg-[#030014]/90 backdrop-blur-xl animate-fadeIn px-4 rounded-b-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.9)]">
+                    <div className="md:hidden py-4 border-t border-purple-500/20 bg-white/95 dark:bg-[#030014]/90 backdrop-blur-xl animate-fadeIn px-4 rounded-b-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.9)]">
                         <div className="flex flex-col gap-2">
                             {navLinks.map((link) => {
                                 const isActive = pathname === link.href;
                                 return (
-                                    <Link key={link.name} href={link.href} onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium transition ${isActive ? 'bg-purple-600/20 text-white border border-purple-500/30' : 'text-purple-200/70 hover:text-white hover:bg-white/5'}`}>
+                                    <Link key={link.name} href={link.href} onClick={() => setIsOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium transition ${isActive ? 'bg-purple-600/20 text-purple-700 dark:text-white border border-purple-500/30' : 'text-gray-600 dark:text-purple-200/70 hover:text-purple-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'}`}>
                                         {link.name}
                                     </Link>
                                 );

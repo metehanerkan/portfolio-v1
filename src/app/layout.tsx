@@ -6,6 +6,7 @@ import "./globals.css";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Toaster } from 'react-hot-toast';
 import AnalyticsListener from "@/components/AnalyticsListener";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="tr">
+        <html lang="tr" suppressHydrationWarning>
             <head>
                 {/* Google Tag Manager - HEAD */}
                 <Script id="google-tag-manager" strategy="afterInteractive">
@@ -39,7 +40,7 @@ export default function RootLayout({
                     `}
                 </Script>
             </head>
-            <body className={`${inter.className} bg-[#030014]`}>
+            <body className={`${inter.className} antialiased`}>
                 <Script id="json-ld" type="application/ld+json" dangerouslySetInnerHTML={{
                     __html: JSON.stringify({
                         "@context": "https://schema.org",
@@ -73,13 +74,20 @@ export default function RootLayout({
                     ></iframe>
                 </noscript>
 
-                <Toaster position="top-center" toastOptions={{ duration: 3000, style: { background: '#333', color: '#fff' } }} />
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="dark"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <Toaster position="top-center" toastOptions={{ duration: 3000, style: { background: '#333', color: '#fff' } }} />
 
-                {children}
+                    {children}
 
-                <ScrollToTop />
-                <AnalyticsListener />
-                <Analytics />
+                    <ScrollToTop />
+                    <AnalyticsListener />
+                    <Analytics />
+                </ThemeProvider>
             </body>
         </html>
     );
