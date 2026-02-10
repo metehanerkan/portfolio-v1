@@ -130,50 +130,63 @@ export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
 
 
                 {/* AÇIKLAMA (MARKDOWN) */}
-                <div className="bg-white/50 dark:bg-[#0a0a0a]/30 p-8 md:p-10 rounded-2xl border border-gray-200 dark:border-white/5 mb-12 shadow-sm animate-fadeIn delay-200 backdrop-blur-md">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-white/10">
-                        Proje Detayları
-                    </h2>
+                <div className="text-gray-700 dark:text-purple-100/80 leading-relaxed bg-white/50 dark:bg-[#0a0a0a]/40 p-8 md:p-12 rounded-3xl border border-gray-200 dark:border-white/10 shadow-xl backdrop-blur-md animate-fadeIn delay-200">
+                    <ReactMarkdown
+                        components={{
+                            h1: ({ ...props }) => <h2 className="text-3xl font-bold text-gray-900 dark:text-white mt-12 mb-6 pb-4 border-b border-gray-200 dark:border-white/10" {...props} />,
+                            h2: ({ ...props }) => <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-10 mb-4" {...props} />,
+                            h3: ({ ...props }) => <h4 className="text-xl font-bold text-purple-700 dark:text-purple-400 mt-8 mb-3" {...props} />,
+                            p: ({ ...props }) => <p className="mb-6 text-lg leading-relaxed text-gray-700 dark:text-purple-100/80" {...props} />,
+                            ul: ({ ...props }) => <ul className="list-disc list-inside mb-6 space-y-2 text-gray-700 dark:text-purple-100/80 marker:text-purple-600 dark:marker:text-purple-500" {...props} />,
+                            ol: ({ ...props }) => <ol className="list-decimal list-inside mb-6 space-y-2 text-gray-700 dark:text-purple-100/80 marker:text-purple-600 dark:marker:text-purple-500" {...props} />,
+                            li: ({ ...props }) => <li className="pl-1" {...props} />,
+                            a: ({ ...props }) => <a className="text-purple-600 dark:text-purple-400 font-medium hover:text-purple-800 dark:hover:text-white border-b border-purple-300 dark:border-purple-500/30 hover:border-purple-600 dark:hover:border-white transition-all no-underline" target="_blank" rel="noopener noreferrer" {...props} />,
 
-                    <article className="prose prose-lg max-w-none text-gray-600 dark:text-purple-100/80 prose-headings:text-gray-900 dark:prose-headings:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-a:text-purple-600 dark:prose-a:text-purple-400">
-                        <ReactMarkdown
-                            components={{
-                                h1: ({ ...props }) => <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4 pb-2 border-b border-gray-200 dark:border-white/10" {...props} />,
-                                h2: ({ ...props }) => <h4 className="text-lg font-bold text-gray-900 dark:text-white mt-6 mb-3" {...props} />,
-                                h3: ({ ...props }) => <h5 className="text-base font-bold text-purple-700 dark:text-purple-300 mt-5 mb-2" {...props} />,
-                                p: ({ ...props }) => <p className="mb-5 leading-relaxed text-gray-600 dark:text-purple-100/70" {...props} />,
-                                ul: ({ ...props }) => <ul className="list-disc list-inside mb-5 space-y-2 text-gray-600 dark:text-purple-100/80 marker:text-purple-500/70" {...props} />,
-                                ol: ({ ...props }) => <ol className="list-decimal list-inside mb-5 space-y-2 text-gray-600 dark:text-purple-100/80 marker:text-purple-500/70" {...props} />,
-                                li: ({ ...props }) => <li className="pl-2" {...props} />,
-                                a: ({ ...props }) => <a className="text-purple-600 dark:text-purple-400 font-medium hover:text-purple-800 dark:hover:text-white border-b border-purple-500/30 hover:border-purple-600 dark:hover:border-white transition-all no-underline" target="_blank" rel="noopener noreferrer" {...props} />,
-                                blockquote: ({ children, ...props }) => (
-                                    <blockquote className="relative pl-8 py-3 my-6 bg-purple-50 dark:bg-purple-900/5 rounded-r-xl border-l-4 border-purple-500/50 italic text-purple-800 dark:text-purple-200/80 pr-4" {...props}>
-                                        <FaQuoteLeft className="absolute top-3 left-2 text-purple-500/30 text-base" />
-                                        {children}
-                                    </blockquote>
-                                ),
-                                code: ({ className, children, ...props }) => {
-                                    const isBlock = className || (typeof children === 'string' && children.includes('\n'));
-                                    if (isBlock) {
-                                        return (
-                                            <pre className="bg-gray-900 dark:bg-[#050508]/80 p-4 rounded-xl border border-gray-700 dark:border-white/5 overflow-x-auto my-6 relative group">
+                            // ALINTI BLOKLARI
+                            blockquote: ({ children, ...props }) => (
+                                <blockquote className="relative pl-10 py-6 my-8 bg-purple-50 dark:bg-purple-900/10 rounded-r-2xl border-l-4 border-purple-500 italic text-purple-800 dark:text-purple-200/90 pr-4 shadow-[0_0_20px_rgba(168,85,247,0.05)]" {...props}>
+                                    <FaQuoteLeft className="absolute top-6 left-3 text-purple-400 dark:text-purple-500/40 text-xl" />
+                                    {children}
+                                </blockquote>
+                            ),
+
+                            // GÖRSELLER
+                            img: ({ ...props }) => (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img className="rounded-2xl border border-gray-200 dark:border-white/10 my-10 w-full shadow-lg" {...props} alt={props.alt || "blog görseli"} />
+                            ),
+
+                            // KOD BLOKLARI (Mac Style)
+                            code: ({ className, children, ...props }) => {
+                                const isBlock = className || (typeof children === 'string' && children.includes('\n'));
+                                if (isBlock) {
+                                    return (
+                                        <div className="my-8 rounded-2xl border border-gray-700 dark:border-white/10 overflow-hidden bg-gray-900 dark:bg-[#050508] shadow-lg relative group">
+                                            {/* Mac Pencere Başlığı */}
+                                            <div className="flex items-center gap-2 px-4 py-3 bg-gray-800 dark:bg-white/5 border-b border-gray-700 dark:border-white/5">
+                                                <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                                                <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                                                <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                                            </div>
+                                            {/* Kod İçeriği */}
+                                            <pre className="p-6 overflow-x-auto">
                                                 <code className={`font-mono text-sm text-gray-100 dark:text-purple-100/90 ${className}`} {...props}>
                                                     {children}
                                                 </code>
                                             </pre>
-                                        );
-                                    }
-                                    return (
-                                        <code className="bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded-md text-[0.9em] font-mono border border-purple-200 dark:border-purple-500/10 mx-1" {...props}>
-                                            {children}
-                                        </code>
+                                        </div>
                                     );
-                                },
-                            }}
-                        >
-                            {project.description}
-                        </ReactMarkdown>
-                    </article>
+                                }
+                                return (
+                                    <code className="bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-md text-[0.9em] font-mono border border-purple-200 dark:border-purple-500/20 mx-1" {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                        }}
+                    >
+                        {project.description}
+                    </ReactMarkdown>
                 </div>
 
             </div>

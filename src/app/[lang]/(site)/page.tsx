@@ -5,6 +5,7 @@ import { FaGithub, FaLinkedin, FaArrowRight } from 'react-icons/fa';
 import ProjectCard from '@/components/ProjectCard';
 import BlogCard from '@/components/BlogCard';
 import { Locale, getDictionary } from '@/dictionaries';
+import Orb from '@/components/Orb';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
   });
 
   return (
-    <main className="min-h-screen w-full relative bg-white dark:bg-[#030014] transition-colors duration-300">
+    <main className="min-h-screen w-full relative bg-background transition-colors duration-300">
 
       {/* --- SABİT ARKA PLAN KATMANI (HAFİFLETİLMİŞ IŞIK EFEKTLERİ) --- */}
       <div className="fixed inset-0 w-full h-full z-0 pointer-events-none hidden dark:block">
@@ -52,7 +53,17 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
 
         {/* HERO SECTION */}
         {/* pt-24 -> pt-16 (Yazılar yukarı taşındı) */}
-        <section className="min-h-screen w-full flex flex-col items-center justify-center px-4 pt-1">
+        <section className="min-h-screen w-full flex flex-col items-center justify-center px-4 pt-1 relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-50 pointer-events-none">
+            <div style={{ width: '1080px', height: '1080px', position: 'relative' }}>
+              <Orb
+                hue={310}
+                hoverIntensity={0.3}
+                rotateOnHover
+                forceHoverState={false}
+              />
+            </div>
+          </div>
 
           <div className="max-w-4xl mx-auto w-full flex flex-col items-center text-center">
 
