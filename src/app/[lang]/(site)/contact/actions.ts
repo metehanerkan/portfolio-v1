@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 import { createLog } from '@/actions/logger';
+import { sendMail } from '@/lib/sendMail';
 
 export async function sendMessage(formData: FormData) {
     // Rate Limit (1 hour, 3 messages)
@@ -78,6 +79,39 @@ ${rawMessage}
                 message: finalMessage,
             },
         });
+
+        // E-POSTA BİLDİRİMİ
+        await sendMail({
+            to: process.env.SMTP_USER || 'metehanerkan08@gmail.com',
+            subject: budget ? `🔥 PROJE TALEBİ: ${projectName}` : `📩 İLETİŞİM: ${subject}`,
+            html: `
+              <h3>Yeni İletişim Formu Mesajı</h3>
+              <ul>
+                <li><strong>İsim:</strong> ${name}</li>
+                <li><strong>Email:</strong> ${email}</li>
+                <li><strong>Konu:</strong> ${budget ? projectName : subject}</li>
+              </ul>
+              <pre style="background: #f4f4f5; p: 10px; border-radius: 5px;">${finalMessage}</pre>
+              <a href="https://metehan.dev/admin">Admin Paneline Git</a>
+            `
+        });
+
+        // MÜŞTERİYE ONAY E-POSTASI
+        if (email) {
+            await sendMail({
+                to: email,
+                subject: `🚀 Başvurunuz Alındı: ${projectName || subject}`,
+                html: `
+                  <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px;">
+                    <h2 style="color: #4f46e5;">Merhaba ${name},</h2>
+                    <p>Proje başvurunuzu aldık! En kısa sürede inceleyip size dönüş yapacağız.</p>
+                    <p><strong>Proje:</strong> ${projectName || subject}</p>
+                    <hr style="border: 1px solid #eee; margin: 20px 0;" />
+                    <p style="font-size: 14px; color: #666;">Bu otomatik bir mesajdır. Lütfen cevaplamayınız.</p>
+                  </div>
+                `
+            });
+        }
 
         await createLog(`Yeni mesaj/talep: ${name} - ${subject}`, 'INFO', 'Contact Form');
         revalidatePath('/admin');

@@ -2,9 +2,7 @@
 
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { sendMail } from '@/lib/sendMail';
 
 // 1. Proje Bilgilerini Getir
 export async function getProjectByCode(code: string) {
@@ -81,18 +79,20 @@ export async function submitCounterOffer(formData: FormData) {
         });
 
         // SANA BİLDİRİM MAİLİ (Opsiyonel: Mail sistemin çalışıyorsa burası kalsın)
-        if (process.env.RESEND_API_KEY) {
-            await resend.emails.send({
-                from: 'Portfolio System <onboarding@resend.dev>',
-                to: 'metehanerkan08@gmail.com',
-                subject: `🔥 PAZARLIK VAR: ${project.name}`,
-                html: `
-                  <h3>Müşteri Teklifi Revize Etmek İstiyor</h3>
-                  <p><strong>${project.name}</strong> verdiğin teklife karşılık bir öneri sundu.</p>
-                  <a href="https://portfolio-v1-eta-taupe.vercel.app/admin">Admin Paneline Git</a>
-                `
-            });
-        }
+        // SANA BİLDİRİM MAİLİ
+        await sendMail({
+            to: process.env.SMTP_USER || 'metehanerkan08@gmail.com',
+            subject: `🔥 PAZARLIK VAR: ${project.name}`,
+            html: `
+              <h3>Müşteri Teklifi Revize Etmek İstiyor</h3>
+              <p><strong>${project.name}</strong> verdiğin teklife karşılık bir öneri sundu.</p>
+              <ul>
+                <li><strong>Fiyat:</strong> ${offerPrice}</li>
+                <li><strong>Tarih:</strong> ${offerDeadline}</li>
+              </ul>
+              <a href="https://metehan.dev/admin">Admin Paneline Git</a>
+            `
+        });
 
         revalidatePath('/portal/dashboard');
         return { success: true };
@@ -121,6 +121,21 @@ export async function submitProjectRequest(formData: FormData) {
             attachmentUrl,
             status: 'PENDING'
         }
+    });
+
+    // E-POSTA BİLDİRİMİ
+    await sendMail({
+        to: process.env.SMTP_USER || 'metehanerkan08@gmail.com',
+        subject: `🚀 YENİ TALEP: ${project.name}`,
+        html: `
+          <h3>Müşteriden Yeni Talep Var</h3>
+          <p><strong>${project.name}</strong> projesi için yeni bir işlem bildirildi.</p>
+          <ul>
+            <li><strong>Tür:</strong> ${requestType}</li>
+            <li><strong>Mesaj:</strong> ${message}</li>
+          </ul>
+          <a href="https://metehan.dev/admin">Admin Paneline Git</a>
+        `
     });
 
     revalidatePath('/portal/dashboard');

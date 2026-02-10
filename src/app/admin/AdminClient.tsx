@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 import {
     FaProjectDiagram, FaPenNib, FaChartBar, FaEnvelope, FaCog,
     FaStar, FaToggleOn, FaToggleOff, FaEdit, FaUpload, FaTimes, FaImage, FaTrash, FaSignOutAlt, FaEye, FaRocket, FaCheck, FaBriefcase, FaClock, FaExpand, FaFileContract, FaMoneyBillWave, FaPaperPlane, FaTools, FaSave, FaHandshake, FaExchangeAlt, FaListUl, FaLink, FaPaintBrush, FaAlignLeft, FaLaptopCode, FaInfoCircle, FaPlus, FaFolderOpen, FaUser, FaMobileAlt, FaCommentDots, FaExclamationTriangle, FaPaperclip, FaExternalLinkAlt, FaTerminal, FaEnvelopeOpenText,
-    FaHome, FaChevronDown, FaChevronRight, FaBell, FaCheckDouble
+    FaHome, FaChevronDown, FaChevronRight, FaBell, FaCheckDouble, FaHistory, FaReply
 } from 'react-icons/fa';
 import {
     addProject, deleteProject, addBlog, deleteBlog, deleteMessage, replyToMessage,
     toggleProjectStatus, toggleProjectFeatured, toggleBlogStatus, toggleBlogFeatured,
-    updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject, toggleMessageReadStatus
+    updateProject, updateBlog, acceptProject, deleteClientProject, sendProposal, updateProjectProgress, acceptClientOffer, updateProjectStatus, cancelProject, toggleMessageReadStatus, updateRequestStatus
 } from './actions';
 import { getSettings, toggleMaintenance, updateSettings, uploadCV } from './settings/actions';
 import { createBackup } from '@/actions/backup';
@@ -18,16 +20,12 @@ import SystemHealthWidget from './SystemHealthWidget';
 import AnalyticsWidget from './AnalyticsWidget';
 import DetailedAnalytics from './DetailedAnalytics';
 import NewsletterManager from './NewsletterManager';
+import AdminTimelineEditor from '@/components/AdminTimelineEditor';
 
-import Link from 'next/link';
 import { logout } from '@/app/admin/login/actions';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateRequestStatus } from '@/app/admin/actions';
 import { UploadButton } from "@/lib/uploadthing";
-import { toast } from 'react-hot-toast';
-import { features } from 'process';
-import { FaReply } from 'react-icons/fa';
 
 interface AdminClientProps {
     projects: any[];
@@ -92,7 +90,7 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
     const [projectToOffer, setProjectToOffer] = useState<any>(null);
     const [projectToNegotiate, setProjectToNegotiate] = useState<any>(null);
     const [activeProjectToEdit, setActiveProjectToEdit] = useState<any>(null);
-    const [manageTab, setManageTab] = useState<'info' | 'progress' | 'requests'>('progress');
+    const [manageTab, setManageTab] = useState<'info' | 'progress' | 'requests' | 'timeline'>('progress');
     // Ayarlar Sayfası İçin State'ler
     const [settingsForm, setSettingsForm] = useState({
         siteTitle: 'Metehan Erkan Portfolio',
@@ -1171,6 +1169,13 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                     >
                                         <FaEnvelope /> Gelen Talepler ({activeProjectToEdit.requests?.filter((r: any) => r.status === 'PENDING').length || 0})
                                     </button>
+                                    <button
+                                        onClick={() => setManageTab('timeline')}
+                                        className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2
+                        ${manageTab === 'timeline' ? 'text-purple-400 border-b-2 border-purple-500 bg-purple-500/10' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                                    >
+                                        <FaHistory /> Zaman Çizelgesi
+                                    </button>
                                 </div>
 
                                 {/* 3. İÇERİK ALANI */}
@@ -1510,7 +1515,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                                 {req.status === 'PENDING' && (
                                                                     <div className="flex gap-3 justify-end mt-2 pt-4 border-t border-gray-800/50">
                                                                         <form action={async (formData) => {
-                                                                            const { updateRequestStatus } = await import('./actions');
                                                                             await updateRequestStatus(formData);
                                                                             setActiveProjectToEdit(null);
                                                                             toast.error("Talep reddedildi.");
@@ -1521,7 +1525,6 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                                         </form>
 
                                                                         <form action={async (formData) => {
-                                                                            const { updateRequestStatus } = await import('./actions');
                                                                             await updateRequestStatus(formData);
                                                                             setActiveProjectToEdit(null);
                                                                             toast.success("Talep onaylandı ve proje kapsamına eklendi!");
@@ -1538,6 +1541,25 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                         );
                                                     })
                                                 )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* --- SEKME 4: ZAMAN ÇİZELGESİ (YENİ) --- */}
+                                    {manageTab === 'timeline' && (
+                                        <div className="p-8">
+                                            <div className="bg-gray-900/30 border border-purple-500/10 p-6 rounded-2xl mb-6">
+                                                <div className="mb-6 flex gap-3 items-start p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
+                                                    <FaInfoCircle className="text-purple-500 mt-1 flex-shrink-0" />
+                                                    <p className="text-xs text-purple-300 leading-relaxed">
+                                                        Projenin aşamalarını buradan yönetebilirsin. Tamamlanan aşamaları işaretleyip tarihleri güncelleyebilirsin. Müşteri bu akışı kendi panelinde görecek.
+                                                    </p>
+                                                </div>
+
+                                                <AdminTimelineEditor
+                                                    projectId={activeProjectToEdit.id}
+                                                    initialTimeline={activeProjectToEdit.timeline as any}
+                                                />
                                             </div>
                                         </div>
                                     )}

@@ -40,6 +40,7 @@ const FEATURES_BY_PLATFORM: Record<string, string[]> = {
 export default function ProjectRequestBtn() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
+    // view state removed
     const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
     // --- STATE ---
@@ -57,7 +58,9 @@ export default function ProjectRequestBtn() {
     const [tempFeature, setTempFeature] = useState('');
 
     if (pathname.startsWith('/admin') || pathname.startsWith('/portal') || pathname.startsWith('/login')) return null;
-    const isHome = pathname === '/';
+
+    // Ana sayfa kontrolü (i18n desteği ile: /, /tr, /en vb.)
+    const isHome = pathname === '/' || pathname.split('/').filter(Boolean).length <= 1;
 
     const availableFeatures = useMemo(() => {
         let features = new Set([...FEATURES_BY_PLATFORM.default]);
@@ -123,13 +126,10 @@ export default function ProjectRequestBtn() {
         <>
             <motion.button
                 onClick={() => setIsOpen(true)}
-                // BAŞLANGIÇ: Artık scale 0 veya opacity 0 YOK. Direkt görünür başlıyor.
                 initial={{ y: 0 }}
-                // ANİMASYON: Sadece Y ekseninde zıplama hareketi var.
                 animate={{
                     y: [0, -30, 0] // Aşağı -> Yukarı -> Aşağı döngüsü
                 }}
-                // GEÇİŞ AYARLARI
                 transition={{
                     y: {
                         duration: 2, // 2 saniyede bir tur
@@ -144,8 +144,8 @@ export default function ProjectRequestBtn() {
     ${isHome ? 'px-5 py-3 rounded-full gap-2' : 'w-12 h-12 justify-center rounded-full'}`}
             >
                 {isHome && (
-                    <span className="font-bold tracking-wide hidden md:block whitespace-nowrap drop-shadow-md text-sm">
-                        Bir Fikrim Var!
+                    <span className="font-bold tracking-wide whitespace-nowrap drop-shadow-md text-sm">
+                        Bir Fikrim Var
                     </span>
                 )}
 
@@ -177,11 +177,13 @@ export default function ProjectRequestBtn() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="mb-8 border-b border-gray-200 dark:border-gray-800 pb-6">
-                                            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3 flex items-center gap-3">
-                                                <FaRocket className="text-blue-600 dark:text-blue-500" /> Proje Sihirbazı
-                                            </h2>
-                                            <p className="text-gray-600 dark:text-gray-400 text-lg">Aklındaki projeyi adım adım anlat, gerisini bana bırak.</p>
+                                        <div className="mb-8 border-b border-gray-200 dark:border-gray-800 pb-6 flex justify-between items-start">
+                                            <div>
+                                                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3 flex items-center gap-3">
+                                                    <FaRocket className="text-blue-600 dark:text-blue-500" /> Proje Sihirbazı
+                                                </h2>
+                                                <p className="text-gray-600 dark:text-gray-400 text-lg">Aklındaki projeyi adım adım anlat, gerisini bana bırak.</p>
+                                            </div>
                                         </div>
 
                                         <form action={handleSubmit} className="space-y-10">
@@ -272,8 +274,10 @@ export default function ProjectRequestBtn() {
 
                                                     {/* NOTLAR */}
                                                     <div>
-                                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Proje Notları</label>
-                                                        <textarea name="message" rows={3} placeholder="Diğer detaylar..." className="input-field resize-none" required />
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Proje Notları</label>
+                                                        </div>
+                                                        <textarea name="message" rows={5} placeholder="Diğer detaylar..." className="input-field resize-none" required />
                                                     </div>
                                                 </div>
 

@@ -74,6 +74,7 @@ model ClientProject {
   features     String? 
   notes        String? 
   startDate    DateTime @default(now())
+  timeline     Json?    // 👈 YENİ: Proje takvimi (Gantt verisi)
   requests ProjectRequest[] // 👈 YENİ: Talepleri projeye bağladık
 }
 

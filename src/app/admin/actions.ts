@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { Resend } from 'resend';
+// Resend import removed
 import { randomBytes } from 'crypto';
 import { createLog } from '@/actions/logger';
 
@@ -26,12 +26,11 @@ export async function sendProposal(formData: FormData) {
         });
 
         // 2. Müşteriye Mail At
-        if (process.env.RESEND_API_KEY) {
-            await resend.emails.send({
-                from: 'Metehan Erkan <onboarding@resend.dev>',
-                to: project.email,
-                subject: '🔔 Projeniz İçin Fiyat Teklifi Hazır!',
-                html: `
+        // 2. Müşteriye Mail At
+        await sendMail({
+            to: project.email,
+            subject: '🔔 Projeniz İçin Fiyat Teklifi Hazır!',
+            html: `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #2563eb;">Teklifiniz Hazır! 💼</h2>
             <p>Merhaba <strong>${project.name}</strong>,</p>
@@ -43,8 +42,7 @@ export async function sendProposal(formData: FormData) {
             <a href="https://portfolio-v1-eta-taupe.vercel.app/portal" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Teklifi İncele</a>
           </div>
         `
-            });
-        }
+        });
 
         revalidatePath('/admin');
         return { success: true };
@@ -54,7 +52,9 @@ export async function sendProposal(formData: FormData) {
     }
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Resend import removed
+// const resend = new Resend(process.env.RESEND_API_KEY); removed
+import { sendMail } from '@/lib/sendMail';
 
 // --- YARDIMCI FONKSİYONLAR ---
 
@@ -201,8 +201,7 @@ export async function replyToMessage(formData: FormData) {
     if (!process.env.RESEND_API_KEY) return { success: false, error: 'API Key eksik.' };
 
     try {
-        await resend.emails.send({
-            from: 'Metehan Erkan <onboarding@resend.dev>',
+        await sendMail({
             to: email,
             subject: `Re: ${subject}`,
             html: `
@@ -247,12 +246,11 @@ export async function acceptProject(id: string, clientName: string, email: strin
         await db.contactMessage.delete({ where: { id } });
 
         // Müşteriye Mail Gönder
-        if (process.env.RESEND_API_KEY) {
-            await resend.emails.send({
-                from: 'Portfolio Admin <onboarding@resend.dev>',
-                to: email,
-                subject: '🚀 Projeniz Onaylandı! Panele Giriş Yapın',
-                html: `
+        // Müşteriye Mail Gönder
+        await sendMail({
+            to: email,
+            subject: '🚀 Projeniz Onaylandı! Panele Giriş Yapın',
+            html: `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #2563eb;">Başvurunuz Alındı! 🎉</h2>
             <p>Merhaba <strong>${clientName}</strong>,</p>
@@ -267,8 +265,7 @@ export async function acceptProject(id: string, clientName: string, email: strin
             <a href="https://portfolio-v1-eta-taupe.vercel.app/portal" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Panele Git</a>
           </div>
         `
-            });
-        }
+        });
 
         revalidatePath('/admin');
         return { success: true };
@@ -329,12 +326,11 @@ export async function acceptClientOffer(formData: FormData) {
         });
 
         // Müşteriye "Anlaştık!" Maili
-        if (process.env.RESEND_API_KEY) {
-            await resend.emails.send({
-                from: 'Metehan Erkan <onboarding@resend.dev>',
-                to: project.email,
-                subject: '🎉 Anlaştık! Proje Başlıyor 🚀',
-                html: `
+        // Müşteriye "Anlaştık!" Maili
+        await sendMail({
+            to: project.email,
+            subject: '🎉 Anlaştık! Proje Başlıyor 🚀',
+            html: `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #16a34a;">Teklifiniz Kabul Edildi!</h2>
             <p>Sunduğunuz revize teklifi (Fiyat ve Süre) onayladım.</p>
@@ -343,8 +339,7 @@ export async function acceptClientOffer(formData: FormData) {
             <a href="https://portfolio-v1-eta-taupe.vercel.app/portal" style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Panele Git</a>
           </div>
         `
-            });
-        }
+        });
 
         revalidatePath('/admin');
         return { success: true };
@@ -446,5 +441,32 @@ export async function cancelProject(formData: FormData) {
         return { success: true };
     } catch (error) {
         return { success: false, error: 'İptal işlemi başarısız.' };
+    }
+}
+
+export async function updateTimeline(formData: FormData) {
+    const id = formData.get('id') as string;
+    const timelineJson = formData.get('timeline') as string;
+
+    if (!id || !timelineJson) {
+        return { success: false, error: 'Eksik veri.' };
+    }
+
+    try {
+        const timelineData = JSON.parse(timelineJson);
+
+        await db.clientProject.update({
+            where: { id },
+            data: {
+                timeline: timelineData
+            }
+        });
+
+        revalidatePath('/admin');
+        revalidatePath('/portal/dashboard');
+        return { success: true };
+    } catch (error) {
+        console.error("Timeline güncellenirken hata:", error);
+        return { success: false, error: 'Timeline güncellenemedi.' };
     }
 }
