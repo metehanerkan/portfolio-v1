@@ -140,7 +140,7 @@ export default function ProjectRequestBtn() {
                 }}
                 whileHover={{ scale: 1.05, rotate: isHome ? 0 : 15 }}
                 whileTap={{ scale: 0.95 }}
-                className={`fixed bottom-5 left-6 z-40 flex items-center bg-gradient-to-r from-purple-600 to-indigo-900 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-500/30 backdrop-blur-md group hover:shadow-sm hover:border-purple-400/50 transition-all duration-300
+                className={`fixed bottom-5 left-6 z-40 flex items-center bg-gradient-to-r from-purple-600/90 to-indigo-600/90 text-white shadow-lg border border-white/20 backdrop-blur-md group hover:shadow-purple-500/40 transition-all duration-300
     ${isHome ? 'px-5 py-3 rounded-full gap-2' : 'w-12 h-12 justify-center rounded-full'}`}
             >
                 {isHome && (

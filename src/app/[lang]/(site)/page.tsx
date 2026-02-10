@@ -29,20 +29,8 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
     <main className="min-h-screen w-full relative bg-background transition-colors duration-300">
 
       {/* --- SABİT ARKA PLAN KATMANI (HAFİFLETİLMİŞ IŞIK EFEKTLERİ) --- */}
-      <div className="fixed inset-0 w-full h-full z-0 pointer-events-none hidden dark:block">
+      {/* --- SABİT ARKA PLAN KATMANI (HAFİFLETİLMİŞ IŞIK EFEKTLERİ) --- */}
 
-        {/* 1. Tepe Işığı (Siyah bandı önleyen - Hafifletildi) */}
-        {/* opacity-80 -> opacity-50, from-purple-900/50 -> from-purple-900/30 */}
-        <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-purple-900/30 via-[#1a0b2e]/20 to-transparent blur-[80px] opacity-50" />
-
-        {/* 2. Ana Spot (Hafifletildi) */}
-        {/* from-purple-700/40 -> from-purple-800/20 (Daha soluk mor) */}
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[140vw] h-[100vh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-800/20 via-[#0b0318]/40 to-transparent blur-[100px]" />
-
-        {/* 3. Logo Arkası Parlama (Hafifletildi) */}
-        {/* bg-purple-600/20 -> bg-purple-600/10 */}
-        <div className="absolute top-[5%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-purple-800/10 rounded-full blur-[120px] mix-blend-screen" />
-      </div>
 
       {/* --- LIGHT MODE BACKGROUND (Optional: Subtle gradient for light mode) --- */}
       <div className="fixed inset-0 w-full h-full z-0 pointer-events-none block dark:hidden bg-gradient-to-b from-purple-50/50 to-white"></div>
@@ -55,12 +43,14 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
         {/* pt-24 -> pt-16 (Yazılar yukarı taşındı) */}
         <section className="min-h-screen w-full flex flex-col items-center justify-center px-4 pt-1 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-50 pointer-events-none">
-            <div style={{ width: '1080px', height: '1080px', position: 'relative' }}>
+            {/* Added mask-image to blend Orb edges seamlessly into background */}
+            <div style={{ width: '1080px', height: '1080px', position: 'relative', maskImage: 'radial-gradient(circle, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)' }}>
               <Orb
                 hue={310}
                 hoverIntensity={0.3}
                 rotateOnHover
                 forceHoverState={false}
+                backgroundColor="#030014"
               />
             </div>
           </div>

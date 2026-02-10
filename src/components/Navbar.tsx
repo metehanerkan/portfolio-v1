@@ -20,7 +20,7 @@ export default function Navbar({ lang, dict }: NavbarProps) {
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
+            setScrolled(window.scrollY > 100); // 100px threshold for smoother start
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
@@ -35,12 +35,12 @@ export default function Navbar({ lang, dict }: NavbarProps) {
     ];
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out border-b ${scrolled || isOpen
-            ? 'h-20 bg-white/70 dark:bg-[#030014]/70 backdrop-blur-md border-purple-500/20 shadow-[0_4px_30px_-10px_rgba(88,28,135,0.3)] text-black dark:text-white' // SCROLLED
-            : 'h-24 bg-gradient-to-b from-gray-200/60 dark:from-black/60 to-transparent border-transparent' // TOP
+        <nav className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-1000 cubic-bezier(0.4, 0, 0.2, 1) ${scrolled
+            ? 'top-6 w-[90%] sm:w-[85%] md:w-[950px] lg:w-[1150px] rounded-full h-16 bg-white/5 dark:bg-black/5 backdrop-blur-md border border-white/40 dark:border-white/20 shadow-lg shadow-purple-500/5 text-black dark:text-white justify-center items-center'
+            : 'top-0 w-full h-24 bg-transparent border-none'
             }`}>
-            <div className="max-w-7xl mx-auto px-6 h-full">
-                <div className="flex items-center justify-between h-full transition-all duration-300">
+            <div className={`mx-auto h-full w-full transition-all duration-1000 max-w-7xl px-6`}>
+                <div className="flex items-center justify-between h-full w-full gap-4 whitespace-nowrap">
 
                     {/* LOGO */}
                     <Link href={`/${lang}`} className="text-2xl font-bold bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700 dark:from-white dark:via-purple-200 dark:to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition]">

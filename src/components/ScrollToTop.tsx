@@ -38,12 +38,12 @@ export default function ScrollToTop() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{
                         opacity: 1,
-                        y: [0, -15, 0] // Smooth floating (reduced amplitude)
+                        y: [0, -15, 0] // Smooth floating
                     }}
                     exit={{ opacity: 0, y: 20 }}
                     transition={{
                         y: {
-                            duration: 2.5, // Slower, smoother
+                            duration: 2.5,
                             repeat: Infinity,
                             ease: "easeInOut",
                             repeatType: "loop"
@@ -51,7 +51,7 @@ export default function ScrollToTop() {
                         opacity: { duration: 0.3 }
                     }}
                     onClick={scrollToTop}
-                    className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-to-b from-purple-500 to-purple-700 text-white rounded-full shadow-[0_0_10px_rgba(168,85,247,0.4)] border border-white/20 hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:bg-purple-600 transition-all duration-300 hover:scale-110 backdrop-blur-md"
+                    className="fixed bottom-8 right-8 z-50 p-4 bg-purple-600/80 dark:bg-purple-600/60 text-white rounded-full shadow-lg hover:shadow-purple-500/40 border border-white/20 hover:bg-purple-600 transition-all duration-300 hover:scale-110 backdrop-blur-md"
                     aria-label="Yukarı Çık"
                 >
                     <FaArrowUp size={20} className="drop-shadow-md" />
