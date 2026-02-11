@@ -8,10 +8,18 @@ export default async function ProjectsPage({ params }: { params: Promise<{ lang:
     const { lang } = await params;
     const dict = getDictionary(lang);
 
-    const projects = await db.project.findMany({
+    const rawProjects = await db.project.findMany({
         where: { isPublished: true },
         orderBy: { createdAt: 'desc' }
     });
+
+    // Serialize plain objects for Client Component
+    const projects = rawProjects.map(project => ({
+        ...project,
+        createdAt: project.createdAt.toISOString(),
+        updatedAt: project.updatedAt.toISOString(),
+        // Add other date fields if necessary, or just use JSON.parse(JSON.stringify(project)) for a quick fix
+    }));
 
     return (
         <main className="min-h-screen w-full relative bg-background transition-colors duration-300">
