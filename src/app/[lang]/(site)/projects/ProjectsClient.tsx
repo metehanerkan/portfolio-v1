@@ -30,12 +30,13 @@ export default function ProjectsClient({ projects, dict }: ProjectsClientProps) 
     });
 
     return (
-        <main className="max-w-7xl mx-auto px-6 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 py-12 relative z-10 overflow-x-hidden">
 
             {/* Arka Plan Işık Efekti */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-purple-600/10 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
 
             <div className="mb-16">
+
 
                 {/* BAŞLIK ALANI (TEKRAR ORTALANDI) */}
                 <div className="text-center mb-12">
@@ -92,17 +93,19 @@ export default function ProjectsClient({ projects, dict }: ProjectsClientProps) 
                 </div>
 
                 {/* BOŞ DURUM */}
-                {filteredProjects.length === 0 && (
-                    <div className="text-center py-24 bg-white/50 dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                        <p className="text-gray-600 dark:text-purple-200/70 text-xl font-medium">
-                            "{activeCategory}" kategorisinde aradığın kriterlere uygun proje yok.
-                        </p>
-                        <p className="text-sm text-gray-400 dark:text-purple-200/40 mt-3">
-                            Farklı bir kategori seçebilir veya arama terimini değiştirebilirsin. 🚀
-                        </p>
-                    </div>
-                )}
+                {
+                    filteredProjects.length === 0 && (
+                        <div className="text-center py-24 bg-white/50 dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                            <p className="text-gray-600 dark:text-purple-200/70 text-xl font-medium">
+                                "{activeCategory}" kategorisinde aradığın kriterlere uygun proje yok.
+                            </p>
+                            <p className="text-sm text-gray-400 dark:text-purple-200/40 mt-3">
+                                Farklı bir kategori seçebilir veya arama terimini değiştirebilirsin. 🚀
+                            </p>
+                        </div>
+                    )
+                }
             </div>
-        </main>
+        </div>
     );
 }

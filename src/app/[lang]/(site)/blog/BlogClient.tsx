@@ -29,7 +29,7 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
     });
 
     return (
-        <main className="max-w-7xl mx-auto px-6 py-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 py-12 relative z-10 overflow-x-hidden">
 
             {/* Arka Plan Işık Efekti (Sayfa Özel) */}
             {/* Arka Plan Işık Efekti (Sayfa Özel) */}
@@ -101,6 +101,6 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
                     </div>
                 )}
             </div>
-        </main>
+        </div>
     );
 }
