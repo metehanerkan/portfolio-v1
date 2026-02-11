@@ -41,7 +41,9 @@ export default function DashboardClient({ project }: { project: any }) {
 
     // Form State
     const [selectedNewFeatures, setSelectedNewFeatures] = useState<string[]>([]);
+    const [customFeatureInput, setCustomFeatureInput] = useState(''); // YENİ: Özel özellik input
     const [customRequestNote, setCustomRequestNote] = useState('');
+    const [fileDescription, setFileDescription] = useState(''); // Yeni: Dosya Açıklaması
     const [attachment, setAttachment] = useState<string | null>(null);
 
     // --- 1. PROJE TÜRÜNÜ ALGILA ---
@@ -83,6 +85,17 @@ export default function DashboardClient({ project }: { project: any }) {
         else setSelectedNewFeatures(prev => [...prev, feature]);
     };
 
+    const handleAddCustomFeature = () => {
+        if (!customFeatureInput.trim()) return;
+        if (!selectedNewFeatures.includes(customFeatureInput.trim())) {
+            setSelectedNewFeatures(prev => [...prev, customFeatureInput.trim()]);
+            toast.success('Özellik listeye eklendi');
+        } else {
+            toast.error('Bu özellik zaten listede var');
+        }
+        setCustomFeatureInput('');
+    };
+
     const handleRequestSubmit = async () => {
         setLoading(true);
         const formData = new FormData();
@@ -93,15 +106,18 @@ export default function DashboardClient({ project }: { project: any }) {
         if (requestType === 'new_feature') {
             const featuresText = selectedNewFeatures.length > 0 ? `🚀 EKLENECEK ÖZELLİKLER:\n${selectedNewFeatures.map(f => `- ${f}`).join('\n')}` : "";
             const customText = customRequestNote ? `\n\n📝 ÖZEL İSTEK / NOT:\n${customRequestNote}` : "";
-            finalMessage = featuresText + customText;
+            const fileDescText = fileDescription ? `\n\n📂 DOSYA AÇIKLAMASI:\n${fileDescription}` : "";
 
-            if (!finalMessage.trim()) {
-                toast.error("Lütfen en az bir özellik seçin veya not yazın.");
+            finalMessage = featuresText + customText + fileDescText;
+
+            if (!finalMessage.trim() && !attachment) {
+                toast.error("Lütfen bir özellik seçin, not yazın veya dosya yükleyin.");
                 setLoading(false);
                 return;
             }
         } else {
-            finalMessage = customRequestNote;
+            // Hata bildirimi durumu
+            finalMessage = customRequestNote + (fileDescription ? `\n\n📂 DOSYA AÇIKLAMASI:\n${fileDescription}` : "");
         }
 
         formData.append('message', finalMessage);
@@ -117,6 +133,7 @@ export default function DashboardClient({ project }: { project: any }) {
         setRequestModalOpen(false);
         setSelectedNewFeatures([]);
         setCustomRequestNote('');
+        setFileDescription('');
         setAttachment(null);
     };
 
@@ -188,7 +205,11 @@ export default function DashboardClient({ project }: { project: any }) {
                         </div>
                         {/* SAĞ */}
                         <div className="space-y-6">
-                            <div className="p-6 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/10 dark:to-transparent border border-blue-200 dark:border-blue-500/20 rounded-2xl shadow-sm dark:shadow-none"><h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Hızlı İşlemler</h3><div className="grid gap-3"><motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setRequestType('new_feature'); setRequestModalOpen(true); }} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 dark:shadow-blue-900/20"><FaPlus /> Yeni Özellik İste</motion.button><motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setRequestType('bug'); setRequestModalOpen(true); }} className="w-full py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-red-50 dark:hover:bg-red-900/10 hover:border-red-200 dark:hover:border-red-500/30 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 rounded-xl font-medium transition flex items-center justify-center gap-2"><FaExclamationTriangle /> Sorun Bildir</motion.button></div></div>
+                            <div className="p-6 bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/10 dark:to-transparent border border-blue-200 dark:border-blue-500/20 rounded-2xl shadow-sm dark:shadow-none"><h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Hızlı İşlemler</h3><div className="grid gap-3">
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setRequestType('new_feature'); setRequestModalOpen(true); }} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 dark:shadow-blue-900/20"><FaPlus /> Yeni Özellik İste</motion.button>
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setRequestType('feature_removal'); setRequestModalOpen(true); }} className="w-full py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl font-medium transition flex items-center justify-center gap-2"><FaTrash /> Özellik Çıkar</motion.button>
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setRequestType('bug'); setRequestModalOpen(true); }} className="w-full py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-medium transition flex items-center justify-center gap-2"><FaExclamationTriangle /> Sorun Bildir</motion.button>
+                            </div></div>
                             <div className="bg-white dark:bg-[#0f1115] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 h-[400px] flex flex-col shadow-sm dark:shadow-none"><h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-4 flex items-center gap-2 tracking-wider"><FaClock /> Talep Geçmişi</h3><div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">{project.requests.length === 0 && <p className="text-gray-400 dark:text-gray-600 text-xs text-center py-10">Henüz talep yok.</p>}{project.requests.map((req: any) => (<div key={req.id} className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800/50 hover:border-gray-200 dark:hover:border-gray-700 transition"><div className="flex justify-between items-start mb-2"><span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${req.type === 'new_feature' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' : req.type === 'bug' ? 'bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400' : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>{req.type === 'new_feature' ? 'Özellik' : req.type === 'bug' ? 'Hata' : 'Diğer'}</span><span className={`text-[10px] font-bold ${req.status === 'PENDING' ? 'text-yellow-600 dark:text-yellow-500' : req.status === 'APPROVED' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>{req.status === 'PENDING' ? 'Bekliyor' : req.status === 'APPROVED' ? 'Onaylandı' : 'Reddedildi'}</span></div><p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{req.message}</p><span className="text-[10px] text-gray-400 dark:text-gray-600 mt-2 block">{new Date(req.createdAt).toLocaleDateString('tr-TR')}</span></div>))}</div></div>
                         </div>
                     </div>
@@ -202,7 +223,18 @@ export default function DashboardClient({ project }: { project: any }) {
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setRequestModalOpen(false)} className="absolute inset-0 bg-black/80 dark:bg-black/80 backdrop-blur-sm" />
                         <motion.div initial={{ scale: 0.95, opacity: 0, y: 50 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 50 }} className="bg-white dark:bg-[#0f1115] border border-gray-200 dark:border-gray-800 rounded-3xl shadow-2xl relative z-10 max-w-5xl w-full flex flex-col max-h-[90vh] overflow-hidden">
                             <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-950">
-                                <div><h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">{requestType === 'new_feature' ? <><FaMagic className="text-blue-500" /> Projeyi Geliştir</> : <><FaExclamationTriangle className="text-red-500" /> Sorun Bildir</>}</h3><p className="text-gray-500 text-xs mt-1">{requestType === 'new_feature' ? `Proje türüne (${projectType.toUpperCase()}) uygun öneriler aşağıdadır.` : 'Yaşadığın sorunu detaylıca anlat.'}</p></div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        {requestType === 'new_feature' ? <><FaMagic className="text-blue-500" /> Projeyi Geliştir</> :
+                                            requestType === 'feature_removal' ? <><FaTrash className="text-red-500" /> Özellik Çıkar</> :
+                                                <><FaExclamationTriangle className="text-red-500" /> Sorun Bildir</>}
+                                    </h3>
+                                    <p className="text-gray-500 text-xs mt-1">
+                                        {requestType === 'new_feature' ? `Proje türüne (${projectType.toUpperCase()}) uygun öneriler aşağıdadır.` :
+                                            requestType === 'feature_removal' ? 'Mevcut özelliklerden kullanmadıklarını çıkar.' :
+                                                'Yaşadığın sorunu detaylıca anlat.'}
+                                    </p>
+                                </div>
                                 <button onClick={() => setRequestModalOpen(false)} className="p-2 bg-gray-200 dark:bg-gray-900 rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-white transition"><FaTimes /></button>
                             </div>
                             <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#0a0c10]">
@@ -210,6 +242,46 @@ export default function DashboardClient({ project }: { project: any }) {
                                     <div className="md:col-span-2 p-8 space-y-8 border-r border-gray-200 dark:border-gray-800">
                                         {requestType === 'new_feature' && (
                                             <div className="space-y-8">
+                                                {/* ÖZEL ÖZELLİK EKLEME ALANI */}
+                                                <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-500/20 p-4 rounded-xl">
+                                                    <label className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase block mb-2 flex items-center gap-2">
+                                                        <FaPlus /> Kendi Özelliğini Ekle
+                                                    </label>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            value={customFeatureInput}
+                                                            onChange={(e) => setCustomFeatureInput(e.target.value)}
+                                                            onKeyDown={(e) => e.key === 'Enter' && handleAddCustomFeature()}
+                                                            placeholder="Örn: Özel Raporlama Sayfası"
+                                                            className="flex-1 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none transition"
+                                                        />
+                                                        <button
+                                                            onClick={handleAddCustomFeature}
+                                                            disabled={!customFeatureInput.trim()}
+                                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            Ekle
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* SEÇİLİ ÖZELLİKLER ÖZETİ (Görsel Kontrol) */}
+                                                {selectedNewFeatures.length > 0 && (
+                                                    <div>
+                                                        <h4 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
+                                                            <FaCheck /> Seçilen Özellikler ({selectedNewFeatures.length})
+                                                        </h4>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {selectedNewFeatures.map((feat, idx) => (
+                                                                <span key={idx} className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-700/50 flex items-center gap-2">
+                                                                    {feat}
+                                                                    <button onClick={() => toggleFeature(feat)} className="hover:text-red-500 transition"><FaTimes /></button>
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {activeCatalog.map((cat, index) => (
                                                     <div key={index}>
                                                         <h4 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-2">{cat.icon} {cat.category}</h4>
@@ -218,15 +290,104 @@ export default function DashboardClient({ project }: { project: any }) {
                                                 ))}
                                             </div>
                                         )}
+
+                                        {requestType === 'feature_removal' && (
+                                            <div className="space-y-6">
+                                                <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-500/20 p-4 rounded-xl flex items-start gap-3">
+                                                    <FaInfoCircle className="text-red-500 mt-1 flex-shrink-0" />
+                                                    <p className="text-xs text-red-600 dark:text-red-400">Çıkarmak istediğin özellikleri aşağıdan seçebilirsin. Bu işlem projenin fiyatını ve süresini etkileyebilir. Yönetici onayı gerektirir.</p>
+                                                </div>
+
+                                                <div>
+                                                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"><FaListUl /> Mevcut Özelliklerin</h4>
+                                                    {currentFeatures.length > 0 ? (
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                            {currentFeatures.map((item, index) => {
+                                                                const isSelected = selectedNewFeatures.includes(item);
+                                                                return (
+                                                                    <button
+                                                                        key={index}
+                                                                        onClick={() => toggleFeature(item)}
+                                                                        className={`p-3 rounded-xl border text-left text-xs font-medium transition flex items-center justify-between group 
+                                                                            ${isSelected ? 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-400 shadow-sm' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-900 dark:hover:text-gray-200'}`
+                                                                        }
+                                                                    >
+                                                                        <span>{item}</span>
+                                                                        {isSelected ? <FaTrash className="text-red-500" /> : <span className="text-[9px] text-gray-400">Çıkar</span>}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-gray-500 text-xs italic">Henüz listelenmiş aktif bir özelliğin yok.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                         <div><label className="text-xs font-bold text-gray-500 uppercase block mb-2 flex items-center gap-2"><FaMagic className="text-purple-500" /> {requestType === 'new_feature' ? 'Listede Yok mu? Hayalindekini Yaz' : 'Sorun Detayı'}</label><textarea value={customRequestNote} onChange={(e) => setCustomRequestNote(e.target.value)} rows={5} className="w-full bg-gray-50 dark:bg-black border border-gray-300 dark:border-gray-800 rounded-xl p-4 text-gray-900 dark:text-white focus:border-blue-500 outline-none resize-none text-sm placeholder:text-gray-400 dark:placeholder:text-gray-700 focus:ring-1 focus:ring-blue-500/50 transition" placeholder={requestType === 'new_feature' ? 'Örn: Kullanıcılar profil fotoğraflarına filtre ekleyebilsin...' : 'Hata nerede oluştu?'} /></div>
                                     </div>
                                     <div className="md:col-span-1 bg-gray-50/50 dark:bg-gray-950/50 p-8 flex flex-col gap-6">
-                                        <div className="flex-1"><label className="text-xs font-bold text-gray-500 uppercase block mb-3">Dosya / Ekran Görüntüsü</label>{attachment ? (<div className="flex flex-col items-center justify-center bg-green-500/10 p-6 rounded-xl border border-green-500/20 group h-40"><div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 mb-2"><FaCheck /></div><span className="text-green-500 text-sm font-bold block mb-2">Dosya Yüklendi</span><div className="flex gap-2"><a href={attachment} target="_blank" className="text-[10px] bg-green-100 dark:bg-green-900/50 px-3 py-1 rounded text-green-700 dark:text-green-200 hover:text-green-900 dark:hover:text-white transition">Görüntüle</a><button onClick={() => setAttachment(null)} className="text-[10px] bg-red-100 dark:bg-red-900/50 px-3 py-1 rounded text-red-600 dark:text-red-300 hover:text-red-800 dark:hover:text-white transition">Sil</button></div></div>) : (<div className="border-2 border-dashed border-gray-300 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/30 hover:bg-gray-100 dark:hover:bg-gray-900/50 hover:border-gray-400 dark:hover:border-gray-700 transition relative group p-4 h-40 flex flex-col items-center justify-center gap-2 text-center"><div className="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition group-hover:scale-110 duration-300"><FaCloudUploadAlt size={20} /></div><div><span className="text-xs font-bold text-gray-400 block group-hover:text-gray-900 dark:group-hover:text-white transition">Dosya Yükle</span><span className="text-[9px] text-gray-500 dark:text-gray-600 block">Resim veya PDF (Max 4MB)</span></div><div className="absolute inset-0 opacity-0 cursor-pointer"><UploadButton endpoint="clientAttachment" onClientUploadComplete={(res) => { setAttachment(res[0].url); toast.success("Dosya yüklendi!"); }} onUploadError={(error: Error) => { toast.error(`Hata: ${error.message}`); }} appearance={{ button: "w-full h-full", allowedContent: "hidden" }} /></div></div>)}</div>
+                                        <div className="flex-1">
+                                            <label className="text-xs font-bold text-gray-500 uppercase block mb-3">Dosya / Ekran Görüntüsü</label>
+                                            {attachment ? (
+                                                <div className="flex flex-col items-center justify-center bg-green-500/10 p-6 rounded-xl border border-green-500/20 group h-40 mb-4">
+                                                    <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 mb-2"><FaCheck /></div>
+                                                    <span className="text-green-500 text-sm font-bold block mb-2">Dosya Yüklendi</span>
+                                                    <div className="flex gap-2">
+                                                        <a href={attachment} target="_blank" className="text-[10px] bg-green-100 dark:bg-green-900/50 px-3 py-1 rounded text-green-700 dark:text-green-200 hover:text-green-900 dark:hover:text-white transition">Görüntüle</a>
+                                                        <button onClick={() => setAttachment(null)} className="text-[10px] bg-red-100 dark:bg-red-900/50 px-3 py-1 rounded text-red-600 dark:text-red-300 hover:text-red-800 dark:hover:text-white transition">Sil</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="border-2 border-dashed border-gray-300 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/30 hover:bg-gray-100 dark:hover:bg-gray-900/50 transition p-4 h-40 flex flex-col items-center justify-center gap-2 text-center mb-4">
+                                                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 mb-2">
+                                                        <FaCloudUploadAlt size={20} />
+                                                    </div>
+                                                    <UploadButton
+                                                        endpoint="clientAttachment"
+                                                        onClientUploadComplete={(res) => { setAttachment(res[0].url); toast.success("Dosya yüklendi!"); }}
+                                                        onUploadError={(error: Error) => { toast.error(`Hata: ${error.message}`); }}
+                                                        appearance={{
+                                                            button: "bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition",
+                                                            allowedContent: "text-gray-400 text-[9px] mt-1"
+                                                        }}
+                                                        content={{
+                                                            button: "Dosya Seç",
+                                                            allowedContent: "Max 4MB (Resim/PDF)"
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* Dosya Açıklaması */}
+                                            <div className="mt-4">
+                                                <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Dosya Açıklaması (Opsiyonel)</label>
+                                                <textarea
+                                                    value={fileDescription}
+                                                    onChange={(e) => setFileDescription(e.target.value)}
+                                                    rows={3}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-300 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-white focus:border-blue-500 outline-none resize-none text-xs placeholder:text-gray-400 dark:placeholder:text-gray-700 focus:ring-1 focus:ring-blue-500/50 transition"
+                                                    placeholder="Dosya hakkında kısa bir not..."
+                                                />
+                                            </div>
+                                        </div>
                                         <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800"><h5 className="text-gray-900 dark:text-white text-xs font-bold mb-2">Özet</h5><ul className="text-[10px] text-gray-500 dark:text-gray-400 space-y-1"><li className="flex justify-between"><span>Seçilen Özellik:</span> <span className="text-gray-900 dark:text-white">{selectedNewFeatures.length}</span></li><li className="flex justify-between"><span>Özel Not:</span> <span className="text-gray-900 dark:text-white">{customRequestNote ? 'Var' : 'Yok'}</span></li><li className="flex justify-between"><span>Dosya Eki:</span> <span className="text-gray-900 dark:text-white">{attachment ? 'Var' : 'Yok'}</span></li></ul></div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex justify-end gap-3 rounded-b-3xl"><motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setRequestModalOpen(false)} className="px-6 py-3 rounded-xl text-gray-500 font-bold hover:text-gray-900 dark:hover:text-white transition">Vazgeç</motion.button><motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleRequestSubmit} disabled={loading || (requestType === 'new_feature' && selectedNewFeatures.length === 0 && !customRequestNote.trim()) || (requestType === 'bug' && !customRequestNote.trim())} className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold transition shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">{loading ? 'Gönderiliyor...' : <><FaPaperPlane /> Gönder</>}</motion.button></div>
+                            <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 flex justify-end gap-3 rounded-b-3xl">
+                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setRequestModalOpen(false)} className="px-6 py-3 rounded-xl text-gray-500 font-bold hover:text-gray-900 dark:hover:text-white transition">Vazgeç</motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleRequestSubmit}
+                                    disabled={loading || (requestType === 'new_feature' && selectedNewFeatures.length === 0 && !customRequestNote.trim() && !attachment) || (requestType === 'feature_removal' && selectedNewFeatures.length === 0 && !customRequestNote.trim()) || (requestType === 'bug' && !customRequestNote.trim() && !attachment)}
+                                    className={`px-8 py-3 rounded-xl text-white font-bold transition shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed
+                                        ${requestType === 'feature_removal' ? 'bg-red-600 hover:bg-red-500 shadow-red-900/20' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-blue-900/20'}`}
+                                >
+                                    {loading ? 'Gönderiliyor...' : <><FaPaperPlane /> {requestType === 'feature_removal' ? 'Talebi İlet' : 'Gönder'}</>}
+                                </motion.button>
+                            </div>
                         </motion.div>
                     </div>
                 )}

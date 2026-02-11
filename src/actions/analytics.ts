@@ -146,6 +146,31 @@ export async function getAnalyticsStats() {
             uniqueVisitors,
             browsers: Object.entries(browserStats).map(([name, value]) => ({ name, value })),
             devices: Object.entries(deviceStats).map(([name, value]) => ({ name, value })),
+            os: Object.entries(logs.reduce((acc: any, log: any) => {
+                const os = log.os || 'Unknown';
+                acc[os] = (acc[os] || 0) + 1;
+                return acc;
+            }, {})).map(([name, value]) => ({ name, value })),
+            cities: Object.entries(logs.reduce((acc: any, log: any) => {
+                let city = log.city || 'Bilinmiyor';
+
+                try {
+                    city = decodeURIComponent(city);
+                } catch (e) {
+                    // Ignore decoding error
+                }
+
+                // Normalize City Name: Handle Istanbul regions specifically
+                if (city.includes('Istanbul')) {
+                    if (city.includes('Europe')) city = 'İstanbul (Avrupa)';
+                    else if (city.includes('Asia')) city = 'İstanbul (Asya)';
+                    else city = 'İstanbul';
+                }
+                else if (city.includes(',')) city = city.split(',')[0].trim(); // Generic "City, Region" -> "City"
+
+                acc[city] = (acc[city] || 0) + 1;
+                return acc;
+            }, {})).map(([city, count]) => ({ city, count })).sort((a: any, b: any) => b.count - a.count).slice(0, 10),
             daily,
             topPages,
             locations

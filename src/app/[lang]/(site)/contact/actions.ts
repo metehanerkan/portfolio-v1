@@ -96,22 +96,7 @@ ${rawMessage}
             `
         });
 
-        // MÜŞTERİYE ONAY E-POSTASI
-        if (email) {
-            await sendMail({
-                to: email,
-                subject: `🚀 Başvurunuz Alındı: ${projectName || subject}`,
-                html: `
-                  <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px;">
-                    <h2 style="color: #4f46e5;">Merhaba ${name},</h2>
-                    <p>Proje başvurunuzu aldık! En kısa sürede inceleyip size dönüş yapacağız.</p>
-                    <p><strong>Proje:</strong> ${projectName || subject}</p>
-                    <hr style="border: 1px solid #eee; margin: 20px 0;" />
-                    <p style="font-size: 14px; color: #666;">Bu otomatik bir mesajdır. Lütfen cevaplamayınız.</p>
-                  </div>
-                `
-            });
-        }
+
 
         await createLog(`Yeni mesaj/talep: ${name} - ${subject}`, 'INFO', 'Contact Form');
         revalidatePath('/admin');

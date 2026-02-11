@@ -10,18 +10,22 @@ export default function SearchBar({ value, onChange, placeholder = "Ara..." }: S
     return (
 
         <div className="relative w-full group">
+            {/* Glow Effect */}
+            {/* Glow Effect Removed */}
 
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-500 transition-colors" />
+            <div className="relative flex items-center bg-white/50 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 group-focus-within:bg-white dark:group-focus-within:bg-black/60 group-focus-within:border-purple-500/50 group-focus-within:shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+                <div className="pl-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-300">
+                    <FaSearch className="text-lg" />
+                </div>
+
+                <input
+                    type="text"
+                    className="w-full py-4 px-4 bg-transparent border-none outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500 font-medium transition-all"
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                />
             </div>
-
-            <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-800 rounded-xl leading-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all duration-300 shadow-sm dark:shadow-lg"
-                placeholder={placeholder}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-            />
         </div>
     );
 }

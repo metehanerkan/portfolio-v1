@@ -128,30 +128,36 @@ export default function ProjectRequestBtn() {
                 onClick={() => setIsOpen(true)}
                 initial={{ y: 0 }}
                 animate={{
-                    y: [0, -30, 0] // Aşağı -> Yukarı -> Aşağı döngüsü
+                    y: [0, -15, 0], // Daha yumuşak süzülme
+                    boxShadow: [
+                        "0px 5px 15px rgba(37, 99, 235, 0.3)",
+                        "0px 10px 25px rgba(147, 51, 234, 0.4)",
+                        "0px 5px 15px rgba(236, 72, 153, 0.3)"
+                    ]
                 }}
                 transition={{
-                    y: {
-                        duration: 2, // 2 saniyede bir tur
-                        repeat: Infinity, // Sonsuz döngü
-                        ease: "easeInOut", // Yumuşak geçiş
-                        repeatType: "loop"
-                    }
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    repeatType: "loop"
                 }}
-                whileHover={{ scale: 1.05, rotate: isHome ? 0 : 15 }}
+                whileHover={{ scale: 1.05, rotate: isHome ? 0 : 5 }}
                 whileTap={{ scale: 0.95 }}
-                className={`fixed bottom-5 left-6 z-40 flex items-center bg-gradient-to-r from-purple-600/90 to-indigo-600/90 text-white shadow-lg border border-white/20 backdrop-blur-md group hover:shadow-purple-500/40 transition-all duration-300
-    ${isHome ? 'px-5 py-3 rounded-full gap-2' : 'w-12 h-12 justify-center rounded-full'}`}
+                className={`fixed bottom-6 left-6 z-[60] flex items-center bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-xl border border-white/20 backdrop-blur-md group transition-all duration-300
+    ${isHome ? 'px-3.5 py-2.5 md:px-5 md:py-3 rounded-full gap-2' : 'w-10 h-10 md:w-12 md:h-12 justify-center rounded-full'}`}
             >
+                {/* Glow Effect Layer */}
+                <div className="absolute inset-0 rounded-full bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
                 {isHome && (
-                    <span className="font-bold tracking-wide whitespace-nowrap drop-shadow-md text-sm">
+                    <span className="font-extrabold tracking-wide whitespace-nowrap drop-shadow-md text-[10px] md:text-xs relative z-10">
                         Bir Fikrim Var
                     </span>
                 )}
 
                 {/* İkon Arkası */}
-                <div className={`${isHome ? 'bg-white/10 p-1.5 rounded-full border border-white/10' : ''}`}>
-                    <FaRocket className={`transition-transform duration-300 drop-shadow-md ${isHome ? 'text-lg text-purple-200' : 'text-xl text-white'}`} />
+                <div className={`${isHome ? 'bg-white/20 p-2 rounded-full border border-white/20' : ''} relative z-10`}>
+                    <FaRocket className={`transition-transform duration-300 drop-shadow-md ${isHome ? 'text-lg md:text-xl text-white' : 'text-xl md:text-2xl text-white'}`} />
                 </div>
             </motion.button>
 

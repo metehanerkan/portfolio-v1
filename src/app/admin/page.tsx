@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { db } from '@/lib/db';
 import AdminClient from './AdminClient';
 
+// Admin Page Component
 export default async function AdminPage() {
     // 1. Güvenlik Kontrolü (Cookie)
     const cookieStore = await cookies();

@@ -1400,15 +1400,28 @@ export default function AdminClient({ projects, blogs, messages, clientProjects 
                                                         </div>
                                                     </div>
 
-                                                    <div>
-                                                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Müşteriye Görünen Aşama</label>
-                                                        <div className="flex gap-2">
-                                                            <input name="currentStage" defaultValue={activeProjectToEdit.currentStage || ''} placeholder="Örn: Veritabanı Tasarlanıyor..." className="flex-1 bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" />
-                                                            <button className="bg-green-600 hover:bg-green-500 text-white px-8 rounded-xl font-bold transition shadow-lg shadow-green-900/20">
-                                                                Kaydet
-                                                            </button>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Müşteriye Görünen Aşama</label>
+                                                            <input name="currentStage" defaultValue={activeProjectToEdit.currentStage || ''} placeholder="Örn: Veritabanı Tasarlanıyor..." className="w-full bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Bütçe (Güncel)</label>
+                                                            <input name="budget" defaultValue={activeProjectToEdit.budget || activeProjectToEdit.clientOfferPrice || ''} placeholder="Örn: 25.000 TL" className="w-full bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Teslim Tarihi (Güncel)</label>
+                                                            <input name="deadline" defaultValue={activeProjectToEdit.deadline || activeProjectToEdit.clientOfferDeadline || ''} placeholder="Örn: 15 Şubat 2025" className="w-full bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Başlangıç Tarihi</label>
+                                                            <input type="date" name="startDate" defaultValue={activeProjectToEdit.startDate ? new Date(activeProjectToEdit.startDate).toISOString().split('T')[0] : ''} className="w-full bg-black border border-gray-800 p-4 rounded-xl text-white focus:border-green-500 outline-none text-sm" />
                                                         </div>
                                                     </div>
+
+                                                    <button className="w-full bg-green-600 hover:bg-green-500 text-white py-4 rounded-xl font-bold transition shadow-lg shadow-green-900/20">
+                                                        Tüm Güncellemeleri Kaydet
+                                                    </button>
                                                 </form>
                                             </div>
 

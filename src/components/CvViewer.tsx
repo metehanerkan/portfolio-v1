@@ -97,13 +97,19 @@ export default function CvViewer({ cvUrl }: CvViewerProps) {
     return (
         <>
             {/* Tetikleyici Buton */}
-            <button
+            <motion.button
                 onClick={() => setIsOpen(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition shadow-lg shadow-purple-900/20 group"
+                whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(124, 58, 237, 0.5)" }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-[#6d28d9] hover:bg-[#5b21b6] text-white rounded-full font-bold shadow-lg border border-white/20 backdrop-blur-md relative overflow-hidden group"
             >
-                <FaFilePdf className="group-hover:scale-110 transition-transform" />
-                CV İncele
-            </button>
+                <div className="absolute inset-0 bg-white/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <FaFilePdf className="text-xl relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                <span className="relative z-10">CV İncele</span>
+            </motion.button>
 
             {/* Portal ile Body'ye render et */}
             {mounted ? createPortal(modalContent, document.body) : null}

@@ -35,26 +35,24 @@ export default function ScrollToTop() {
         <AnimatePresence>
             {isVisible && (
                 <motion.button
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, scale: 0.5, y: 50 }}
                     animate={{
                         opacity: 1,
-                        y: [0, -15, 0] // Smooth floating
+                        scale: 1,
+                        y: 0,
                     }}
-                    exit={{ opacity: 0, y: 20 }}
+                    exit={{ opacity: 0, scale: 0.5, y: 50 }}
                     transition={{
-                        y: {
-                            duration: 2.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            repeatType: "loop"
-                        },
-                        opacity: { duration: 0.3 }
+                        type: "spring", stiffness: 200, damping: 20
                     }}
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-8 right-8 z-50 p-4 bg-purple-600/80 dark:bg-purple-600/60 text-white rounded-full shadow-lg hover:shadow-purple-500/40 border border-white/20 hover:bg-purple-600 transition-all duration-300 hover:scale-110 backdrop-blur-md"
+                    className="fixed bottom-6 right-6 z-[60] w-12 h-12 flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white rounded-full shadow-xl border border-white/20 cursor-pointer group hover:shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all duration-300 backdrop-blur-md"
                     aria-label="Yukarı Çık"
                 >
-                    <FaArrowUp size={20} className="drop-shadow-md" />
+                    <div className="absolute inset-0 rounded-full bg-white/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <FaArrowUp size={18} className="drop-shadow-sm relative z-10 group-hover:-translate-y-1 transition-transform" />
                 </motion.button>
             )}
         </AnimatePresence>

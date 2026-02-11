@@ -42,9 +42,9 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
         {/* HERO SECTION */}
         {/* pt-24 -> pt-16 (Yazılar yukarı taşındı) */}
         <section className="min-h-screen w-full flex flex-col items-center justify-center px-4 pt-1 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-50 pointer-events-none">
+          <div className="absolute top-[35%] md:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-50 pointer-events-none w-full max-w-[500px] md:max-w-[700px] lg:max-w-[1080px] aspect-square flex items-center justify-center">
             {/* Added mask-image to blend Orb edges seamlessly into background */}
-            <div style={{ width: '1080px', height: '1080px', position: 'relative', maskImage: 'radial-gradient(circle, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)' }}>
+            <div className="w-full h-full relative" style={{ maskImage: 'radial-gradient(circle, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)' }}>
               <Orb
                 hue={310}
                 hoverIntensity={0.3}

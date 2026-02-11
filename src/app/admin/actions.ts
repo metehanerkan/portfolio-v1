@@ -292,7 +292,10 @@ export async function updateProjectProgress(formData: FormData) {
             where: { id },
             data: {
                 progress,
-                currentStage
+                currentStage,
+                budget: formData.get('budget') as string,
+                deadline: formData.get('deadline') as string,
+                startDate: formData.get('startDate') ? new Date(formData.get('startDate') as string) : undefined
             }
         });
 

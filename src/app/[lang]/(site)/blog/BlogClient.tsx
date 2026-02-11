@@ -69,10 +69,10 @@ export default function BlogClient({ posts, dict, lang }: BlogClientProps) {
                             <button
                                 key={category}
                                 onClick={() => setActiveCategory(category)}
-                                className={`px-6 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-sm
+                                className={`px-6 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-md
                                 ${activeCategory === category
-                                        ? 'bg-purple-600 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] scale-105'
-                                        : 'bg-white/50 dark:bg-[#0a0a0a]/40 border-gray-200 dark:border-white/10 text-gray-600 dark:text-purple-200/50 hover:border-purple-500/50 hover:text-purple-700 dark:hover:text-white hover:bg-purple-500/10'
+                                        ? 'bg-[#6d28d9] border-transparent text-white shadow-lg shadow-purple-900/20 scale-105'
+                                        : 'bg-white/40 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10 hover:border-purple-400/30 hover:scale-105'
                                     }
                                 `}
                             >

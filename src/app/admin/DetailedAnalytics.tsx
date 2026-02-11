@@ -6,10 +6,11 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
     PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts'
-import { FaChartLine, FaDesktop, FaGlobe, FaListOl, FaMapMarkerAlt, FaChrome } from 'react-icons/fa'
+import { FaChartLine, FaDesktop, FaGlobe, FaListOl, FaMapMarkerAlt, FaChrome, FaNetworkWired, FaGlobeAmericas } from 'react-icons/fa'
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+// Detailed Analytics Component
 export default function DetailedAnalytics() {
     const [stats, setStats] = useState<any>(null)
     const [loading, setLoading] = useState(true)
@@ -89,149 +90,301 @@ export default function DetailedAnalytics() {
                 </div>
             </div>
 
-            {/* Grafikler Satırı 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
-                    <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
-                        <div className="flex justify-between items-center mb-6">
-                            <h4 className="text-sm font-bold text-gray-400 flex items-center gap-2"><FaChartLine /> Trafik Trendi</h4>
-                            <div className="flex bg-gray-950 p-1 rounded-lg border border-gray-800">
-                                <button
-                                    onClick={() => setTimeRange('daily')}
-                                    className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${timeRange === 'daily' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'}`}
-                                >
-                                    Haftalık
-                                </button>
-                                <button
-                                    onClick={() => setTimeRange('weekly')}
-                                    className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${timeRange === 'weekly' ? 'bg-purple-600 text-white' : 'text-gray-500 hover:text-white'}`}
-                                >
-                                    Aylık
-                                </button>
-                            </div>
-                        </div>
-                        <div className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData}>
-                                    <defs>
-                                        <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                        </linearGradient>
-                                        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="date" stroke="#9ca3af" fontSize={10} />
-                                    <YAxis stroke="#9ca3af" fontSize={10} />
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                                    <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} itemStyle={{ color: '#fff' }} />
-                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                    <Area type="monotone" dataKey="pageViews" name="Görüntüleme" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPv)" strokeWidth={3} />
-                                    <Area type="monotone" dataKey="uniqueVisitors" name="Tekil Ziyaretçi" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorUv)" strokeWidth={3} />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+            {/* Row 1: Trafik Trendi (Tam Genişlik) */}
+            <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
+                <div className="flex justify-between items-center mb-6">
+                    <h4 className="text-sm font-bold text-gray-400 flex items-center gap-2"><FaChartLine /> Trafik Trendi</h4>
+                    <div className="flex bg-gray-950 p-1 rounded-lg border border-gray-800">
+                        <button
+                            onClick={() => setTimeRange('daily')}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${timeRange === 'daily' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                        >
+                            Haftalık
+                        </button>
+                        <button
+                            onClick={() => setTimeRange('weekly')}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${timeRange === 'weekly' ? 'bg-purple-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                        >
+                            Aylık
+                        </button>
                     </div>
+                </div>
+                <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                            <defs>
+                                <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <XAxis
+                                dataKey="date"
+                                stroke="#9ca3af"
+                                fontSize={10}
+                                tickFormatter={(dateStr) => {
+                                    const date = new Date(dateStr);
+                                    if (timeRange === 'daily') {
+                                        return date.toLocaleDateString('tr-TR', { weekday: 'short' });
+                                    }
+                                    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
+                                }}
+                            />
+                            <YAxis stroke="#9ca3af" fontSize={10} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                            <Tooltip
+                                contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }}
+                                itemStyle={{ color: '#fff' }}
+                                labelFormatter={(label) => new Date(label).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                            <Area type="monotone" dataKey="pageViews" name="Görüntüleme" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPv)" strokeWidth={3} />
+                            <Area type="monotone" dataKey="uniqueVisitors" name="Tekil Ziyaretçi" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorUv)" strokeWidth={3} />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
 
-                    <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
-                        <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaChrome /> Tarayıcı & Cihaz Dağılımı</h4>
-                        <div className="grid grid-cols-2 gap-4 h-[400px]">
-                            <div className="h-full flex flex-col items-center">
-                                <span className="text-sm text-gray-500 mb-2">Tarayıcılar</span>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={stats.browsers} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                            {stats.browsers.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                                        </Pie>
-                                        <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', fontSize: '12px', color: '#fff' }} itemStyle={{ color: '#fff' }} />
-                                        <Legend
-                                            layout="horizontal"
-                                            verticalAlign="bottom"
-                                            align="center"
-                                            height={60}
-                                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                            <div className="h-full flex flex-col items-center">
-                                <span className="text-sm text-gray-500 mb-2">Cihazlar</span>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={stats.devices} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                            {stats.devices.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />)}
-                                        </Pie>
-                                        <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', fontSize: '12px', color: '#fff' }} itemStyle={{ color: '#fff' }} />
-                                        <Legend
-                                            layout="horizontal"
-                                            verticalAlign="bottom"
-                                            align="center"
-                                            height={60}
-                                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
+            {/* Row 2: Teknoloji Yığını (3 Sütun: Tarayıcı, OS, Cihaz) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Tarayıcılar */}
+                <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
+                    <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaChrome /> Tarayıcı Dağılımı</h4>
+                    <div className="h-[300px] flex flex-col items-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart margin={{ top: 20 }}>
+                                <Pie
+                                    data={stats.browsers}
+                                    cx="50%"
+                                    cy={110}
+                                    innerRadius={50}
+                                    outerRadius={80}
+                                    paddingAngle={4}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    stroke="none"
+                                    cornerRadius={4}
+                                >
+                                    {stats.browsers.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.9)', backdropFilter: 'blur(10px)', border: '1px solid #374151', borderRadius: '8px', fontSize: '12px', color: '#fff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                    itemStyle={{ color: '#fff' }}
+                                    formatter={(value: number | undefined, name: any) => [`${value || 0} Ziyaret`, name]}
+                                />
+                                <Legend
+                                    layout="horizontal"
+                                    verticalAlign="bottom"
+                                    align="center"
+                                    iconType="circle"
+                                    iconSize={8}
+                                    wrapperStyle={{ fontSize: '11px', outline: 'none' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
 
-                {/* Tablolar Satırı */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* En Çok Ziyaret Edilen Sayfalar */}
-                    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-                        <div className="p-4 border-b border-gray-800 bg-gray-950/50 flex items-center justify-between">
-                            <h4 className="text-sm font-bold text-gray-300 flex items-center gap-2"><FaListOl /> En Çok Gezilen Sayfalar</h4>
-                        </div>
-                        <div className="divide-y divide-gray-800">
-                            {stats.topPages.map((page: any, index: number) => (
-                                <div key={index} className="p-3 flex items-center justify-between hover:bg-gray-800/50 transition">
-                                    <div className="flex items-center gap-3">
-                                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-800 text-gray-500'}`}>
-                                            {index + 1}
-                                        </span>
-                                        <span className="text-sm text-gray-300 font-mono">{page.path}</span>
-                                    </div>
-                                    <span className="text-xs font-bold text-gray-400 bg-gray-950 px-2 py-1 rounded border border-gray-800">
-                                        {page.count}
-                                    </span>
-                                </div>
-                            ))}
-                            {stats.topPages.length === 0 && <p className="p-4 text-center text-gray-500 text-sm">Veri yok.</p>}
-                        </div>
+                {/* İşletim Sistemleri */}
+                <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
+                    <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaDesktop /> İşletim Sistemi</h4>
+                    <div className="h-[300px] flex flex-col items-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart margin={{ top: 20 }}>
+                                <Pie
+                                    data={stats.os}
+                                    cx="50%"
+                                    cy={110}
+                                    innerRadius={50}
+                                    outerRadius={80}
+                                    paddingAngle={4}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    stroke="none"
+                                    cornerRadius={4}
+                                >
+                                    {stats.os?.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[(index + 4) % COLORS.length]} />)}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.9)', backdropFilter: 'blur(10px)', border: '1px solid #374151', borderRadius: '8px', fontSize: '12px', color: '#fff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                    itemStyle={{ color: '#fff' }}
+                                    formatter={(value: number | undefined, name: any) => [`${value || 0} Ziyaret`, name]}
+                                />
+                                <Legend
+                                    layout="horizontal"
+                                    verticalAlign="bottom"
+                                    align="center"
+                                    iconType="circle"
+                                    iconSize={8}
+                                    wrapperStyle={{ fontSize: '11px', outline: 'none' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
+                </div>
 
-                    {/* Coğrafi Dağılım */}
-                    <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-                        <div className="p-4 border-b border-gray-800 bg-gray-950/50 flex items-center justify-between">
-                            <h4 className="text-sm font-bold text-gray-300 flex items-center gap-2"><FaMapMarkerAlt /> Coğrafi Dağılım</h4>
-                        </div>
-                        <div className="divide-y divide-gray-800">
-                            {stats.locations.map((loc: any, index: number) => (
-                                <div key={index} className="p-3 flex items-center justify-between hover:bg-gray-800/50 transition">
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-lg bg-gray-800 w-8 h-8 flex items-center justify-center rounded-lg">
-                                            🌍
-                                        </span>
-                                        <span className="text-sm text-gray-300">{loc.country || 'Bilinmiyor'}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-24 bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-green-500 rounded-full"
-                                                style={{ width: `${(loc.count / stats.pageViews) * 100}%` }}
-                                            ></div>
+                {/* Cihazlar */}
+                <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 min-h-[400px]">
+                    <h4 className="text-sm font-bold text-gray-400 mb-6 flex items-center gap-2"><FaListOl /> Cihaz Dağılımı</h4>
+                    <div className="h-[300px] flex flex-col items-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart margin={{ top: 20 }}>
+                                <Pie
+                                    data={stats.devices}
+                                    cx="50%"
+                                    cy={110}
+                                    innerRadius={50}
+                                    outerRadius={80}
+                                    paddingAngle={4}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    stroke="none"
+                                    cornerRadius={4}
+                                >
+                                    {stats.devices.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />)}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: 'rgba(17, 24, 39, 0.9)', backdropFilter: 'blur(10px)', border: '1px solid #374151', borderRadius: '8px', fontSize: '12px', color: '#fff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                                    itemStyle={{ color: '#fff' }}
+                                    formatter={(value: number | undefined, name: any) => [`${value || 0} Ziyaret`, name]}
+                                />
+                                <Legend
+                                    layout="horizontal"
+                                    verticalAlign="bottom"
+                                    align="center"
+                                    iconType="circle"
+                                    iconSize={8}
+                                    wrapperStyle={{ fontSize: '11px', outline: 'none' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
+            {/* Row 3: Konum Detayları ve En Çok Gezilen Sayfalar (3 Sütun) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Coğrafi Dağılım (Ülke) */}
+                <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden h-fit">
+                    <div className="p-4 border-b border-gray-800 bg-gray-950/50 flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-gray-300 flex items-center gap-2"><FaGlobe /> Ülke Dağılımı</h4>
+                    </div>
+                    <div className="divide-y divide-gray-800">
+                        {stats.locations.map((loc: any, index: number) => {
+                            const countryCode = loc.country;
+                            let countryName = loc.country || 'Bilinmiyor';
+                            let IconDisplay = null;
+
+                            if (countryCode === 'Yerel Ağ (Dev)') {
+                                IconDisplay = <FaNetworkWired className="text-cyan-400 text-xs" />;
+                                countryName = 'Yerel Ağ';
+                            } else if (!countryCode || countryCode === 'Bilinmiyor') {
+                                IconDisplay = <FaGlobeAmericas className="text-gray-500 text-xs" />;
+                                countryName = 'Bilinmiyor';
+                            } else if (countryCode && countryCode.length === 2) {
+                                try {
+                                    const regionNames = new Intl.DisplayNames(['tr'], { type: 'region' });
+                                    countryName = regionNames.of(countryCode);
+                                } catch (e) {
+                                    // Fallback to code if Intl fails
+                                }
+                            }
+
+                            const percentage = (loc.count / stats.pageViews) * 100;
+
+                            return (
+                                <div key={index} className="p-4 hover:bg-gray-800/50 transition">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-6 h-4 flex items-center justify-center rounded overflow-hidden relative shadow-sm bg-gray-800/50">
+                                                {IconDisplay ? IconDisplay : (countryCode && countryCode.length === 2 ? (
+                                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                                    <img
+                                                        src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`}
+                                                        alt={countryName}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <FaGlobeAmericas className="text-gray-500 text-xs" />
+                                                ))}
+                                            </div>
+                                            <span className="text-sm text-gray-200 font-medium">{countryName}</span>
                                         </div>
-                                        <span className="text-xs font-bold text-gray-400 min-w-[30px] text-right">
+                                        <span className="text-xs font-bold text-gray-400">
                                             {loc.count}
                                         </span>
                                     </div>
+                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
+                                            style={{ width: `${percentage}%` }}
+                                        ></div>
+                                    </div>
                                 </div>
-                            ))}
-                            {stats.locations.length === 0 && <p className="p-4 text-center text-gray-500 text-sm">Veri yok.</p>}
-                        </div>
+                            )
+                        })}
+                        {stats.locations.length === 0 && <p className="p-4 text-center text-gray-500 text-sm">Veri yok.</p>}
+                    </div>
+                </div>
+
+                {/* Şehir Dağılımı */}
+                <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden h-fit">
+                    <div className="p-4 border-b border-gray-800 bg-gray-950/50 flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-gray-300 flex items-center gap-2"><FaMapMarkerAlt /> Şehir Bazlı Dağılım</h4>
+                    </div>
+                    <div className="divide-y divide-gray-800">
+                        {stats.cities?.map((city: any, index: number) => {
+                            const percentage = (city.count / stats.pageViews) * 100;
+                            return (
+                                <div key={index} className="p-4 hover:bg-gray-800/50 transition">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-3">
+                                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-purple-500/20 text-purple-400' : 'bg-gray-800 text-gray-500'}`}>
+                                                {index + 1}
+                                            </span>
+                                            <span className="text-sm text-gray-200 font-medium">{city.city || 'Bilinmiyor'}</span>
+                                        </div>
+                                        <span className="text-xs font-bold text-gray-400">
+                                            {city.count}
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-purple-500 to-pink-400 rounded-full"
+                                            style={{ width: `${percentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                        {(!stats.cities || stats.cities.length === 0) && <p className="p-4 text-center text-gray-500 text-sm">Veri yok.</p>}
+                    </div>
+                </div>
+
+                {/* En Çok Gezilen Sayfalar */}
+                <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden h-fit">
+                    <div className="p-4 border-b border-gray-800 bg-gray-950/50 flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-gray-300 flex items-center gap-2"><FaListOl /> En Çok Gezilen Sayfalar</h4>
+                    </div>
+                    <div className="divide-y divide-gray-800">
+                        {stats.topPages.map((page: any, index: number) => (
+                            <div key={index} className="p-3 flex items-center justify-between hover:bg-gray-800/50 transition">
+                                <div className="flex items-center gap-3">
+                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-800 text-gray-500'}`}>
+                                        {index + 1}
+                                    </span>
+                                    <span className="text-sm text-gray-300 font-mono">{page.path}</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-400 bg-gray-950 px-2 py-1 rounded border border-gray-800">
+                                    {page.count}
+                                </span>
+                            </div>
+                        ))}
+                        {stats.topPages.length === 0 && <p className="p-4 text-center text-gray-500 text-sm">Veri yok.</p>}
                     </div>
                 </div>
             </div>
