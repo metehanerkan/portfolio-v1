@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Optimization: Enable SWC Minification (default in Next.js 13+, but explicit is good)
+  // swcMinify: true, // Deprecated in Next.js 15+ as it is default
+  experimental: {
+    // Optimization: Tree shake these packages aggressively
+    optimizePackageImports: ['lucide-react', 'react-icons', '@vercel/analytics', '@vercel/speed-insights'],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

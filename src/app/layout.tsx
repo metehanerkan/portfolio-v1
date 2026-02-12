@@ -9,7 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import AnalyticsListener from "@/components/AnalyticsListener";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
 export const metadata = {
     title: "Metehan Erkan | Software Engineer",
@@ -31,7 +31,8 @@ export default function RootLayout({
         <html lang="tr" suppressHydrationWarning>
             <head>
                 {/* Google Tag Manager - HEAD */}
-                <Script id="google-tag-manager" strategy="afterInteractive">
+                {/* Optimization: Changed strategy to 'lazyOnload' to prioritize Main Thread for UI rendering */}
+                <Script id="google-tag-manager" strategy="lazyOnload">
                     {`
                     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

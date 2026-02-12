@@ -50,7 +50,8 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
         <section className="min-h-screen w-full flex flex-col items-center justify-center px-4 pt-1 relative">
           <div className="absolute top-[35%] md:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-50 pointer-events-none w-full max-w-[500px] md:max-w-[700px] lg:max-w-[1080px] aspect-square flex items-center justify-center">
             {/* Added mask-image to blend Orb edges seamlessly into background */}
-            <div className="w-full h-full relative" style={{ maskImage: 'radial-gradient(circle, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)' }}>
+            {/* Optimization: aspect-square and min-h added to prevent CLS (Cumulative Layout Shift) */}
+            <div className="w-full h-full relative aspect-square min-h-[300px] md:min-h-[500px]" style={{ maskImage: 'radial-gradient(circle, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)' }}>
               <LazyOrb
                 hue={310}
                 hoverIntensity={0.3}
