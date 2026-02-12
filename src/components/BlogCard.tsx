@@ -43,7 +43,8 @@ export default function BlogCard({ post, dict, lang = 'tr' }: BlogCardProps) {
                             src={post.imageUrl}
                             alt={post.title}
                             fill
-                            className="object-cover transform group-hover:scale-105 transition-transform duration-700"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover transform group-hover:scale-110 transition-transform duration-700"
                         />
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-purple-200/30 group-hover:text-purple-500 dark:group-hover:text-purple-200/50 transition-colors">
