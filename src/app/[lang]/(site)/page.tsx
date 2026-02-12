@@ -5,9 +5,15 @@ import { FaGithub, FaLinkedin, FaArrowRight } from 'react-icons/fa';
 import ProjectCard from '@/components/ProjectCard';
 import BlogCard from '@/components/BlogCard';
 import { Locale, getDictionary } from '@/dictionaries';
-import Orb from '@/components/Orb';
+import LazyOrb from '@/components/LazyOrb';
 
-export const dynamic = 'force-dynamic';
+// Revalidate page every hour (ISR) instead of on every request
+export const revalidate = 3600;
+
+// Statically generate routes for supported locales at build time
+// export async function generateStaticParams() {
+//   return [{ lang: 'tr' }, { lang: 'en' }];
+// }
 
 export default async function Home({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -45,7 +51,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Locale 
           <div className="absolute top-[35%] md:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-50 pointer-events-none w-full max-w-[500px] md:max-w-[700px] lg:max-w-[1080px] aspect-square flex items-center justify-center">
             {/* Added mask-image to blend Orb edges seamlessly into background */}
             <div className="w-full h-full relative" style={{ maskImage: 'radial-gradient(circle, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)' }}>
-              <Orb
+              <LazyOrb
                 hue={310}
                 hoverIntensity={0.3}
                 rotateOnHover
