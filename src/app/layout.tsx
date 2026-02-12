@@ -12,11 +12,49 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
 export const metadata = {
-    title: "Metehan Erkan | Software Engineer",
+    metadataBase: new URL('https://metehanerkan.vercel.app'),
+    title: {
+        default: "Metehan Erkan | Software Engineer",
+        template: "%s | Metehan Erkan"
+    },
     description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
     keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile", "Next.js", "React", "Web Tasarım", "Yazılım"],
     authors: [{ name: "Metehan Erkan" }],
     creator: "Metehan Erkan",
+    openGraph: {
+        type: 'website',
+        locale: 'tr_TR',
+        url: 'https://metehanerkan.vercel.app',
+        title: "Metehan Erkan | Software Engineer",
+        description: "Modern web teknolojileri ile ölçeklenebilir dijital çözümler.",
+        siteName: "Metehan Erkan Portfolio",
+        images: [
+            {
+                url: '/opengraph-image.png', // Fallback image if not provided by page
+                width: 1200,
+                height: 630,
+                alt: 'Metehan Erkan Portfolio',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: "Metehan Erkan | Software Engineer",
+        description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
+        creator: '@metehanerkan', // Replace with actual handle if available
+        images: ['/opengraph-image.png'],
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            'max-video-preview': -1,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+        },
+    },
     verification: {
         google: 'VWwNSKlKII-K8Th13GFr3iSG3-MYCztQDUEor4sXOdM'
     },
