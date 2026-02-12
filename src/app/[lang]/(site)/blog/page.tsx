@@ -1,8 +1,28 @@
 import { db } from '@/lib/db';
 import BlogClient from './BlogClient';
 import { Locale, getDictionary } from '@/dictionaries';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
+    const { lang } = await params;
+
+    // Basit çoklu dil desteği
+    const title = lang === 'tr' ? 'Blog | Metehan Erkan' : 'Blog | Metehan Erkan';
+    const description = lang === 'tr'
+        ? 'Yazılım, teknoloji ve web geliştirme üzerine güncel makaleler, dersler ve ipuçları.'
+        : 'Latest articles, tutorials and tips on software, technology and web development.';
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+        }
+    };
+}
 
 export default async function BlogPage({ params }: { params: Promise<{ lang: Locale }> }) {
     const { lang } = await params;

@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaArrowLeft, FaGithub, FaExternalLinkAlt, FaImage, FaQuoteLeft } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
 import ViewCounter from '@/components/ViewCounter';
@@ -10,8 +11,46 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
+import Script from 'next/script';
+import { Metadata } from 'next';
+
 interface ProjectDetailPageProps {
     params: Promise<{ id: string }>;
+}
+
+
+export async function generateMetadata({ params }: ProjectDetailPageProps): Promise<Metadata> {
+    const { id } = await params;
+    const project = await db.project.findFirst({ where: { id } });
+
+    if (!project) {
+        return {
+            title: 'Proje Bulunamadı | Metehan Erkan',
+            description: 'Aradığınız proje bulunamadı veya kaldırılmış olabilir.'
+        };
+    }
+
+    const title = `${project.title} | Metehan Erkan`;
+    const description = project.description
+        ? (project.description.length > 160 ? project.description.substring(0, 157) + '...' : project.description)
+        : `${project.title} projesi hakkında detaylı bilgiler, kullanılan teknolojiler ve geliştirme süreci.`;
+
+    return {
+        title: title,
+        description: description,
+        openGraph: {
+            title: title,
+            description: description,
+            type: 'website', // 'article' or custom type if needed
+            images: project.imageUrl ? [{ url: project.imageUrl }] : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: project.imageUrl ? [project.imageUrl] : [],
+        }
+    };
 }
 
 export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
@@ -25,8 +64,59 @@ export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
         return notFound();
     }
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: project.title,
+        description: project.description,
+        applicationCategory: project.category,
+        operatingSystem: 'Any',
+        offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD'
+        },
+        image: project.imageUrl
+    };
+
+    const breadcrumbJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Ana Sayfa',
+                item: 'https://metehanerkan.vercel.app'
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Projeler',
+                item: 'https://metehanerkan.vercel.app/projects'
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: project.title,
+                item: `https://metehanerkan.vercel.app/projects/${project.id}`
+            }
+        ]
+    };
+
     return (
         <main className="min-h-screen bg-white dark:bg-[#030014] text-gray-900 dark:text-white pt-32 px-6 pb-20 relative overflow-hidden transition-colors duration-300">
+            <Script
+                id="project-json-ld"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <Script
+                id="breadcrumb-json-ld"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
+
 
             {/* 👇 SAYAÇ BİLEŞENİ (GİZLİ) */}
             <ViewCounter id={id} type="project" />
@@ -75,10 +165,12 @@ export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
                     <div className="lg:col-span-2 h-full min-h-[350px] md:min-h-[450px] bg-gray-100 dark:bg-[#0a0a0a]/50 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 group relative backdrop-blur-sm shadow-sm">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 dark:from-[#030014]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
                         {project.imageUrl && project.imageUrl.length > 5 ? (
-                            <img
+                            <Image
                                 src={project.imageUrl}
                                 alt={project.title}
-                                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                fill
+                                className="object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                priority
                             />
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-purple-200/30 bg-gray-50 dark:bg-[#0a0a0a]">

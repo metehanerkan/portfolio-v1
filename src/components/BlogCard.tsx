@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaClock, FaArrowRight, FaImage } from 'react-icons/fa';
 import { Dictionary, Locale } from '@/dictionaries';
 
@@ -38,10 +39,11 @@ export default function BlogCard({ post, dict, lang = 'tr' }: BlogCardProps) {
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900/10 dark:from-[#0a0a0a] via-transparent to-transparent opacity-60 z-10"></div>
 
                     {post.imageUrl && post.imageUrl.length > 5 ? (
-                        <img
+                        <Image
                             src={post.imageUrl}
                             alt={post.title}
-                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                            fill
+                            className="object-cover transform group-hover:scale-105 transition-transform duration-700"
                         />
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-purple-200/30 group-hover:text-purple-500 dark:group-hover:text-purple-200/50 transition-colors">

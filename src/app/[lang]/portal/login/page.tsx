@@ -8,6 +8,20 @@ import Link from 'next/link';
 export default function ClientLoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [accessCode, setAccessCode] = useState('');
+
+    const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // 1. Sadece harf ve rakamları al, boşlukları sil
+        let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+        // 2. Her 3 karakterden sonra tire koy (sonuncuya koyma)
+        if (value.length > 0) {
+            value = value.match(/.{1,3}/g)?.join('-') || value;
+        }
+
+        setAccessCode(value);
+        if (error) setError(''); // Kullanıcı yeni bir şey yazarsa hatayı temizle
+    };
 
     const handleSubmit = async (formData: FormData) => {
         setLoading(true);
@@ -70,7 +84,10 @@ export default function ClientLoginPage() {
                                 name="accessCode"
                                 type="text"
                                 placeholder="Örn: PRJ-123"
-                                className="w-full bg-gray-50 dark:bg-[#030014]/50 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white pl-11 pr-4 py-4 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all duration-300 font-mono tracking-wider placeholder:tracking-normal placeholder:text-gray-400 dark:placeholder:text-gray-600 hover:border-purple-400/50 dark:hover:border-white/20"
+                                value={accessCode}
+                                onChange={handleCodeChange}
+                                maxLength={15} // Opsiyonel: Makul bir sınır (örneğin 3 blok + tireler)
+                                className="w-full bg-gray-50 dark:bg-[#030014]/50 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white pl-11 pr-4 py-4 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all duration-300 font-mono tracking-wider placeholder:tracking-normal placeholder:text-gray-400 dark:placeholder:text-gray-600 hover:border-purple-400/50 dark:hover:border-white/20 uppercase"
                                 required
                             />
                         </div>

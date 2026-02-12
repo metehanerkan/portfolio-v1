@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaGithub, FaExternalLinkAlt, FaImage } from 'react-icons/fa';
 import { Dictionary } from '@/dictionaries';
 
@@ -61,10 +62,11 @@ export default function ProjectCard({ project, dict }: ProjectCardProps) {
                 <div className="relative h-56 overflow-hidden w-full bg-gray-100 dark:bg-[#030014]">
                     {/* Resim Varsa */}
                     {project.imageUrl ? (
-                        <img
+                        <Image
                             src={project.imageUrl}
                             alt={project.title}
-                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                            fill
+                            className="object-cover transform group-hover:scale-110 transition-transform duration-700"
                         />
                     ) : (
                         /* Resim Yoksa */

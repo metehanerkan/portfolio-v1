@@ -1,11 +1,13 @@
 import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaArrowLeft, FaCalendar, FaClock, FaTag, FaImage, FaQuoteLeft } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
 import ViewCounter from '@/components/ViewCounter';
 import ReadingBar from '@/components/ReadingBar';
 import { Metadata } from 'next';
+import Script from 'next/script';
 
 // 👇 CANLI SİTE İÇİN KRİTİK AYARLAR (Cache'i tamamen kapatır)
 export const dynamic = 'force-dynamic';
@@ -55,8 +57,58 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
     }
 
     // 4. BLOG TASARIMI
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.excerpt,
+        image: post.imageUrl ? [post.imageUrl] : [],
+        datePublished: post.createdAt,
+        dateModified: post.updatedAt || post.createdAt,
+        author: {
+            '@type': 'Person',
+            name: 'Metehan Erkan',
+            url: 'https://metehanerkan.vercel.app'
+        }
+    };
+
+    const breadcrumbJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Ana Sayfa',
+                item: 'https://metehanerkan.vercel.app'
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Blog',
+                item: 'https://metehanerkan.vercel.app/blog'
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: post.title,
+                item: `https://metehanerkan.vercel.app/blog/${post.id}`
+            }
+        ]
+    };
+
     return (
         <main className="min-h-screen bg-white dark:bg-[#030014] text-gray-900 dark:text-white py-32 px-6 relative overflow-hidden transition-colors duration-300">
+            <Script
+                id="blog-json-ld"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <Script
+                id="breadcrumb-json-ld"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+            />
             <ReadingBar />
 
             {/* 👇 SAYAÇ BİLEŞENİ */}
@@ -103,10 +155,12 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
                 <div className="w-full h-[300px] md:h-[500px] relative rounded-3xl overflow-hidden mb-12 border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#0a0a0a]/50 shadow-2xl animate-fadeIn delay-100 group">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 dark:from-[#030014]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
                     {post.imageUrl && post.imageUrl.length > 5 ? (
-                        <img
+                        <Image
                             src={post.imageUrl}
                             alt={post.title}
-                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                            fill
+                            className="object-cover transform group-hover:scale-105 transition-transform duration-700"
+                            priority
                         />
                     ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-purple-200/30">
