@@ -151,4 +151,4 @@ Bu proje, ölçeklenebilirlik, performans ve geliştirici deneyimi için tasarla
 
 ---
 
-*Built with ❤️ by [Metehan Erkan](https://metehanerkan.vercel.app)*
+*Built with ❤️ by [Metehan Erkan](https://www.metehandev.site)*

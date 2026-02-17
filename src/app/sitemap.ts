@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://metehanerkan.vercel.app'
+    const baseUrl = 'https://www.metehandev.site'
     const languages = ['tr', 'en']
 
     // Projeleri çek (Son eklenenler önce)

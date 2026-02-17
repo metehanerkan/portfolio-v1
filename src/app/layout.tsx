@@ -12,37 +12,29 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
 export const metadata = {
-    metadataBase: new URL('https://metehanerkan.vercel.app'),
+    metadataBase: new URL('https://www.metehandev.site'),
     title: {
         default: "Metehan Erkan | Software Engineer",
         template: "%s | Metehan Erkan"
     },
-    description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
-    keywords: ["Metehan Erkan", "Full Stack Developer", "Next.js", "React", "Web Tasarım", "Yazılım", "Metehan.dev", "Frontend", "Backend", "Fullstack", "Software Engineer", "Mobil yazılım geliştiricisi", "Ai developer", "Mobile", "Next.js", "React", "Web Tasarım", "Yazılım"],
+    description: "Modern web ve mobil uygulama geliştirme çözümleri sunan Yazılım Mühendisi.",
+    keywords: ["Metehan Erkan", "Software Engineer", "Full Stack Developer", "Mobile Developer", "Kotlin", "Android", "React Native", "Next.js", "React", "Web Development", "Yazılım Mühendisi", "Mobil Uygulama", "Jetpack Compose"],
     authors: [{ name: "Metehan Erkan" }],
     creator: "Metehan Erkan",
     openGraph: {
         type: 'website',
         locale: 'tr_TR',
-        url: 'https://metehanerkan.vercel.app',
+        url: 'https://www.metehandev.site',
         title: "Metehan Erkan | Software Engineer",
-        description: "Modern web teknolojileri ile ölçeklenebilir dijital çözümler.",
+        description: "Modern web ve mobil uygulama geliştirme çözümleri sunan Yazılım Mühendisi.",
         siteName: "Metehan Erkan Portfolio",
-        images: [
-            {
-                url: '/opengraph-image.png', // Fallback image if not provided by page
-                width: 1200,
-                height: 630,
-                alt: 'Metehan Erkan Portfolio',
-            },
-        ],
+
     },
     twitter: {
         card: 'summary_large_image',
         title: "Metehan Erkan | Software Engineer",
-        description: "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici.",
+        description: "Modern web ve mobil uygulama geliştirme çözümleri sunan Yazılım Mühendisi.",
         creator: '@metehanerkan', // Replace with actual handle if available
-        images: ['/opengraph-image.png'],
     },
     robots: {
         index: true,
@@ -88,7 +80,7 @@ export default function RootLayout({
                             {
                                 "@type": "Person",
                                 "name": "Metehan Erkan",
-                                "url": "https://metehanerkan.vercel.app",
+                                "url": "https://www.metehandev.site",
                                 "jobTitle": "Software Engineer",
                                 "sameAs": [
                                     "https://github.com/metehanerkan",
@@ -98,7 +90,7 @@ export default function RootLayout({
                             {
                                 "@type": "WebSite",
                                 "name": "Metehan Erkan Portfolio",
-                                "url": "https://metehanerkan.vercel.app",
+                                "url": "https://www.metehandev.site",
                                 "description": "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici."
                             }
                         ]

@@ -9,13 +9,13 @@ import { Locale } from "@/dictionaries";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
     const { lang } = await params;
-    const baseUrl = 'https://metehanerkan.vercel.app';
+    const baseUrl = 'https://www.metehandev.site';
 
     const settings = await db.siteSettings.findFirst();
     const siteTitle = settings?.siteTitle || "Metehan Erkan | Software Engineer";
     const siteDesc = settings?.siteDesc || (lang === 'tr'
-        ? "Modern web teknolojileri, Next.js ve React ile ölçeklenebilir uygulamalar geliştiren Full Stack Yazılım Geliştirici."
-        : "Full Stack Software Developer building scalable applications with modern web technologies, Next.js, and React.");
+        ? "Modern web ve mobil uygulama geliştirme çözümleri sunan Yazılım Mühendisi."
+        : "Software Engineer providing modern web and mobile application development solutions.");
 
     return {
         title: {

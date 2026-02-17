@@ -62,6 +62,29 @@ export default async function Image() {
                     >
                         Software Engineer
                     </div>
+                    <div
+                        style={{
+                            fontSize: 24,
+                            color: '#94a3b8',
+                            marginTop: 10,
+                            fontFamily: 'sans-serif',
+                        }}
+                    >
+                        Mobile & Web Developer
+                    </div>
+                    <div
+                        style={{
+                            fontSize: 18,
+                            color: '#a855f7',
+                            marginTop: 30,
+                            padding: '10px 20px',
+                            border: '1px solid rgba(168, 85, 247, 0.2)',
+                            borderRadius: '50px',
+                            background: 'rgba(168, 85, 247, 0.05)',
+                        }}
+                    >
+                        Mobile Application • Web Development • UI/UX Design
+                    </div>
                 </div>
             </div>
         ),

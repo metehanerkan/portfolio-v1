@@ -87,7 +87,7 @@ export async function sendNewsletter(formData: FormData) {
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;" />
                     <p style="font-size: 11px; color: #888;">
                         Bu maili bültenime abone olduğunuz için alıyorsunuz. 
-                        <a href="https://metehanerkan.vercel.app/unsubscribe?email=${sub.email}">Abonelikten çık</a>
+                        <a href="https://www.metehandev.site/unsubscribe?email=${sub.email}">Abonelikten çık</a>
                     </p>
                 </div>
             `

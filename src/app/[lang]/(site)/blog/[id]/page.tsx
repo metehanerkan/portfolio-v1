@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
     const post = await db.blogPost.findFirst({ where: { id } });
     if (!post) return { title: 'Blog Bulunamadı' };
 
-    const ogUrl = new URL('https://metehanerkan.vercel.app/api/og');
+    const ogUrl = new URL('https://www.metehandev.site/api/og');
     ogUrl.searchParams.set('title', post.title);
     ogUrl.searchParams.set('type', 'Blog');
 
@@ -68,7 +68,7 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
         author: {
             '@type': 'Person',
             name: 'Metehan Erkan',
-            url: 'https://metehanerkan.vercel.app'
+            url: 'https://www.metehandev.site'
         }
     };
 
@@ -80,19 +80,19 @@ export default async function BlogDetailPage(props: BlogDetailPageProps) {
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Ana Sayfa',
-                item: 'https://metehanerkan.vercel.app'
+                item: 'https://www.metehandev.site'
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: 'Blog',
-                item: 'https://metehanerkan.vercel.app/blog'
+                item: 'https://www.metehandev.site/blog'
             },
             {
                 '@type': 'ListItem',
                 position: 3,
                 name: post.title,
-                item: `https://metehanerkan.vercel.app/blog/${post.id}`
+                item: `https://www.metehandev.site/blog/${post.id}`
             }
         ]
     };

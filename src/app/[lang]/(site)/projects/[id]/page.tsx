@@ -87,19 +87,19 @@ export default async function ProjectDetailPage(props: ProjectDetailPageProps) {
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Ana Sayfa',
-                item: 'https://metehanerkan.vercel.app'
+                item: 'https://www.metehandev.site'
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: 'Projeler',
-                item: 'https://metehanerkan.vercel.app/projects'
+                item: 'https://www.metehandev.site/projects'
             },
             {
                 '@type': 'ListItem',
                 position: 3,
                 name: project.title,
-                item: `https://metehanerkan.vercel.app/projects/${project.id}`
+                item: `https://www.metehandev.site/projects/${project.id}`
             }
         ]
     };

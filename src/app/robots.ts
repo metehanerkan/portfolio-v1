@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/admin/', '/portal/'],
         },
-        sitemap: 'https://metehanerkan.vercel.app/sitemap.xml',
+        sitemap: 'https://www.metehandev.site/sitemap.xml',
     }
 }
